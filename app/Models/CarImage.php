@@ -21,4 +21,15 @@ class CarImage extends Model
     {
         return $this->belongsTo(Car::class);
     }
+
+    /**
+     * Public URL for a stored image. Seeded demo images live under public/assets,
+     * uploaded images live on the public disk.
+     */
+    public function url(): string
+    {
+        return str_starts_with($this->path, 'assets/')
+            ? asset($this->path)
+            : asset('storage/'.$this->path);
+    }
 }

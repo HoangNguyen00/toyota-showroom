@@ -6,18 +6,44 @@ Endpoint catalog/tư vấn/chat/lịch vẫn là đích; private channel còn de
 GET / tên home: preview trang chủ Camry trong local/testing; production giữ welcome.
 /#dich-vu và /#showroom là anchor giới thiệu, không phải endpoint dịch vụ/đặt lịch.
 
-Preview local/testing: GET /xe/{id} tên cars.preview.show cho ID fixture 1–9;
-ID không có trả 404. Không truy vấn DB; chưa thay hợp đồng Catalog production.
+Preview local/testing: GET /xe-preview/{id} tên cars.preview.show chỉ còn cho fixture
+ID 1–9 của giao diện minh họa; ID không có trả 404. Không truy vấn DB.
 
-Frontend local 16/10/2026: GET /xe tên cars.preview đã có trong local/testing,
-chỉ render fixtures minh họa, không phải endpoint Catalog production.
-Query q/category/price/status/sort do JS lọc fixture; chưa là API/backend filter.
+## Catalog đã triển khai (TV3)
+
+GET /xe tên cars.index: q (tên/mã/màu, ≤100), category (slug), status (enum),
+min_price/max_price (VND, max ≥ min), sort newest|price_asc|price_desc, page;
+12 xe/trang. GET /xe/{car} tên cars.show, dùng ID (không slug), 404 nếu xe hoặc
+dòng ẩn — kể cả admin đang đăng nhập. Chỉ xe và dòng cùng visible mới công khai
+(scope `publiclyVisible` cho TV4/TV5 dùng lại).
+
+Admin (web/auth/active/role:admin, Policy từng bản ghi):
+GET/POST /admin/car-categories (admin.car-categories.index/store),
+GET /admin/car-categories/create, GET/PUT/DELETE /admin/car-categories/{category}
+(…create/edit/update/destroy); brand luôn Toyota do server gán, slug sinh từ tên.
+GET /admin/cars (q/category/status/visible, 20/trang), GET /admin/cars/create,
+POST /admin/cars, GET /admin/cars/{car}/edit, PUT/DELETE /admin/cars/{car}.
+POST /admin/cars/{car}/images (multipart image + is_primary),
+DELETE /admin/cars/{car}/images/{image}. Ảnh: JPG/PNG/WEBP ≤4 MB, tối thiểu 320x180,
+tên file do server đặt; tối đa một ảnh chính.
+
+Giá nhập số nguyên VND (decimal(15,0), không float). Mã chiếc xe unique, regex
+chữ in hoa/số/gạch ngang; mỗi cars là một chiếc. Không đặt visible cho xe thuộc
+dòng đang ẩn. Xe có inquiry/appointment trả validation (không xóa) → ẩn thay thế.
+Trả view Blade + redirect/flash; chưa có JSON API cho catalog.
+
+Bản xem trước fixture cũ đổi URL: GET /collection-preview (cars.collection-preview)
+và GET /xe-preview/{id} (cars.preview.show), chỉ local/testing.
+
+Các đoạn "Preview local 16/10" bên dưới giữ để truy vết lịch sử, /xe không còn là fixture.
+
+Frontend local 16/10/2026 (lịch sử): /xe từng là fixture minh họa; từ 19/10 là catalog DB.
 Các route nghiệp vụ khác bên dưới vẫn chưa triển khai.
 
 **Các endpoint nghiệp vụ dưới đây là kế hoạch, chưa được đăng ký trong baseline.**
 Khi làm route thật, module owner cập nhật bảng và FEATURE_STATUS.
-Route chạy hiện tại xem php artisan route:list: home, auth/tài khoản, admin user,
-health và broadcast auth.
+Route chạy hiện tại xem php artisan route:list: home, catalog public /xe, auth/tài khoản,
+admin users, admin cars/car-categories, health và broadcast auth.
 
 | Nhóm | Route đích | Quyền |
 | --- | --- | --- |

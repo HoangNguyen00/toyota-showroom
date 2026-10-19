@@ -16,6 +16,8 @@
                     <a href="{{ route('account') }}" class="hover:underline">Tài khoản</a>
                     @can('viewAny', \App\Models\User::class)
                         <a href="{{ route('admin.users.index') }}" class="hover:underline">Quản lý tài khoản</a>
+                        <a href="{{ route('admin.cars.index') }}" class="hover:underline">Quản lý xe</a>
+                        <a href="{{ route('admin.car-categories.index') }}" class="hover:underline">Dòng xe</a>
                     @endcan
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -28,7 +30,7 @@
             </div>
         </nav>
     </header>
-    <main class="mx-auto w-full {{ request()->routeIs('admin.users.index') ? 'max-w-5xl' : 'max-w-lg' }} px-5 py-12">
+    <main class="mx-auto w-full {{ request()->routeIs('admin.users.*', 'admin.cars.*', 'admin.car-categories.*') ? 'max-w-6xl' : 'max-w-lg' }} px-5 py-12">
         @if (session('status'))
             <div role="status" class="mb-6 rounded-xl bg-green-50 p-4 text-sm text-green-800">{{ session('status') }}</div>
         @endif

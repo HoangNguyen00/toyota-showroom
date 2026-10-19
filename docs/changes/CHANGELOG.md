@@ -1,5 +1,27 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-10-19 TV3: CRUD xe, dòng xe, ảnh và catalog public (nhánh feature/car-crud-search)
+
+- Thêm: migration index `cars(category_id,is_visible)`, `cars(name)`, `car_images(car_id,is_primary)`;
+  factory Car/CarCategory; scope `Car::publiclyVisible`, `CarCategory::visible`; `CarImage::url()`.
+- Thêm: `Controllers/Catalog` (AdminCarController, AdminCarImageController, AdminCarCategoryController,
+  CarsController), `Requests/Catalog`, `Services/Catalog` (SaveCar, StoreCarImage),
+  `Policies/CarPolicy`, `Policies/CarCategoryPolicy`, `Support/Catalog/CarPresenter`.
+- Thêm view: `admin/cars/{index,create,edit,_form}`, `admin/car-categories/{index,form}`;
+  public `cars/index`, `cars/show` dùng DB; `components/car-card` nhận shape của CarPresenter.
+- Đổi route: `/xe` và `/xe/{car}` giờ là catalog DB (`cars.index`, `cars.show`); fixture UI
+  chuyển sang `/collection-preview` và `/xe-preview/{id}` (cars.collection-preview/cars.preview.show,
+  chỉ local/testing). `routes/catalog.php` require một lần từ web.php. Admin thêm
+  `admin.car-categories.*`, `admin.cars.*`.
+- Thêm `CatalogSeeder` (7 dòng, 15 chiếc, ảnh chính từ public/assets/products) và gọi trong
+  DatabaseSeeder; idempotent, không reset giá/visibility đã sửa.
+- Ảnh: JPG/PNG/WEBP ≤4 MB ≥320x180, tên file UUID do server đặt, một ảnh chính/xe.
+- Ảnh hưởng dữ liệu/quyền: migration chỉ thêm index, chạy `migrate` + `storage:link`;
+  catalog ghi chỉ admin (role + Policy), public chỉ đọc bản ghi visible.
+- Kiểm tra: `php artisan test` 47 pass/1 skip (SQLite);
+  `DB_CONNECTION=mysql DB_DATABASE=toyota_showroom_test php artisan test --filter=CatalogTest` 13/13 pass.
+- Chưa kiểm: trình duyệt/thiết bị thật, upload nhiều admin đồng thời, ảnh HEIC/LFS, JSON API riêng.
+
 ## 2026-10-19 Gộp năm nhánh vào main
 
 - Gộp theo thứ tự docs/review-v6-srs, feature/auth-middleware, feature/admin-users,

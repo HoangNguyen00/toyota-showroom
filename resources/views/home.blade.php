@@ -49,7 +49,7 @@
             <p class="eyebrow">DẤU ẤN THIẾT KẾ</p>
             <h2>Ấn tượng từ<br>ánh nhìn đầu tiên.</h2>
             <p>Những đường nét, những góc nhìn. Khám phá chiếc Toyota mang dấu ấn của riêng bạn.</p>
-            <a class="home-detail-link" href="{{ route('cars.preview') }}">Khám phá các dòng xe <span aria-hidden="true">↗</span></a>
+            <a class="home-detail-link" href="{{ route('cars.index') }}">Khám phá các dòng xe <span aria-hidden="true">↗</span></a>
         </div>
     </article>
     <article class="home-detail home-detail--reverse" data-home-reveal>
@@ -66,6 +66,6 @@
         </div>
     </article>
 </section>
-<section class="home-services" id="dich-vu" aria-labelledby="services-title"><div><p class="eyebrow">ĐỒNG HÀNH CÙNG BẠN</p><h2 id="services-title">An tâm.<br>Trên mọi hành trình.</h2><p>Từ lựa chọn xe đến chăm sóc sau bán hàng.</p></div><div class="home-service-links"><button type="button" data-preview="Bảo dưỡng định kỳ"><span>01</span>Bảo dưỡng định kỳ <i aria-hidden="true">→</i></button><button type="button" data-preview="Chính sách bảo hành"><span>02</span>Chính sách bảo hành <i aria-hidden="true">→</i></button><button type="button" data-preview="Tư vấn tại showroom"><span>03</span>Tư vấn tại showroom <i aria-hidden="true">→</i></button><a class="button button-dark" href="{{ route('cars.preview') }}">Khám phá các dòng xe</a></div></section>
+<section class="home-services" id="dich-vu" aria-labelledby="services-title"><div><p class="eyebrow">ĐỒNG HÀNH CÙNG BẠN</p><h2 id="services-title">An tâm.<br>Trên mọi hành trình.</h2><p>Từ lựa chọn xe đến chăm sóc sau bán hàng.</p></div><div class="home-service-links"><button type="button" data-preview="Bảo dưỡng định kỳ"><span>01</span>Bảo dưỡng định kỳ <i aria-hidden="true">→</i></button><button type="button" data-preview="Chính sách bảo hành"><span>02</span>Chính sách bảo hành <i aria-hidden="true">→</i></button><button type="button" data-preview="Tư vấn tại showroom"><span>03</span>Tư vấn tại showroom <i aria-hidden="true">→</i></button><a class="button button-dark" href="{{ route('cars.index') }}">Khám phá các dòng xe</a></div></section>
 <section class="home-showroom" id="showroom" aria-labelledby="showroom-title"><div><p class="eyebrow">HẸN GẶP TẠI SHOWROOM</p><h2 id="showroom-title">Cảm nhận bằng<br>chính trải nghiệm của bạn.</h2></div><button type="button" class="button button-dark" data-preview="Đặt lịch đến showroom">Đặt lịch xem xe</button></section>
 @endsection

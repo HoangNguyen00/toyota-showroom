@@ -16,6 +16,6 @@ class HomePreviewTest extends TestCase
             ->assertSee('data-home-reveal', false)
             ->assertSee('id="dich-vu"', false)
             ->assertSee('id="showroom"', false)
-            ->assertSee(route('cars.preview.show', 1));
+            ->assertSee(route('cars.index'));
     }
 }

@@ -1,8 +1,8 @@
 # H03 — Hợp đồng phân quyền theo bản ghi
 
 17/10/2026, đề xuất cho owner review theo SRS 1.4/CONTRACTS.
-Không thêm endpoint/Policy giả hoàn thành. Mới có UserPolicy H02; InquiryPolicy,
-AppointmentPolicy, Catalog policies và kiểm kênh chat vẫn chờ module owner.
+Không thêm endpoint/Policy giả hoàn thành. Đã có UserPolicy H02 và Car/CarCategoryPolicy (TV3,
+chờ review). InquiryPolicy, AppointmentPolicy, kiểm kênh chat vẫn chờ module owner.
 
 ## 1. Ba lớp cần kiểm
 
@@ -27,6 +27,9 @@ ID, mã yêu cầu và số điện thoại không cấp quyền. CSRF bắt bu�
 | Hủy lịch khách | Không | Own pending/confirmed trước giờ | Theo staff action, lịch được giao và chưa final | Theo admin action, chưa final |
 | Confirm/complete/no_show | Không | Không | Assigned, đúng chuyển trạng thái và giờ | Đúng trạng thái/giờ, có sales active khi confirm |
 | CRUD dòng/xe/ảnh/dịch vụ | Không | Không | Không | Có, FK/history/ảnh/public constraints vẫn áp dụng |
+
+Catalog đã triển khai (TV3) theo đúng dòng CRUD này: route admin.* + CarPolicy/
+CarCategoryPolicy từng bản ghi, brand Toyota và visibility do server kiểm. Xem TV3_TASKS.
 | List/create sales/khóa user | Không | Không | Không | UserPolicy H02; không tạo/khóa admin hoặc xóa user |
 
 “Mọi inquiry/lịch” chỉ trong màn quản trị được bảo vệ, không cho response public
@@ -72,7 +75,7 @@ Lịch final không sửa, no_show/completed sau giờ; confirm kiểm slot/xe/s
 
 | ID | Ca cần thử | Owner | Hiện trạng |
 | --- | --- | --- | --- |
-| H03-CAT | Đoán URL/POST ID xe hoặc dòng ẩn; xóa xe đã tham chiếu | TV3 | Chưa nghiệm thu |
+| H03-CAT | Đoán URL/POST ID xe hoặc dòng ẩn; xóa xe đã tham chiếu | TV3 | Có test: xe/dòng ẩn 404 (cả admin), xóa xe có inquiry trả validation, xóa dòng còn xe bị Policy+FK chặn; chờ review |
 | H03-INQ | Customer A list/detail hồ sơ B; sales A đọc/sửa hồ sơ của B | TV4 | Chưa có endpoint |
 | H03-CHAT | Customer/sales/admin dùng shared chat route; guest inquiry không chat | TV4 | Chưa có endpoint |
 | H03-REVOKE | Hai session + job chờ khi khóa user/chuyển sales; kênh cũ không nhận tin mới | Hoàng + TV4 | HTTP/version H01/H02 có test; socket chưa có |
