@@ -1,5 +1,18 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-10-20 Sửa lỗi mở form thêm xe và cho chọn ảnh ngay khi thêm xe
+
+- Sửa: `AdminCarController@create` trước đó không truyền biến `$car` cho form dùng chung
+  `admin/cars/_form.blade.php`, gây lỗi "Undefined variable $car" khi mở /admin/cars/create.
+  Giờ truyền `new Car` (form vẫn phân biệt thêm/sửa bằng `$car->exists`).
+- Thêm: chọn ảnh ngay khi thêm xe — ô `images[]` nhiều file trong `_form` (chỉ ở chế độ tạo,
+  enctype multipart), validate `images`/`images.*` trong `CarRequest` (tối đa 8 ảnh, JPG/PNG/WEBP,
+  ≤4 MB, ≥320x180), `store()` lưu từng ảnh qua `StoreCarImage::handle` sau khi tạo xe.
+- Ảnh hưởng dữ liệu/quyền: không đổi schema/route; ảnh vẫn tên UUID do server đặt, quyền upload
+  vẫn qua Policy trong service/kênh hiện có; form sửa xe không đổi.
+- Kiểm tra: CatalogTest 12 pass/1 skip; không chạy thử upload nhiều ảnh qua trình duyệt thật,
+  chưa kiểm MySQL riêng cho các rule mới (validate ảnh phụ thuộc extension).
+
 ## 2026-10-19 TV3: CRUD xe, dòng xe, ảnh và catalog public (nhánh feature/car-crud-search)
 
 - Thêm: migration index `cars(category_id,is_visible)`, `cars(name)`, `car_images(car_id,is_primary)`;

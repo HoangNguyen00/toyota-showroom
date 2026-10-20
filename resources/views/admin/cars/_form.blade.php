@@ -1,5 +1,5 @@
 @php($editing = $car->exists)
-<form method="POST" action="{{ $editing ? route('admin.cars.update', $car) : route('admin.cars.store') }}" class="space-y-5">
+<form method="POST" action="{{ $editing ? route('admin.cars.update', $car) : route('admin.cars.store') }}" enctype="multipart/form-data" class="space-y-5">
     @csrf
     @if ($editing) @method('PUT') @endif
     <div class="grid gap-5 sm:grid-cols-2">
@@ -57,8 +57,7 @@
         @error('is_visible') <p role="alert" class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
     </fieldset>
     <fieldset class="rounded-xl border border-zinc-200 p-4">
-        <legend class="px-2 text-sm font-medium">Thông số (không bắt buộc)</legend>
-        @php($specRows = old('specs', $car->specs ?? []))
+        <legend class="px-2 text-sm font-medium">Thông số (không bắt buộc)</legend>        @php($specRows = old('specs', $car->specs ?? []))
         @for ($i = 0; $i < 6; $i++)
             <div class="mb-2 grid gap-2 sm:grid-cols-[1fr_1fr]">
                 <input name="specs[{{ $i }}][label]" value="{{ $specRows[$i]['label'] ?? '' }}" maxlength="100" placeholder="Tên thông số" aria-label="Tên thông số {{ $i + 1 }}" class="rounded-lg border border-zinc-300 p-2">
@@ -68,6 +67,15 @@
         @error('specs.*.label') <p role="alert" class="text-sm text-red-700">{{ $message }}</p> @enderror
         @error('specs.*.value') <p role="alert" class="text-sm text-red-700">{{ $message }}</p> @enderror
     </fieldset>
+    @if (! $editing)
+        <fieldset class="rounded-xl border border-zinc-200 p-4">
+            <legend class="px-2 text-sm font-medium">Ảnh xe (không bắt buộc)</legend>
+            <p class="mb-2 text-sm text-zinc-600">Có thể chọn nhiều ảnh cùng lúc. JPG, PNG hoặc WEBP, mỗi ảnh tối đa 4 MB, lớn hơn 320x180 điểm ảnh.</p>
+            <input type="file" name="images[]" multiple accept="image/jpeg,image/png,image/webp" class="text-sm">
+            @error('images') <p role="alert" class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
+            @error('images.*') <p role="alert" class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
+        </fieldset>
+    @endif
     <div class="flex flex-wrap gap-3">
         <button type="submit" class="rounded-lg bg-red-700 px-5 py-3 font-medium text-white">{{ $editing ? 'Lưu thay đổi' : 'Thêm xe' }}</button>
         <a href="{{ route('admin.cars.index') }}" class="rounded-lg border border-zinc-300 px-5 py-3">Quay lại danh sách</a>

@@ -48,6 +48,8 @@ class CarRequest extends FormRequest
             'specs.*.label' => ['required', 'string', 'max:100'],
             'specs.*.value' => ['required', 'string', 'max:150'],
             'is_visible' => ['boolean'],
+            'images' => ['nullable', 'array', 'max:8'],
+            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:min_width=320,min_height=180'],
         ];
     }
 
@@ -58,6 +60,11 @@ class CarRequest extends FormRequest
             'code.regex' => 'Mã xe chỉ gồm chữ in hoa, số và dấu gạch ngang.',
             'code.unique' => 'Mã xe đã được dùng cho một chiếc khác.',
             'price.integer' => 'Giá là số nguyên VND, không dùng dấu chấm hay số lẻ.',
+            'images.max' => 'Tối đa 8 ảnh cho một xe.',
+            'images.*.image' => 'Tệp tải lên phải là ảnh.',
+            'images.*.mimes' => 'Chỉ nhận ảnh JPG, PNG hoặc WEBP.',
+            'images.*.max' => 'Mỗi ảnh tối đa 4 MB.',
+            'images.*.dimensions' => 'Ảnh phải lớn hơn 320x180 điểm ảnh.',
         ];
     }
 

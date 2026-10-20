@@ -8,6 +8,7 @@ use App\Http\Requests\Catalog\CarRequest;
 use App\Models\Car;
 use App\Models\CarCategory;
 use App\Services\Catalog\SaveCar;
+use App\Services\Catalog\StoreCarImage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -69,20 +70,27 @@ class AdminCarController extends Controller
         Gate::authorize('create', Car::class);
 
         return view('admin.cars.create', [
+            'car' => new Car,
             'categories' => CarCategory::query()->orderBy('name')->get(['id', 'name', 'is_visible']),
             'statuses' => CarStatus::cases(),
             'statusLabels' => self::STATUS_LABELS,
         ]);
     }
 
-    public function store(CarRequest $request, SaveCar $service): RedirectResponse
+    public function store(CarRequest $request, SaveCar $service, StoreCarImage $imageService): RedirectResponse
     {
         $car = $service->create($request->safe()->only([
             'category_id', 'code', 'name', 'year', 'color', 'price', 'status', 'specs', 'is_visible',
         ]));
 
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageService->handle($car, $image, false);
+            }
+        }
+
         return redirect()->route('admin.cars.edit', $car)
-            ->with('status', 'Đã thêm xe. Có thể tải ảnh cho xe này.');
+            ->with('status', 'Đã thêm xe'.($request->hasFile('images') ? ' và tải ảnh lên' : '').'. Có thể tải thêm ảnh cho xe này.');
     }
 
     public function edit(Car $car): View
