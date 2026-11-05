@@ -1,3 +1,43 @@
+// Local footage is optional; the image remains visible until playback succeeds.
+const authVideo = document.querySelector('[data-auth-video]');
+if (authVideo) {
+    const toggle = document.querySelector('[data-auth-video-toggle]');
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let requested = !motion.matches;
+    let visible = true;
+    let failed = false;
+    authVideo.muted = true;
+    const label = () => {
+        const playing = !authVideo.paused;
+        toggle.textContent = playing ? 'Tạm dừng video' : 'Phát video';
+        toggle.setAttribute('aria-label', playing ? 'Tạm dừng video xe chạy' : 'Phát video xe chạy');
+    };
+    const sync = () => {
+        if (failed) return;
+        if (requested && visible && !document.hidden) {
+            authVideo.play().catch(() => { label(); });
+        } else {
+            authVideo.pause();
+        }
+    };
+    toggle.hidden = false;
+    toggle.addEventListener('click', () => { requested = authVideo.paused; sync(); });
+    authVideo.addEventListener('playing', () => { authVideo.classList.add('is-ready'); label(); });
+    authVideo.addEventListener('pause', label);
+    const fallback = () => { failed = true; authVideo.pause(); authVideo.classList.remove('is-ready'); toggle.hidden = true; };
+    authVideo.addEventListener('error', fallback);
+    authVideo.querySelector('source').addEventListener('error', fallback);
+    motion.addEventListener('change', () => { requested = !motion.matches; sync(); });
+    document.addEventListener('visibilitychange', sync);
+    window.addEventListener('pagehide', () => authVideo.pause());
+    window.addEventListener('pageshow', sync);
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }).observe(authVideo);
+    }
+    label();
+    sync();
+}
+
 document.querySelectorAll('[data-auth-form]').forEach((form) => {
     form.querySelectorAll('input[type="password"]').forEach((input) => {
         const wrapper = document.createElement('div');

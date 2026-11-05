@@ -1,5 +1,11 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-05 Video Camry cho đăng nhập / đăng ký
+
+- Layout Auth hỗ trợ clip Camry thật 9 giây, tự phát im lặng/lặp với nút tạm dừng; tôn trọng giảm chuyển động và dừng khi tab/khung không hiển thị.
+- Giữ ảnh dự phòng khi thiếu file hoặc phát lỗi. Clip Toyota lưu local tại public storage, không phân phối qua Git; nguồn/đường dẫn/giới hạn sử dụng ở AUTH_VIDEO.md.
+- Chỉ thay trình bày Auth, không thay dữ liệu hoặc nghiệp vụ tài khoản. Build/composer check đạt (86 tests / 700 assertions); browser phát 1080p/9s, lặp/pause đạt, đăng ký dùng cùng media. Browser đang giảm chuyển động nên khởi đầu bằng ảnh; chưa kiểm preference false/điện thoại thật.
+
 ## 2026-11-05 Sửa chữ trang chủ chồng lên mô tả
 
 - Thu gọn và đặt chữ TOYOTA trong vùng phía trên xe, chừa cột mô tả bên phải; mobile dùng cỡ chữ riêng, giữ chữ bạc sắc nét.
