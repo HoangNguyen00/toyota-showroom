@@ -1,5 +1,11 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-05 Sửa chữ trang chủ chồng lên mô tả
+
+- Thu gọn và đặt chữ TOYOTA trong vùng phía trên xe, chừa cột mô tả bên phải; mobile dùng cỡ chữ riêng, giữ chữ bạc sắc nét.
+- Không đổi thời gian clip tách xe hoặc nghiệp vụ. Ảnh đăng nhập giữ nguyên trong khi chọn nguồn clip xe chạy phù hợp.
+- Kiểm tra: Vite build và composer check đạt (86 tests / 700 assertions, Pint/inventory/syntax/encoding). Browser desktop 1280px ở đoạn tách xe: hai vùng chữ không giao nhau, cách nhau hơn 63px; chưa kiểm lại điện thoại thật.
+
 ## 2026-10-28 Nhánh tích hợp chat khách hàng với TV4
 
 - Ghép backend TV4 trên nhánh riêng; giữ lịch TV5 và account FE.
