@@ -5,6 +5,8 @@
 - Sửa hướng dẫn setup Windows, kiểm tra PHP/Node trong Laragon Terminal, bật
   ZIP, cấu hình MySQL local và seed tài khoản demo.
 - Ghi riêng kết quả SQLite trên main và MySQL/Reverb trên PR #12 theo SHA.
+- Bổ sung bằng chứng và kịch bản demo Auth vào checklist nghiệm thu; giữ H02
+  và H03-APT ở trạng thái chờ bản cập nhật.
 - Phạm vi tài liệu, không thay đổi schema, dữ liệu hoặc quyền. Chưa kiểm lại
   MySQL/Reverb trên SHA sau khi PR #12 đồng bộ với main.
 ## 2026-10-20 Lịch hẹn và dịch vụ (TV5 - feature/appointment-schedule)

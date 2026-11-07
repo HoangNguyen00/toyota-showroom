@@ -1,6 +1,6 @@
 # Kế hoạch nghiệm thu P1 — SRS 1.4
 
-Chưa phải kết quả đã chạy. Mỗi mục ghi người kiểm, ngày, kết quả và PR/bằng chứng.
+Bảng mô tả tiêu chí P1. Kết quả đã chạy ghi riêng bên dưới theo người kiểm, ngày và SHA.
 Các tính năng P2 không nằm trong điều kiện đạt P1.
 
 | ID | Kiểm tra | Kết quả cần đạt |
@@ -31,3 +31,26 @@ APT-03 phải dùng hai giao dịch/kết nối MySQL thật, không kết luậ
 hoặc hai lần request tuần tự. CHAT cần hai session độc lập và thử ngắt/nối mạng.
 Seed đủ >12 xe để thấy phân trang và đủ các trạng thái demo.
 Chỉ mở P2 sau khi nhóm ghi kết quả đạt toàn bộ bảng và xử lý lỗi P1.
+
+## Bằng chứng của Hoàng — 2026-11-07
+
+| Mục | SHA và môi trường | Kết quả và phần còn mở |
+| --- | --- | --- |
+| AUTH-01, AUTH-02 và quản trị | `ed06179`, PHP 8.3.36, SQLite `:memory:` | `composer check` đạt 56 test và 456 assertions. Test Auth kiểm tra đăng ký, đăng nhập, logout, limiter và tài khoản bị khóa. Test quản trị kiểm quyền admin và tăng phiên bản quyền khi khóa. |
+| SET-01, kiểm tra máy mới | `10f207b`, Windows/Laragon, MySQL 8.4.3 | Cài từ lockfile, build, migrate và seed thành công. Đăng nhập admin, mở `/admin/users` và thấy đủ sáu tài khoản demo. Xem [SETUP](../development/SETUP.md). |
+| CHAT-01 đến CHAT-03 và H02 | `1438af2`, [PR #12](https://github.com/grumhu124/toyota-showroom/pull/12), MySQL test riêng, Reverb và queue worker | Hai harness MySQL và realtime exit 0. Hai phiên nhận tin; retry, reconnect và thu hồi quyền đạt, kể cả job chờ. **Còn mở** nghiệm thu lại H02 sau khi PR đồng bộ với main. |
+| H03-APT | `ed06179`, rà mã | **Còn mở.** Chờ PR TV5 rồi thử sales A đổi hoặc bỏ phân công lịch pending của sales B. Cả hai yêu cầu phải bị từ chối, người phụ trách giữ nguyên và admin vẫn phân công được. [Bàn giao TV5](https://github.com/grumhu124/toyota-showroom/pull/13#issuecomment-6707243670). |
+
+## Kịch bản demo Auth và quản trị
+
+1. Trên database demo local, đăng nhập `admin@example.test` và mở `/admin/users`.
+2. Tạo một sales với email demo riêng cho mỗi lần tập. Kiểm tra danh sách hiển
+   thị tài khoản hoạt động và phiên admin vẫn giữ nguyên.
+3. Mở cửa sổ riêng tư, đăng nhập tài khoản sales vừa tạo. Quay lại phiên admin
+   và khóa tài khoản đó.
+4. Tải lại trang cần đăng nhập trong cửa sổ sales, rồi thử đăng nhập lại.
+   Kết quả mong đợi là phiên cũ bị chặn ở request tiếp theo và đăng nhập lại
+   thất bại. Mở khóa từ phiên admin sau khi tập nếu cần dùng lại tài khoản.
+
+Kịch bản trên dùng để tập demo. Bằng chứng trên máy mới hiện ghi nhận đăng
+nhập admin và mở danh sách, còn tạo sales và khóa phiên đã có test tự động.
