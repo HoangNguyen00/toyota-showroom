@@ -1,4 +1,12 @@
 # Nhật ký thay đổi hệ thống
+
+## 2026-11-07 H05 hướng dẫn cài đặt Laragon
+
+- Sửa hướng dẫn setup Windows, kiểm tra PHP/Node trong Laragon Terminal, bật
+  ZIP, cấu hình MySQL local và seed tài khoản demo.
+- Ghi riêng kết quả SQLite trên main và MySQL/Reverb trên PR #12 theo SHA.
+- Phạm vi tài liệu, không thay đổi schema, dữ liệu hoặc quyền. Chưa kiểm lại
+  MySQL/Reverb trên SHA sau khi PR #12 đồng bộ với main.
 ## 2026-10-20 Lịch hẹn và dịch vụ (TV5 - feature/appointment-schedule)
 - Thêm: routes/appointments.php, AppointmentController, StoreAppointmentRequest/
   UpdateStatusRequest, AppointmentService, AppointmentPolicy/ServicePolicy,
