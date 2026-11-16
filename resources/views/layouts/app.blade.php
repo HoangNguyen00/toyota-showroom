@@ -18,6 +18,13 @@
             <a href="{{ url('/').'#dich-vu' }}">Dịch vụ</a>
             <a href="{{ url('/').'#showroom' }}">Showroom</a>
             <a href="#lien-he">Liên hệ</a>
+            @auth
+                @if (auth()->user()->role === \App\Enums\UserRole::Customer)
+                    <a href="{{ route('customer.appointments.index') }}" @if(request()->is('lich-hen')) aria-current="page" @endif>Lịch hẹn của tôi</a>
+                @else
+                    <a href="{{ route('staff.appointments.index') }}" @if(request()->is('staff/appointments')) aria-current="page" @endif>Lịch hẹn</a>
+                @endif
+            @endauth
         </nav>
         <div class="header-account">
             @auth

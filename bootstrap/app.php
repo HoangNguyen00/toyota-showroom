@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware(['web', 'auth', 'ensure.active', 'role:customer'])
                 ->name('customer.')
                 ->group(base_path('routes/customer.php'));
+            // Public booking routes: guest + customer, name prefix appointments.*
+            Route::middleware(['web'])
+                ->name('appointments.')
+                ->group(base_path('routes/appointments.php'));
             Route::middleware(['web', 'auth', 'ensure.active', 'role:sales,admin'])
                 ->prefix('staff')->name('staff.')
                 ->group(base_path('routes/staff.php'));

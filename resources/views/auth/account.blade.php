@@ -13,7 +13,26 @@
                 default => 'Khách hàng',
             } }}</dd></div>
         </dl>
-        <p class="mt-6 rounded-lg bg-zinc-50 p-4 text-sm text-zinc-600">Tài khoản đã sẵn sàng. Các mục tư vấn và lịch hẹn đang được hoàn thiện.</p>
+
+        @if (auth()->user()->role === \App\Enums\UserRole::Customer)
+            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                <a href="{{ route('appointments.create') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-red-700 transition hover:border-red-200 hover:bg-red-50">+ Đặt lịch hẹn mới</a>
+                <a href="{{ route('customer.appointments.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Lịch hẹn của tôi →</a>
+            </div>
+        @elseif (auth()->user()->role === \App\Enums\UserRole::Sales)
+            <div class="mt-6">
+                <a href="{{ route('staff.appointments.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Quản lý lịch hẹn →</a>
+            </div>
+        @else
+            <div class="mt-6 grid gap-3 sm:grid-cols-3">
+                <a href="{{ route('staff.appointments.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Quản lý lịch hẹn →</a>
+                <a href="{{ route('admin.services.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Quản lý dịch vụ →</a>
+                @can('viewAny', \App\Models\User::class)
+                    <a href="{{ route('admin.users.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Quản lý tài khoản →</a>
+                @endcan
+            </div>
+        @endif
+
         <a href="{{ url('/') }}" class="mt-6 inline-block text-sm font-medium text-red-700 underline">Về trang chủ</a>
     </div>
 @endsection
