@@ -1,5 +1,12 @@
 # Trạng thái thực tế
 
+## Đồng bộ repository mới — 16/11/2026
+
+PR #1 tại `HoangNguyen00/toyota-showroom` tái tạo backend TV4. Nhánh sửa xung đột
+ghép main `ed06179`, giữ endpoint tư vấn/chat và toàn bộ lịch hẹn TV5. Chưa gộp main;
+review H02/PublicationGate và kiểm thử mới được ghi ở PR. UI khách của Đạt nằm trên
+nhánh tích hợp riêng, không đưa vào backend TV4. Các kết quả bên dưới là lịch sử.
+
 ## Bàn giao TV4 sau push — 24/10/2026
 
 Mã TV4 đã commit và push tại `a7bf4059764fc506f1ee3e1aa10a8ea2b61199d6` lên
@@ -34,15 +41,17 @@ Public form backend sẵn sàng, form/CTA khách chung chờ Frontend nối. Ch�
 trực quan responsive; chưa coi toàn bộ P1 hoặc UI khách hoàn tất.
 Các ghi chú main ngày 19/10 bên dưới là lịch sử baseline trước thay đổi TV4 này.
 
-Ngày 19/10/2026. Đã gộp vào main: docs/review-v6-srs, H01 (feature/auth-middleware),
-H02 (feature/admin-users), frontend home/catalog preview (feature/frontend-layout) và
-tích hợp auth vào giao diện frontend (feature/frontend-auth-integration). H03 mới có
-hợp đồng quyền/gói review. Chưa có nghiệp vụ tư vấn/lịch/chat hoàn chỉnh.
+Ngày 20/10/2026. Đã gộp vào main: docs/review-v6-srs, H01 (feature/auth-middleware),
+H02 (feature/admin-users), frontend home/catalog preview (feature/frontend-layout),
+tích hợp auth vào giao diện frontend (feature/frontend-auth-integration) và nhánh
+feature/appointment-schedule (TV5: đặt lịch, phân công, xác nhận, hủy, hoàn tất).
+H03 mới có hợp đồng quyền/gói review. Chưa có nghiệp vụ tư vấn/chat hoàn chỉnh.
 
 Trang chủ tối, video/canvas, hai ảnh chi tiết, /xe slider/card/lọc và /xe/{id} ID 1–9
 vẫn dùng fixture local/testing (chỉ chạy ở local/testing). Header đã nối Auth thật,
 form đăng nhập/đăng ký dùng ảnh xe chạy và nền tối; backend H01/H02 giữ nguyên.
-Tư vấn/đặt lịch/chat chưa nối backend.
+Nhánh TV4 có backend tư vấn/chat và lịch hẹn; form tư vấn và UI khách chung chờ
+nhánh tích hợp frontend. Main chưa có backend TV4.
 
 | Module | Đã có | P1 còn làm | Chủ trách nhiệm |
 | --- | --- | --- | --- |
@@ -52,7 +61,7 @@ Tư vấn/đặt lịch/chat chưa nối backend.
 | Catalog | Schema/model/thư mục | CRUD/ảnh/search/filter/pagination/UI | Võ Nguyễn Thành Đạt (TV3) + Đạt |
 | Tư vấn | Nhánh TV4: tiếp nhận AJAX, scoped list/detail, phân công/trạng thái/internal_note/quyền; Blade staff | Review nhóm, nối form/UI khách | Nguyễn Huy Hoàng (TV4) + Đạt |
 | Chat | Nhánh TV4: HTTP/UUID/history, private channel/event/Queue, thu hồi version; test hai phiên Reverb thật | Nối UI khách PR #11, review UI/responsive | Nguyễn Huy Hoàng (TV4) + Đạt |
-| Lịch/dịch vụ | Schema/model/enum | Form, phân công, xác nhận khóa/trùng giờ, hủy/hoàn tất/no_show | Phan Võ Chí Bảo (TV5) |
+| Lịch/dịch vụ | Form + rights; CRUD dịch vụ admin; xác nhận khóa/trùng giờ; hủy/hoàn tất/no_show; tests pass | Kiểm trực quan trình duyệt và MySQL thật | Phan Võ Chí Bảo (TV5) |
 | Audit | Bảng/model/namespace | Không buộc làm module riêng P1; giữ nền | Hoàng |
 | Bàn giao | Kiểm tra nền từng pass local và CI | Test nghiệp vụ, responsive, báo cáo, demo cả 5 người | Cả nhóm |
 

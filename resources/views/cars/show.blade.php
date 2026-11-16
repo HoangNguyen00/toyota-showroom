@@ -23,7 +23,7 @@
             <div class="vehicle-price"><span>Giá công bố tham khảo</span><p>{{ number_format($car['price'], 0, ',', '.') }} <small>₫</small></p><small>Giá minh họa cho giao diện, chưa phải giá lăn bánh.</small></div>
             <dl class="vehicle-facts"><div><dt>Mã chiếc xe</dt><dd>{{ $car['code'] }}</dd></div><div><dt>Màu ngoại thất</dt><dd>{{ $car['color'] }} <span class="color-swatch {{ $car['color'] === 'Xám' ? 'swatch-gray' : '' }}" aria-hidden="true"></span></dd></div><div><dt>Năm sản xuất</dt><dd>{{ $car['year'] }} <small>(minh họa)</small></dd></div></dl>
             @if ($car['status'] === 'available')
-                <div class="detail-actions"><button class="button button-red" type="button" data-preview="Tư vấn {{ $car['name'] }}">Yêu cầu tư vấn</button><button class="button" type="button" data-preview="Đặt lịch xem {{ $car['name'] }}">Đặt lịch xem xe</button></div>
+                <div class="detail-actions"><a class="button button-red" href="{{ route('appointments.create', ['car' => $car['id'] ?? null]) }}">Đặt lịch xem xe</a><a class="button" href="{{ route('cars.preview.show', $car['id']) }}">Khám phá thêm</a></div>
                 <p class="availability-note">Gửi yêu cầu đặt lịch không đồng nghĩa xe đã được giữ chỗ.</p>
             @elseif ($car['status'] === 'reserved')
                 <div class="detail-actions"><button class="button button-red" type="button" data-preview="Tư vấn {{ $car['name'] }}">Yêu cầu tư vấn</button><button class="button" type="button" disabled>Chưa nhận lịch xem</button></div>

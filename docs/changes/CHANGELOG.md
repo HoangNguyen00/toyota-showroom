@@ -1,5 +1,18 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-16 TV4 — xử lý xung đột PR #1 trên repository mới
+
+- Ghép main `ed06179` vào backend TV4 `1438af2`, giữ cả route/import chat và lịch hẹn;
+  giữ toàn bộ lịch sử hai module và tạo lại inventory thay vì chọn một phía.
+- Không đổi schema, dữ liệu demo, quyền hoặc nội dung giao diện khách. UI khách được
+  giữ trên nhánh tích hợp riêng của Đạt; PR #1 vẫn dành cho backend TV4.
+- Kiểm tra: composer check đạt 78 tests / 635 assertions trên SQLite, Pint/syntax/inventory;
+  npm run build và 4 test JavaScript đạt. MySQL 8.4.3: UUID cạnh tranh, send/reassign,
+  crash trước/sau commit, gate khi reassign/khóa sales/khóa customer, session loss và
+  xe/dòng ẩn đã đạt trên DB thử riêng. Hai phiên Reverb thật nhận tin trong 1303 ms;
+  retry/reconnect/CSRF/throttle và stale socket/job sau thu hồi quyền đều đạt.
+  Chưa kiểm responsive/thiết bị thật, tải lớn hoặc failover; giữ giới hạn ADR 0006.
+
 ## 2026-10-24 TV4 — đồng bộ tài liệu sau commit/push
 
 - Sửa trạng thái bàn giao theo commit chức năng `a7bf4059764fc506f1ee3e1aa10a8ea2b61199d6`
@@ -68,6 +81,19 @@
 - Chưa nối public form/UI customer PR #11, chưa review trực quan responsive;
   không nhận hoàn thành các module khác. Hợp đồng ở docs/development/TV4_INTEGRATION.md.
 
+## 2026-10-20 Lịch hẹn và dịch vụ (TV5 - feature/appointment-schedule)
+- Thêm: routes/appointments.php, AppointmentController, StoreAppointmentRequest/
+  UpdateStatusRequest, AppointmentService, AppointmentPolicy/ServicePolicy,
+  views appointments (create/index/manage), admin/services, customer/staff
+  appointments, tests Feature/Appointment (AppointmentTest, ServiceCrudTest).
+- Sửa: routes/admin.php, routes/staff.php, routes/customer.php, bootstrap/app.php
+  đăng ký nhóm route appointments; enum AppointmentStatus/AppointmentType/ServiceType
+  bổ sung giá trị no_show và loại bảo dưỡng.
+- Quyền: guest/customer đặt lịch viewing/maintenance; customer chỉ xem/hủy lịch của
+  mình trước giờ; sales/staff xem scoped; admin xác nhận (khóa slot + kiểm tra trùng giờ
+  trong transaction), hủy với lý do, kết thúc sau giờ xác nhận, đánh dấu no_show.
+- Kiểm tra: php artisan test 50 test/418 assertions pass; pint pass;
+  architecture-inventory --check pass. Chưa kiểm tra trực quan trình duyệt và MySQL thật.
 ## 2026-10-19 Gộp năm nhánh vào main
 
 - Gộp theo thứ tự docs/review-v6-srs, feature/auth-middleware, feature/admin-users,

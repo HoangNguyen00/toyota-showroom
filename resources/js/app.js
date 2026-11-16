@@ -7,3 +7,4 @@ export { createEcho } from './echo';
 
 import './modules/auth';
 import './modules/chat/inquiry-chat';
+import './modules/appointments';

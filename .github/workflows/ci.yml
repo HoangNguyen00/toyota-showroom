@@ -2,7 +2,7 @@ name: Foundation checks
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'feature/**', 'docs/**']
   pull_request:
 
 permissions:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   php:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         database: [sqlite, mysql]
@@ -28,7 +28,7 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
@@ -54,9 +54,9 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

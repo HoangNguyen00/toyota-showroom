@@ -14,6 +14,9 @@
             <div class="flex flex-wrap items-center gap-4 text-sm">
                 @auth
                     <a href="{{ route('account') }}" class="hover:underline">Tài khoản</a>
+                    @if (auth()->user()->role === \App\Enums\UserRole::Customer)
+                        <a href="{{ route('customer.appointments.index') }}" @if(request()->routeIs('customer.appointments.index')) aria-current="page" @endif>Lịch hẹn của tôi</a>
+                    @endif
                     @can('viewAny', \App\Models\User::class)
                         <a href="{{ route('admin.users.index') }}" class="hover:underline">Quản lý tài khoản</a>
                     @endcan

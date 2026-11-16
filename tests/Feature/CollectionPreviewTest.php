@@ -8,9 +8,9 @@ class CollectionPreviewTest extends TestCase
 {
     public function test_detail_links_and_availability_actions_are_consistent(): void
     {
-        $this->withoutVite()->get('/xe/1')->assertOk()->assertSee('Yêu cầu tư vấn')->assertSee('Đặt lịch xem xe');
-        $this->withoutVite()->get('/xe/2')->assertOk()->assertSee('Yêu cầu tư vấn')->assertSee('Chưa nhận lịch xem');
-        $this->withoutVite()->get('/xe/5')->assertOk()->assertSee('Khám phá xe khác')->assertDontSee('data-preview="Tư vấn Toyota Innova"', false);
+        $this->withoutVite()->get('/xe/1')->assertOk()->assertSee('Đặt lịch xem xe')->assertSee('/dat-lich?car=1', false);
+        $this->withoutVite()->get('/xe/2')->assertOk()->assertSee('Chưa nhận lịch xem');
+        $this->withoutVite()->get('/xe/5')->assertOk()->assertSee('Khám phá xe khác')->assertDontSee('Đặt lịch xem xe');
         $this->withoutVite()->get('/xe/999')->assertNotFound();
     }
 

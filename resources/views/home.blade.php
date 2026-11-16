@@ -31,7 +31,7 @@
         </div>
         <video class="camry-source" data-camry-video muted playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="{{ asset('assets/home/camry-exploded.mp4') }}" type="video/mp4"></video>
         <div class="camry-caption"><h2>Toyota Camry</h2><p>Tinh tế trong từng chuyển động.</p></div>
-        <div class="camry-actions"><button class="button button-dark" type="button" data-preview="Đặt lịch xem Toyota Camry">Đặt lịch xem xe</button><a class="button" href="{{ route('cars.preview.show', 1) }}">Khám phá Camry</a></div>
+        <div class="camry-actions"><a class="button button-dark" href="{{ route('appointments.create') }}">Đặt lịch xem xe</a><a class="button" href="{{ route('cars.preview.show', 1) }}">Khám phá Camry</a></div>
         <aside class="camry-detail-copy" data-camry-copy aria-hidden="true"><p class="eyebrow">TỪNG CHI TIẾT, MỘT GÓC NHÌN</p><h2>Khám phá<br>từ bên trong.</h2><p>Cuộn để xem các bộ phận tách mở.<br>Cuộn ngược để trở về hình dáng ban đầu.</p><small>Hình ảnh mô phỏng, không dùng để xác nhận cấu tạo hoặc thông số xe.</small></aside>
         <div class="camry-bottom"><a class="scroll-cue" href="#dich-vu">Cuộn để khám phá <span aria-hidden="true">↓</span></a><span data-camry-phase>01 — NGOẠI THẤT</span></div>
         <div class="camry-progress" aria-hidden="true"><span data-camry-progress></span></div>
@@ -61,11 +61,11 @@
             <p class="eyebrow">CHẠM VÀO TRẢI NGHIỆM</p>
             <h2>Cảm hứng<br>sau tay lái.</h2>
             <p>Có những cảm nhận cần được trải nghiệm trực tiếp. Hẹn gặp bạn tại showroom để tìm hiểu chiếc xe mình yêu thích.</p>
-            <button class="home-detail-link" type="button" data-preview="Đặt lịch đến showroom">Đặt lịch xem xe <span aria-hidden="true">↗</span></button>
+            <a class="home-detail-link" href="{{ route('appointments.create') }}">Đặt lịch xem xe <span aria-hidden="true">↗</span></a>
             <small>Hình ảnh minh họa trải nghiệm Toyota.</small>
         </div>
     </article>
 </section>
-<section class="home-services" id="dich-vu" aria-labelledby="services-title"><div><p class="eyebrow">ĐỒNG HÀNH CÙNG BẠN</p><h2 id="services-title">An tâm.<br>Trên mọi hành trình.</h2><p>Từ lựa chọn xe đến chăm sóc sau bán hàng.</p></div><div class="home-service-links"><button type="button" data-preview="Bảo dưỡng định kỳ"><span>01</span>Bảo dưỡng định kỳ <i aria-hidden="true">→</i></button><button type="button" data-preview="Chính sách bảo hành"><span>02</span>Chính sách bảo hành <i aria-hidden="true">→</i></button><button type="button" data-preview="Tư vấn tại showroom"><span>03</span>Tư vấn tại showroom <i aria-hidden="true">→</i></button><a class="button button-dark" href="{{ route('cars.preview') }}">Khám phá các dòng xe</a></div></section>
-<section class="home-showroom" id="showroom" aria-labelledby="showroom-title"><div><p class="eyebrow">HẸN GẶP TẠI SHOWROOM</p><h2 id="showroom-title">Cảm nhận bằng<br>chính trải nghiệm của bạn.</h2></div><button type="button" class="button button-dark" data-preview="Đặt lịch đến showroom">Đặt lịch xem xe</button></section>
+<section class="home-services" id="dich-vu" aria-labelledby="services-title"><div><p class="eyebrow">ĐỒNG HÀNH CÙNG BẠN</p><h2 id="services-title">An tâm.<br>Trên mọi hành trình.</h2><p>Từ lựa chọn xe đến chăm sóc sau bán hàng.</p></div><div class="home-service-links"><a href="{{ route('appointments.create', ['type' => 'maintenance']) }}"><span>01</span>Bảo dưỡng định kỳ <i aria-hidden="true">→</i></a><a href="{{ route('appointments.create', ['type' => 'maintenance']) }}"><span>02</span>Chính sách bảo hành <i aria-hidden="true">→</i></a><a href="{{ route('appointments.create') }}"><span>03</span>Tư vấn tại showroom <i aria-hidden="true">→</i></a><a class="button button-dark" href="{{ route('cars.preview') }}">Khám phá các dòng xe</a></div></section>
+<section class="home-showroom" id="showroom" aria-labelledby="showroom-title"><div><p class="eyebrow">HẸN GẶP TẠI SHOWROOM</p><h2 id="showroom-title">Cảm nhận bằng<br>chính trải nghiệm của bạn.</h2></div><a class="button button-dark" href="{{ route('appointments.create') }}">Đặt lịch xem xe</a></section>
 @endsection

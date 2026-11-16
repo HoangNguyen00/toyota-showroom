@@ -1,5 +1,26 @@
 # TV4 — kết quả kiểm chứng local 24/10/2026
 
+## Kiểm tra lại trên repository mới — 16/11/2026
+
+Backend PR #1 `1438af2` được ghép main `ed06179` để xử lý sáu xung đột, giữ chat
+và lịch TV5. Kiểm tra trên worktree riêng; không reset/seed database demo.
+
+- composer check: 78 tests / 635 assertions (SQLite), Pint, syntax/encoding/inventory đạt.
+- npm run build đạt, vẫn có 4 cảnh báo font baseline; Node regression: 4/4 đạt.
+- MySQL 8.4.3 trên `toyota_showroom_tv4_test_20261116`: hai process gửi cùng UUID
+  chỉ tạo một tin/job; send/reassign tuần tự; crash trước/sau commit giữ nguyên tử.
+- Publication gate: revoker chờ tại SELECT/dispatch, job stale bị bỏ sau commit ở cả
+  reassign/lock-sales/lock-customer; process chết nhả gate; mất session chặn publish.
+- Category/car locking: sold/hidden/category-hidden bị chặn đến commit, request sau bị từ chối.
+- Reverb thật, hai phiên HTTP/session/CSRF và hai socket: nhận tin trong 1303 ms;
+  retry không phát trùng, payload UUID khác 409, reconnect bù lịch sử; kênh/job cũ
+  không nhận tin sau đổi sales/khóa tài khoản. Ba scenario publication fence đều đạt.
+- Môi trường HTTP thử dùng cấu hình test cho cả `.env` và `.env.tv4-testing`, cache
+  file để limiter tồn tại giữa request. Chưa kiểm responsive, tải lớn hoặc failover.
+  Review không thay phê duyệt của chủ module; PR vẫn cần review nhóm trước merge main.
+
+Phần bên dưới giữ nguyên bằng chứng lịch sử tại repository cũ.
+
 Nhánh `feature/inquiry-chat-websocket`, base
 `983b12b22a27eb4eaaf3da3a701c7f78bc1bcdb9`. Mã TV4 đã commit và push tại
 `a7bf4059764fc506f1ee3e1aa10a8ea2b61199d6` lên nhánh riêng này.
