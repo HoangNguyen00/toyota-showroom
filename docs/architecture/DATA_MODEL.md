@@ -55,6 +55,23 @@ Dữ liệu vãng lai không gắn sang account chỉ vì trùng phone. Không h
 
 Sau baseline, sửa schema bằng migration mới; cập nhật model, đặc tả, contracts, test và inventory.
 
+## TV3 catalog (19/10)
+
+Migration mới `2026_10_19_000001_add_catalog_filter_indexes_to_cars_table` chỉ thêm index:
+cars(category_id,is_visible), cars(name), car_images(car_id,is_primary). Không đổi cột/enum.
+16/11 sửa down() của migration catalog chưa merge: MySQL có thể dùng composite index cho
+FK và bỏ implicit index cũ, nên khôi phục index FK một cột trước khi drop composite.
+Ảnh upload lưu `storage/app/public/cars/{car_id}/{uuid}.ext` (disk public, cần `storage:link`);
+seed dùng path `assets/products/...` trong public. One-primary-per-car chỉ được bảo đảm
+bởi StoreCarImage trong transaction (khóa hàng cars), không phải unique index DB.
+Scope `Car::publiclyVisible()` là nguồn duy nhất cho điều kiện public; TV4/TV5 dùng lại.
+`specs` là mảng [{label,value}] tối đa 30 dòng; rỗng lưu null.
+Sau tích hợp 16/11: cả hai giới hạn giá được validate độc lập, không bỏ max_price;
+regression kiểm numeric range trên cả SQLite/MySQL. SaveCar lấy category shared
+(ID tăng dần) trước car update, cùng thứ tự TV4. Xe mới ẩn; công khai cần dòng visible
+và đúng một ảnh chính. StoreCarImage khóa cars khi upload/reorder/chọn/xóa ảnh,
+giữ tối đa 10 ảnh, chọn ảnh thay thế khi xóa primary; không xóa ảnh cuối của xe public.
+
 ## Đích P1 theo SRS 1.4 / ADR 0003
 
 Giữ 9 bảng, internal_note, brand cố định Toyota; không cần migration bỏ brand.

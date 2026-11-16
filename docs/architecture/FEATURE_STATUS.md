@@ -1,5 +1,14 @@
 # Trạng thái thực tế
 
+16/11: nhánh feature/customer-catalog-integration ghép TV3 từ PR #2/admin 56211fe
+với customer 9a71fe5. /xe và /xe/{car} đọc DB, giữ slider giới thiệu và card 3 cột;
+gallery mở đúng ảnh, tư vấn AJAX/booking dùng đúng ID xe. Giữ chat/lịch/video Auth.
+Đã kiểm 108 tests/874 assertions trên SQLite và MySQL 8.4.3, 5 JS tests, build;
+race upload giữ 10 ảnh/1 primary, locking tư vấn với xe sold/hidden đạt.
+Browser: lọc max riêng, slider, gallery, tư vấn lỗi/giữ draft/gửi thành công, booking
+và admin thêm xe nháp/chặn public thiếu ảnh đều đạt. Chưa merge main hoặc nghiệm thu
+toàn bộ P1; chưa kiểm mới điện thoại thật, tải lớn và failover.
+
 16/11: nhánh feature/customer-realtime-newrepo ghép bản sửa xung đột PR #1 (backend 1151428)
 vào giao diện mới nhất 3dc88d8. Giữ account, lịch hẹn, form tư vấn, chat thật và video Auth.
 Backend đã kiểm lại 78 tests/635 assertions trên SQLite và MySQL 8.4.3; Reverb hai phiên
@@ -18,8 +27,9 @@ tích hợp auth vào giao diện frontend (feature/frontend-auth-integration) v
 feature/appointment-schedule (TV5: đặt lịch, phân công, xác nhận, hủy, hoàn tất).
 H03 mới có hợp đồng quyền/gói review. Chưa có nghiệp vụ tư vấn/chat hoàn chỉnh.
 
-Trang chủ tối, video/canvas, hai ảnh chi tiết, /xe slider/card/lọc và /xe/{id} ID 1–9
-vẫn dùng fixture local/testing (chỉ chạy ở local/testing). Header đã nối Auth thật,
+Trang chủ tối, video/canvas và hai ảnh chi tiết giữ thiết kế hiện có. Catalog /xe
+và /xe/{car} dùng DB; fixture chỉ ở /collection-preview và /xe-preview/{id} local/testing.
+Header đã nối Auth thật,
 form đăng nhập/đăng ký dùng ảnh xe chạy và nền tối; backend H01/H02 giữ nguyên.
 Nhánh tích hợp có backend tư vấn/chat TV4 và lịch hẹn TV5; main chưa gộp TV4. Chưa nghiệm thu toàn bộ concurrency hoặc giao diện các module.
 
@@ -28,7 +38,7 @@ Nhánh tích hợp có backend tư vấn/chat TV4 và lịch hẹn TV5; main ch�
 | Framework | Laravel/lockfile/Vite/Tailwind/CI | Cài/demo máy khác | Hoàng + nhóm |
 | Dữ liệu | 8 bảng core + audit, enum/model | Seed Toyota; giữ brand=Toyota, internal_note | Võ Nguyễn Thành Đạt (TV3)/Phan Võ Chí Bảo (TV5) + Hoàng |
 | Auth | H01; H02 UserPolicy, admin list/search/pagination/tạo sales/khóa-mở, transaction tăng version khi khóa; test HTTP pass | Review/kiểm trực quan H02, tích hợp thu hồi socket/job với TV4 | Hoàng |
-| Catalog | Schema/model/thư mục | CRUD/ảnh/search/filter/pagination/UI | Võ Nguyễn Thành Đạt (TV3) + Đạt |
+| Catalog | Nhánh tích hợp: TV3 CRUD/dòng/ảnh/giá/trạng thái, /xe DB + filter/sort/12-trang, gallery/tư vấn/booking; regression và browser đạt | Nhóm review PR tích hợp, kiểm mobile và dữ liệu demo toàn luồng | Võ Nguyễn Thành Đạt (TV3) + Đạt |
 | Tư vấn | Main: model/enum; nhánh tích hợp: TV4 backend + form AJAX khách thật | Review H02/PublicationGate, nghiệm thu quyền/race MySQL | Nguyễn Huy Hoàng (TV4) + Đạt |
 | Chat | Nhánh tích hợp: TV4 gửi/lưu/phát/history + UI khách; QA browser hai chiều pass | Chưa gộp main; review thu hồi quyền và kiểm concurrency MySQL | Nguyễn Huy Hoàng (TV4) + Đạt |
 | Lịch/dịch vụ | Form + rights; CRUD dịch vụ admin; xác nhận khóa/trùng giờ; hủy/hoàn tất/no_show; tests pass | Kiểm trực quan trình duyệt và MySQL thật | Phan Võ Chí Bảo (TV5) |

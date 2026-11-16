@@ -1,5 +1,26 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-16 Nối catalog TV3 với giao diện khách
+
+- Ghép PR #2/admin 56211fe vào customer 9a71fe5; giữ route/chat/lịch/video Auth.
+- /xe và chi tiết dùng DB; giữ slider giới thiệu, card 3 cột. Nối CTA tư vấn vào TV4
+  qua JSON/CSRF, giữ draft khi lỗi và chỉ báo tiếp nhận khi HTTP 201; booking TV5
+  chọn đúng ID xe. Gallery mở đúng thumbnail, sửa thứ tự ưu tiên ảnh chính.
+- Sửa min/max filter độc lập, optional specs rỗng, năm >=2000/giá >=1 triệu;
+  xe mới ẩn, publish cần ảnh chính. Upload 10 ảnh x 5MB, count/primary/reorder/delete
+  dưới lock cars; không xóa ảnh cuối của xe public. Giữ thứ tự category -> car khi SaveCar.
+- Giữ cả CatalogSeeder và DemoContentSeeder; chỉ bổ sung CatalogSeeder khi cài demo,
+  không reset DB hoặc chạy lại UserSeeder. Giữ media upload/video local ngoài Git.
+- Sửa down() migration index catalog chưa merge để MySQL giữ index FK trước khi drop
+  composite; không sửa migration nền. Auth frontend test dùng ID thật, không cố định /xe/1.
+- Kiểm tra: 108 tests/874 assertions trên SQLite và MySQL 8.4.3, Pint/syntax/inventory,
+  5 JS tests, Vite build đạt (4 cảnh báo font baseline). MySQL hai upload đồng thời:
+  1 nhận/1 từ chối, đúng 10 ảnh/1 primary; TV4 sold/hidden/category locking đạt.
+- Browser QA riêng: slider và lọc max riêng, thumbnail, tư vấn khi xe vừa sold báo lỗi
+  và giữ draft, gửi lại tạo hồ sơ thật; lịch xem lưu đúng car, không tự giữ xe. Admin
+  tạo nháp khi specs trống, chặn public thiếu ảnh. Chưa kiểm điện thoại/tải lớn/failover;
+  review trên GitHub, không tự merge main.
+
 ## 2026-11-16 Tích hợp lại frontend và TV4 trên repository mới
 
 - Ghép backend sửa xung đột PR #1 (1151428) với giao diện 3dc88d8; giữ cả chat,

@@ -92,3 +92,9 @@ Lịch final không sửa, no_show/completed sau giờ; confirm kiểm slot/xe/s
 List bị lọt bản ghi là lỗi quyền ngay cả khi trang detail đã chặn.
 Khi có mã, owner ghi test/PR/bằng chứng vào ACCEPTANCE; ma trận này không tự là
 test pass. Scope/Policy chưa áp thì deny-by-default, không mở channel demo để qua UI.
+
+## Catalog sau tích hợp — 16/11/2026
+
+CarPolicy/CarCategoryPolicy của TV3 bảo vệ admin CRUD; public scope kiểm xe và dòng
+visible kể cả admin. Tư vấn vẫn qua Policy/validation TV4, booking vẫn qua TV5;
+không dùng ID preview làm ID xe thật. Không cho sales/customer sửa xe hoặc ảnh.

@@ -142,3 +142,16 @@ Schema endpoint/response/error/demo đầy đủ ở [TV4_INTEGRATION](../develo
 
 Nhánh tích hợp nối GET /tai-khoan/tin-nhan (customer.chat.index) vào DB own inquiry, tối đa 15 thread/trang; tìm q và chọn conversation đã scoped owner. Không serialize ghi chú nội bộ. Dùng lại HTTP messages TV4, UUID/cursor và Echo, không tạo API gửi thứ hai. Shared HTTP vẫn cho ba role với Policy.
 Preview fixture không còn là màn mặc định. Main và PR #11 vẫn cần review trước khi gộp backend TV4. Appointment UI dùng các route TV5, không sửa protocol khóa hoặc schema.
+
+## Catalog tích hợp TV3 — 16/11/2026
+
+GET /xe (cars.index) và /xe/{car} (cars.show) đọc DB, chỉ xe và dòng visible.
+q tên/mã/màu, category slug, status, min_price/max_price độc lập, sort newest/price_asc/price_desc;
+12 xe/trang, giữ query. Slider dùng hình giới thiệu dòng xe; card/chi tiết/giá/trạng thái dùng DB.
+Admin CRUD dòng/xe/ảnh ở admin.car-categories.* và admin.cars.*, có role/active/Policy.
+Năm từ 2000 đến năm hiện tại+1, giá VND nguyên từ 1.000.000; tạo xe ẩn, công khai cần ảnh chính.
+Ảnh JPEG/PNG/WebP tối đa 5MB, tối đa 10 ảnh/xe; thao tác ảnh khóa hàng cars.
+Preview fixture chỉ còn /collection-preview và /xe-preview/{id}, không là nguồn public catalog.
+Nút tư vấn public gửi POST /tu-van qua JSON/CSRF, car_id đúng chiếc; guest nhận xác nhận,
+customer có liên kết cuộc tư vấn. Đặt lịch dùng appointments.create?type=viewing&car={id}.
+PATCH /admin/cars/{car}/images/{image} nhận sort_order và is_primary, kiểm đúng xe/Policy.

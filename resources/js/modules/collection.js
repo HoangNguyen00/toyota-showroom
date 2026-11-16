@@ -47,12 +47,16 @@ if (slider) {
             text.getAnimations().forEach((animation) => animation.cancel());
             text.animate([{ transform: 'translateY(18px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { duration: 700, easing: 'cubic-bezier(.22,1,.36,1)' });
         }
-        slider.querySelector('[data-slide-count]').textContent = `${String(active + 1).padStart(2, '0')} / 03`;
-        slider.querySelector('[data-hero-book]').dataset.preview = `Đặt lịch xem Toyota ${data[active].name}`;
-        slider.querySelector('[data-hero-detail]').href = `/xe/${active + 3}`;
+        slider.querySelector('[data-slide-count]').textContent = `${String(active + 1).padStart(2, '0')} / ${String(data.length).padStart(2, '0')}`;
+        slider.querySelector('[data-hero-detail]').href = data[active].detail_url || `/xe-preview/${active + 3}`;
         const booking = slider.querySelector('[data-hero-book]');
-        booking.disabled = active === 2;
-        booking.textContent = active === 2 ? 'Xe minh họa đã bán' : 'Đặt lịch xem xe';
+        if (slider.hasAttribute('data-live-catalog')) {
+            booking.href = data[active].booking_url;
+        } else {
+            booking.dataset.preview = `Đặt lịch xem Toyota ${data[active].name}`;
+            booking.disabled = active === 2;
+            booking.textContent = active === 2 ? 'Xe minh họa đã bán' : 'Đặt lịch xem xe';
+        }
     }
     previous.addEventListener('click', () => show(active - 1));
     next.addEventListener('click', () => show(active + 1));

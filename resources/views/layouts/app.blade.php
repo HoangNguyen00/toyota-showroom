@@ -36,7 +36,7 @@
             @else
                 <a class="login-link" href="{{ route('login') }}">Đăng nhập</a>
             @endauth
-            <button type="button" class="button button-red" data-preview="Tư vấn">Tư vấn</button>
+            <button type="button" class="button button-red" data-open-catalog-inquiry>Tư vấn</button>
         </div>
     </header>
     <main id="main-content">@yield('content')</main>
@@ -49,6 +49,7 @@
         </nav>
         <div><p>Toyota Showroom</p><small>Đồ án môn học · Không phải website đại lý chính thức</small></div>
     </footer>
+    @if(request()->routeIs('cars.collection-preview', 'cars.preview.show'))
     <dialog class="preview-dialog" aria-labelledby="preview-title" aria-describedby="preview-description">
         <form method="dialog"><button class="dialog-close" aria-label="Đóng thông báo">×</button></form>
         <p class="eyebrow">TOYOTA SHOWROOM</p>
@@ -56,5 +57,7 @@
         <p id="preview-description"></p>
         <form method="dialog"><button class="button button-dark">Đã hiểu</button></form>
     </dialog>
+    @endif
+    <x-catalog-inquiry-dialog />
 </body>
 </html>
