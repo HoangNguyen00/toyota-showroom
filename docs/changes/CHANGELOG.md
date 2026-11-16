@@ -1,5 +1,18 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-16 Tích hợp lại frontend và TV4 trên repository mới
+
+- Ghép backend sửa xung đột PR #1 (1151428) với giao diện 3dc88d8; giữ cả chat,
+  account, lịch TV5, hiệu ứng trang chủ và video Auth. Không đổi schema hoặc dữ liệu demo.
+- Giữ shared HTTP chat cho ba role, route customer riêng và cả hai module JS chat/lịch;
+  tạo lại inventory theo mã hợp nhất. Backend đã kiểm 78 tests/635 assertions trên
+  SQLite và MySQL 8.4.3; 4 test JS, publication boundary, MySQL race/crash/locking đạt;
+  hai phiên Reverb thật 1303 ms, retry/reconnect/revoke/stale job đều đạt.
+- Nhánh tích hợp: composer check đạt 86 tests/700 assertions, Pint/syntax/inventory;
+  5 test JavaScript và Vite build đạt. Browser gửi tin từ customer, phiên sales đọc và
+  trả lời; phản hồi hiện ngay trong bubble khách mà không reload. Chưa kiểm mobile mới,
+  tải lớn hoặc failover; không tự merge main, CI repository mới được theo dõi riêng.
+
 ## 2026-11-05 Video Camry cho đăng nhập / đăng ký
 
 - Layout Auth hỗ trợ clip Camry thật 9 giây, tự phát im lặng/lặp với nút tạm dừng; tôn trọng giảm chuyển động và dừng khi tab/khung không hiển thị.

@@ -1,5 +1,13 @@
 # Trạng thái thực tế
 
+16/11: nhánh feature/customer-realtime-newrepo ghép bản sửa xung đột PR #1 (backend 1151428)
+vào giao diện mới nhất 3dc88d8. Giữ account, lịch hẹn, form tư vấn, chat thật và video Auth.
+Backend đã kiểm lại 78 tests/635 assertions trên SQLite và MySQL 8.4.3; Reverb hai phiên
+1303 ms, UUID/reconnect và thu hồi kênh/job cũ đạt. Chưa gộp main hoặc nghiệm thu P1;
+review và kiểm tra nhánh giao diện được ghi trong PR tích hợp ở repository mới.
+Nhánh giao diện đạt composer check 86 tests/700 assertions, 5 test JS, build và
+browser chat hai chiều không reload; chưa kiểm lại mobile/tải lớn/failover.
+
 05/11: sửa chữ TOYOTA ở hero không chồng cột mô tả. Layout đăng nhập/đăng ký hỗ trợ video Camry local 9 giây với ảnh dự phòng; clip nguồn không được commit, xem docs/development/AUTH_VIDEO.md.
 
 28/10: nhánh giao diện đồng bộ lịch hẹn từ main, account customer có lịch sắp tới từ DB và liên kết /lich-hen. Trang lịch khách dùng layouts.customer, hủy theo endpoint TV5 có kiểm owner/time/state. Chat customer đã nối TV4 trên nhánh tích hợp riêng: dữ liệu own inquiry, HTTP history/send và Echo private channel; đã kiểm QA hai chiều trên browser, còn chờ review H02/PublicationGate trước merge main.
