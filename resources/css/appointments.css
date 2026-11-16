@@ -1,0 +1,83 @@
+/* Đồng bộ TV5: đặt lịch, lịch hẹn của tôi, dịch vụ — dùng nền tối thương hiệu
+   giống auth (Be Vietnam Pro, #09121c, card #111e2b, accent đỏ #dc1726). */
+.appointment-page{background:#09121c;color:#edf3f7;font-family:'Be Vietnam Pro',Arial,sans-serif;min-height:100svh}
+.appointment-shell{margin:0 auto;max-width:640px;padding:56px 24px 90px;display:flex;flex-direction:column}
+.appointment-kicker{font-size:9px;letter-spacing:.18em;color:#8ebbcf;margin-bottom:18px}
+.appointment-shell h1{font-size:clamp(26px,2.4vw,38px);font-weight:500;letter-spacing:-.04em;line-height:1.25}
+.appointment-lead{margin-top:12px;font-size:13px;line-height:1.8;color:#9dafbf}
+
+/* Thông báo */
+.appointment-notice{margin-top:26px;padding:14px 16px;border:1px solid #457865;background:#123b2e;color:#ccedde;font-size:13px;border-radius:5px;line-height:1.7}
+.appointment-notice--error{background:#3d1921;border-color:#914551;color:#ffd1d5}
+
+/* Thẻ form */
+.appointment-card{margin-top:30px;padding:30px 26px;border:1px solid #24333f;border-radius:9px;background:#111e2b}
+.appointment-card fieldset{border:0;padding:0;margin:0 0 4px;display:flex;flex-direction:column}
+.appointment-card legend{font-size:12px;font-weight:400;color:#d3dfe8;margin-bottom:9px}
+.radio-row{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid #2a3a48;border-radius:6px;margin-bottom:10px;cursor:pointer;transition:border-color .2s,background .2s}
+.radio-row:hover{border-color:#3d5468;background:#142333}
+.radio-row:has(input:checked){border-color:#dc1726;background:#2a1420}
+.radio-row input{accent-color:#dc1726;width:16px !important;height:16px !important;min-height:0 !important;padding:0 !important;margin:0 !important;flex:none}
+.radio-row span{font-size:13.5px;color:#e6edf3;flex:1;line-height:1.5}
+.field-group{display:flex;flex-direction:column}
+.field-group+.field-group{margin-top:20px}
+.field-group label{font-size:12px;font-weight:400;color:#d3dfe8;margin-bottom:9px}
+.appointment-card input,.appointment-card select,.appointment-card textarea{display:block;width:100%;min-height:50px;padding:12px 14px;border:1px solid #344351;border-radius:5px;background:#0c1722;color:#f3f6fa;font-size:14px;font-family:inherit;transition:border-color .2s,box-shadow .2s}
+.appointment-card input:focus,.appointment-card select:focus,.appointment-card textarea:focus{border-color:#8cc8de;outline:2px solid #8cc8de55}
+.appointment-card input[aria-invalid=true],.appointment-card select[aria-invalid=true],.appointment-card textarea[aria-invalid=true]{border-color:#ff9199}
+.appointment-card input:-webkit-autofill{-webkit-text-fill-color:#f3f6fa;box-shadow:0 0 0 1000px #111e2b inset}
+.appointment-card textarea{min-height:88px;resize:vertical}
+.appointment-card select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#9cb1c0 50%),linear-gradient(135deg,#9cb1c0 50%,transparent 50%);background-position:calc(100% - 20px) 55%,calc(100% - 14px) 55%;background-size:6px 6px;background-repeat:no-repeat}
+.field-error{margin-top:8px;color:#ffabb1;font-size:12px;line-height:1.6}
+.field-hint{margin-top:8px;color:#8a9dad;font-size:11px;line-height:1.7}
+.appointment-card>button[type=submit]{margin-top:26px;border:0;border-radius:5px;background:#dc1726;color:white;min-height:52px;padding:14px 20px;font-size:14px;font-weight:500;transition:background .2s,transform .2s}
+.appointment-card>button[type=submit]:hover{background:#ef2636;transform:translateY(-1px)}
+.appointment-card>button[type=submit]:disabled{opacity:.65;transform:none;cursor:wait}
+
+/* Danh sách lịch của tôi */
+.appointment-list{margin-top:30px;display:flex;flex-direction:column;gap:20px}
+.appointment-item{padding:26px;border:1px solid #24333f;border-radius:9px;background:#111e2b}
+.appointment-item .eyebrow{font-size:9px;letter-spacing:.18em;color:#8ebbcf}
+.appointment-item h2{margin-top:8px;font-size:19px;font-weight:500;letter-spacing:-.02em}
+.appointment-item>p{margin-top:10px;font-size:13px;color:#c0ced8;line-height:1.8}
+.appointment-status{display:inline-block;margin-top:14px;padding:5px 12px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:.04em}
+.appointment-status--pending{background:#15314a;color:#a8d3f0}
+.appointment-status--confirmed{background:#123b2e;color:#ccedde}
+.appointment-status--cancelled{background:#3d1921;color:#ffd1d5}
+.appointment-status--completed{background:#123b2e;color:#ccedde}
+.appointment-status--no_show{background:#3a2c15;color:#f0d9a8}
+.appointment-item form{margin-top:20px;display:flex;flex-direction:column;gap:12px;padding-top:20px;border-top:1px solid #1d2b38}
+.appointment-item form input,.appointment-item form select{min-height:44px;padding:10px 12px;font-size:13px}
+.appointment-item form label{font-size:11.5px;color:#d3dfe8;margin-bottom:2px}
+.appointment-item form button{border:0;border-radius:5px;min-height:44px;padding:10px 16px;font-size:13px;font-weight:500;transition:background .2s;justify-self:start}
+.appointment-item form button.button-red{background:#dc1726;color:white}
+.appointment-item form button.button-red:hover{background:#ef2636}
+.appointment-item form button.button-outline{background:transparent;color:#c0ced8;border:1px solid #344351}
+.appointment-item form button.button-outline:hover{border-color:#8cc8de;color:white}
+.appointment-empty{margin-top:34px;padding:34px;border:1px dashed #2a3a48;border-radius:9px;text-align:center;color:#9dafbf;font-size:13px;line-height:1.9}
+.appointment-empty a{color:#f3f6fa;text-decoration:underline;text-underline-offset:4px}
+
+/* Trang dịch vụ công khai */
+.service-list{margin-top:30px;display:flex;flex-direction:column;gap:18px}
+.service-item{padding:24px 26px;border:1px solid #24333f;border-radius:9px;background:#111e2b;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.service-item h2{font-size:17px;font-weight:500;letter-spacing:-.02em}
+.service-item .service-type{display:inline-block;margin-top:8px;padding:4px 11px;border-radius:99px;background:#15314a;color:#a8d3f0;font-size:10.5px;letter-spacing:.06em}
+.service-item p{margin-top:10px;max-width:52ch;font-size:12.5px;color:#9dafbf;line-height:1.75}
+.service-item .button{border:0;border-radius:5px;background:#dc1726;color:white;min-height:44px;padding:10px 18px;font-size:13px;font-weight:500;transition:background .2s}
+.service-item .button:hover{background:#ef2636}
+.service-item .button--muted{background:transparent;border:1px solid #344351;color:#9dafbf}
+@media(max-width:700px){.appointment-shell{padding:40px 20px 70px}.appointment-card{padding:24px 18px}.service-item{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.appointment-card>button[type=submit],.service-item .button{transition:none}}
+
+/* Trang tối đồng bộ: header/footer theo nền tối thương hiệu. */
+.dark-page .site-header{background:#09121c;border-bottom:1px solid #1d2b38}
+.dark-page .site-header .wordmark{color:#dc1726}
+.dark-page .site-header .main-nav a{color:#c0ced8}
+.dark-page .site-header .main-nav a:hover{color:white}
+.dark-page .site-header .main-nav a[aria-current=page]{color:white}
+.dark-page .site-header .login-link{color:#c0ced8}
+.dark-page .site-footer{background:#09121c;color:#c0ced8;border-top:1px solid #1d2b38}
+.dark-page .site-footer nav a{color:#c0ced8}
+.dark-page .site-footer nav a:hover{color:white}
+.dark-page .site-footer small{color:#8a9dad}
+.dark-page .skip-link{background:#dc1726;color:white}

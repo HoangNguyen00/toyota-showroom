@@ -1,10 +1,19 @@
 <?php
 
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Catalog\AdminCarCategoryController;
 use App\Http\Controllers\Catalog\AdminCarController;
 use App\Http\Controllers\Catalog\AdminCarImageController;
 use Illuminate\Support\Facades\Route;
+
+// Shared web/auth/active/admin middleware is registered in bootstrap/app.php.
+Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
+Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
+Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
 
 // Shared web/auth/active/admin middleware is registered in bootstrap/app.php.
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
