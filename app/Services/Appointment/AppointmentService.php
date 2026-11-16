@@ -52,7 +52,6 @@ class AppointmentService
             }
         }
     }
-
     /**
      * Chặn đặt/đổi trùng khung giờ (±60 phút) với lịch hiện có của cùng người —
      * đối chiếu customer_id (đã đăng nhập) hoặc contact_phone (cả guest),
@@ -88,7 +87,6 @@ class AppointmentService
             }
         }
     }
-
     /**
      * Admin phân công sales cho một lịch pending.
      */
@@ -118,7 +116,6 @@ class AppointmentService
             return $locked;
         });
     }
-
     /**
      * Xác nhận lịch: khóa appointment rồi sales, đọc lại pending và quyền,
      * kiểm tra giờ/xe/service và overlap < 60 phút rồi ghi.
@@ -189,7 +186,6 @@ class AppointmentService
             return $locked;
         });
     }
-
     /**
      * Customer hủy lịch của mình còn pending/confirmed và chưa tới giờ.
      */
@@ -223,7 +219,6 @@ class AppointmentService
             return $locked;
         });
     }
-
     /**
      * Customer đổi lịch của mình: chỉ pending và chưa tới giờ, giữ trạng thái pending.
      */
@@ -258,7 +253,6 @@ class AppointmentService
             return $locked;
         });
     }
-
     /**
      * Nhân viên/admin đổi thời gian lịch pending của mình (sales) hoặc bất kỳ (admin).
      * Lịch confirmed phải hủy rồi đặt lại để đảm bảo kiểm tra slot lại từ đầu.
@@ -287,7 +281,6 @@ class AppointmentService
             return $locked;
         });
     }
-
     /**
      * Nhân viên/admin hủy kèm lý do; lịch confirmed đã tới giờ vẫn hủy được (mất khách).
      */
@@ -313,7 +306,6 @@ class AppointmentService
             return $locked;
         });
     }
-
     /**
      * Hoàn tất hoặc no_show: chỉ sau giờ confirmed, không sửa trạng thái cuối.
      */

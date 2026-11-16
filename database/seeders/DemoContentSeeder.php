@@ -38,7 +38,6 @@ class DemoContentSeeder extends Seeder
                 'is_visible' => true,
             ]
         );
-
         // Nhóm xe + xe hiển thị cho lịch xem xe (đầy đủ dòng Toyota demo).
         $categories = collect([
             'vios' => ['name' => 'Vios', 'cars' => [

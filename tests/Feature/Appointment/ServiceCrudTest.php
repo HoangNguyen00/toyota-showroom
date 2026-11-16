@@ -37,7 +37,6 @@ class ServiceCrudTest extends TestCase
             'is_visible' => '1',
         ], $overrides);
     }
-
     public function test_only_admin_can_manage_services(): void
     {
         $this->get('/admin/services')->assertRedirect('/dang-nhap');
@@ -48,7 +47,6 @@ class ServiceCrudTest extends TestCase
         }
         $this->assertDatabaseCount('services', 0);
     }
-
     public function test_admin_can_create_update_and_list_services(): void
     {
         $admin = $this->user(UserRole::Admin);
@@ -74,7 +72,6 @@ class ServiceCrudTest extends TestCase
 
         $this->actingAs($admin)->get('/admin/services')->assertOk()->assertSee('40.000km');
     }
-
     public function test_service_with_appointments_cannot_be_deleted(): void
     {
         $admin = $this->user(UserRole::Admin);
@@ -104,7 +101,6 @@ class ServiceCrudTest extends TestCase
             ->assertRedirect('/admin/services');
         $this->assertModelMissing($other);
     }
-
     public function test_public_services_page_shows_only_visible(): void
     {
         Service::create([

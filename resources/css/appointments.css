@@ -5,11 +5,9 @@
 .appointment-kicker{font-size:9px;letter-spacing:.18em;color:#8ebbcf;margin-bottom:18px}
 .appointment-shell h1{font-size:clamp(26px,2.4vw,38px);font-weight:500;letter-spacing:-.04em;line-height:1.25}
 .appointment-lead{margin-top:12px;font-size:13px;line-height:1.8;color:#9dafbf}
-
 /* Thông báo */
 .appointment-notice{margin-top:26px;padding:14px 16px;border:1px solid #457865;background:#123b2e;color:#ccedde;font-size:13px;border-radius:5px;line-height:1.7}
 .appointment-notice--error{background:#3d1921;border-color:#914551;color:#ffd1d5}
-
 /* Thẻ form */
 .appointment-card{margin-top:30px;padding:30px 26px;border:1px solid #24333f;border-radius:9px;background:#111e2b}
 .appointment-card fieldset{border:0;padding:0;margin:0 0 4px;display:flex;flex-direction:column}
@@ -33,7 +31,6 @@
 .appointment-card>button[type=submit]{margin-top:26px;border:0;border-radius:5px;background:#dc1726;color:white;min-height:52px;padding:14px 20px;font-size:14px;font-weight:500;transition:background .2s,transform .2s}
 .appointment-card>button[type=submit]:hover{background:#ef2636;transform:translateY(-1px)}
 .appointment-card>button[type=submit]:disabled{opacity:.65;transform:none;cursor:wait}
-
 /* Danh sách lịch của tôi */
 .appointment-list{margin-top:30px;display:flex;flex-direction:column;gap:20px}
 .appointment-item{padding:26px;border:1px solid #24333f;border-radius:9px;background:#111e2b}
@@ -56,7 +53,6 @@
 .appointment-item form button.button-outline:hover{border-color:#8cc8de;color:white}
 .appointment-empty{margin-top:34px;padding:34px;border:1px dashed #2a3a48;border-radius:9px;text-align:center;color:#9dafbf;font-size:13px;line-height:1.9}
 .appointment-empty a{color:#f3f6fa;text-decoration:underline;text-underline-offset:4px}
-
 /* Trang dịch vụ công khai */
 .service-list{margin-top:30px;display:flex;flex-direction:column;gap:18px}
 .service-item{padding:24px 26px;border:1px solid #24333f;border-radius:9px;background:#111e2b;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
@@ -68,7 +64,6 @@
 .service-item .button--muted{background:transparent;border:1px solid #344351;color:#9dafbf}
 @media(max-width:700px){.appointment-shell{padding:40px 20px 70px}.appointment-card{padding:24px 18px}.service-item{flex-direction:column;align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.appointment-card>button[type=submit],.service-item .button{transition:none}}
-
 /* Trang tối đồng bộ: header/footer theo nền tối thương hiệu. */
 .dark-page .site-header{background:#09121c;border-bottom:1px solid #1d2b38}
 .dark-page .site-header .wordmark{color:#dc1726}

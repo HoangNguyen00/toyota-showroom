@@ -30,7 +30,6 @@ class AppointmentPolicy
             && $appointment->status === AppointmentStatus::Pending
             && $appointment->assigned_to === $user->id;
     }
-
     // Staff/admin cancel (with reason).
     public function cancel(User $user, Appointment $appointment): bool
     {
