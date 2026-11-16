@@ -33,6 +33,7 @@ class AppointmentController extends Controller
 
         return view('services.index', ['services' => $services]);
     }
+
     // Public booking page (viewing or maintenance), preselect via query string.
     public function create(Request $request): View
     {
@@ -92,6 +93,7 @@ class AppointmentController extends Controller
             ->route('appointments.create')
             ->with('status', 'Đã gửi yêu cầu đặt lịch. Showroom sẽ liên hệ xác nhận trong thời gian sớm nhất.');
     }
+
     // Customer: own appointments list. Staff/admin are redirected to their
     // full management view so nobody sees an empty list by visiting the wrong URL.
     public function index(Request $request): RedirectResponse|View
@@ -109,6 +111,7 @@ class AppointmentController extends Controller
 
         return view('appointments.index', ['appointments' => $appointments]);
     }
+
     // Staff/admin: all appointments with filters.
     public function manage(Request $request): View
     {

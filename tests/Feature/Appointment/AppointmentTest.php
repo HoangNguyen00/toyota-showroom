@@ -26,6 +26,7 @@ class AppointmentTest extends TestCase
         // nên bỏ middleware throttle để không bị 429 giữa chuỗi request.
         $this->withoutMiddleware([ThrottleRequests::class]);
     }
+
     private function user(UserRole $role = UserRole::Customer): User
     {
         $user = User::factory()->create();
@@ -33,6 +34,7 @@ class AppointmentTest extends TestCase
 
         return $user;
     }
+
     private function car(): Car
     {
         $existing = Car::where('code', 'TOY-TEST-001')->first();
@@ -52,6 +54,7 @@ class AppointmentTest extends TestCase
             'price' => 539000000,
         ]);
     }
+
     private function bookableService(): Service
     {
         return Service::create([
@@ -60,6 +63,7 @@ class AppointmentTest extends TestCase
             'allow_booking' => true, 'is_visible' => true,
         ]);
     }
+
     private function viewingPayload(array $overrides = []): array
     {
         return array_merge([
@@ -70,6 +74,7 @@ class AppointmentTest extends TestCase
             'requested_at' => now()->addDays(2)->setTime(9, 0)->format('Y-m-d H:i'),
         ], $overrides);
     }
+
     public function test_guest_and_customer_can_book_a_viewing(): void
     {
         $this->post('/dat-lich', $this->viewingPayload())->assertRedirect('/dat-lich');
@@ -83,6 +88,7 @@ class AppointmentTest extends TestCase
             ->assertRedirect();
         $this->assertDatabaseCount('appointments', 2);
     }
+
     public function test_booking_validates_type_specific_data(): void
     {
         // Past time rejected first (time errors surface before type-specific ones).
@@ -111,6 +117,7 @@ class AppointmentTest extends TestCase
 
         $this->assertDatabaseCount('appointments', 0);
     }
+
     public function test_booking_rejects_hidden_or_unavailable_car(): void
     {
         $car = $this->car();
@@ -122,6 +129,7 @@ class AppointmentTest extends TestCase
 
         $this->assertDatabaseCount('appointments', 0);
     }
+
     public function test_customer_cannot_book_overlapping_time_slot(): void
     {
         $customer = $this->user();
@@ -151,6 +159,7 @@ class AppointmentTest extends TestCase
             ->assertRedirect();
         $this->assertDatabaseCount('appointments', 2);
     }
+
     public function test_guest_with_same_phone_cannot_book_overlapping_slot(): void
     {
         // Guest cùng SĐT: đặt 11:20 rồi 11:40 phải bị chặn.
@@ -166,6 +175,7 @@ class AppointmentTest extends TestCase
         ]))->assertRedirect();
         $this->assertDatabaseCount('appointments', 2);
     }
+
     public function test_customer_cannot_reschedule_into_overlapping_slot(): void
     {
         $customer = $this->user();
@@ -192,6 +202,7 @@ class AppointmentTest extends TestCase
 
         $this->assertDatabaseHas('appointments', ['id' => $second->id, 'requested_at' => now()->addDays(2)->setTime(11, 0)]);
     }
+
     public function test_customer_sees_only_own_appointments(): void
     {
         $customer = $this->user();
@@ -212,6 +223,7 @@ class AppointmentTest extends TestCase
             ->assertOk()
             ->assertViewHas('appointments', fn ($page) => $page->total() === 1 && $page->first()->id === $own->id);
     }
+
     public function test_customer_reschedules_own_pending_appointment(): void
     {
         $customer = $this->user();
@@ -242,6 +254,7 @@ class AppointmentTest extends TestCase
             ->post("/lich-hen/{$appointment->id}/doi", ['requested_at' => now()->subHour()->format('Y-m-d H:i')])
             ->assertRedirect()->assertSessionHasErrors('requested_at');
     }
+
     public function test_customer_cannot_reschedule_after_time(): void
     {
         $customer = $this->user();
@@ -256,6 +269,7 @@ class AppointmentTest extends TestCase
             ->assertRedirect()->assertSessionHasErrors('status');
         $this->assertSame(now()->subHour()->format('Y-m-d H:i'), $passed->fresh()->requested_at->format('Y-m-d H:i'));
     }
+
     public function test_staff_reschedules_pending_appointment(): void
     {
         $sales = $this->user(UserRole::Sales);
@@ -286,6 +300,7 @@ class AppointmentTest extends TestCase
             ->post("/staff/appointments/{$foreign->id}/doi", ['requested_at' => $newTime->format('Y-m-d H:i')])
             ->assertRedirect()->assertSessionHasErrors('status');
     }
+
     public function test_customer_can_cancel_own_pending_appointment_before_time(): void
     {
         $customer = $this->user();
@@ -303,6 +318,7 @@ class AppointmentTest extends TestCase
         $this->assertSame(AppointmentStatus::Cancelled, $fresh->status);
         $this->assertSame('Bận việc đột xuất', $fresh->cancel_reason);
     }
+
     public function test_customer_cannot_cancel_other_appointment_or_after_time(): void
     {
         $customer = $this->user();
@@ -325,6 +341,7 @@ class AppointmentTest extends TestCase
             ->assertRedirect()->assertSessionHasErrors('status');
         $this->assertSame(AppointmentStatus::Pending, $passed->fresh()->status);
     }
+
     public function test_staff_sees_scoped_list_and_admin_sees_all(): void
     {
         $admin = $this->user(UserRole::Admin);
@@ -361,6 +378,7 @@ class AppointmentTest extends TestCase
         $this->app['auth']->forgetGuards();
         $this->get('/staff/appointments')->assertRedirect('/dang-nhap');
     }
+
     public function test_admin_assigns_sales_and_staff_confirm_with_slot_rules(): void
     {
         $admin = $this->user(UserRole::Admin);
@@ -396,6 +414,7 @@ class AppointmentTest extends TestCase
             ->assertRedirect()->assertSessionHasErrors('assigned_to');
         $this->assertSame(AppointmentStatus::Pending, $second->fresh()->status);
     }
+
     public function test_confirm_rejects_past_time_and_invalid_assigned_staff(): void
     {
         $admin = $this->user(UserRole::Admin);
@@ -409,6 +428,7 @@ class AppointmentTest extends TestCase
             ->assertRedirect()->assertSessionHasErrors();
         $this->assertSame(AppointmentStatus::Pending, $appointment->fresh()->status);
     }
+
     public function test_staff_cancels_with_reason_and_admin_any(): void
     {
         $admin = $this->user(UserRole::Admin);
@@ -432,6 +452,7 @@ class AppointmentTest extends TestCase
             ->post("/staff/appointments/{$appointment->id}/cancel", ['cancel_reason' => 'X'])
             ->assertForbidden();
     }
+
     public function test_conclude_only_after_confirmed_time(): void
     {
         $sales = $this->user(UserRole::Sales);
