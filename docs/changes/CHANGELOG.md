@@ -1,3 +1,7 @@
+### Cập nhật định dạng code và kiến trúc
+
+- Chuẩn hóa định dạng 14 file PHP bằng Laravel Pint.
+- Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
 ## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
