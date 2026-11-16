@@ -1,5 +1,14 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
+
+- Sửa: `tests/Feature/Auth/FrontendIntegrationTest` dùng cứng `/xe/1` cho mọi role; trên MySQL
+  (bộ test sạch, không seeder) xe đầu tiên không có ID 1 nên nhận 404. Giờ dùng ID của xe
+  visible tạo riêng trong test (`/xe/{car->id}`).
+- Ảnh hưởng: chỉ test, không đổi code chạy thật. Trên SQLite pass cả bản cũ.
+- Kiểm tra: chạy đủ suite với DB_CONNECTION=mysql và DB riêng `toyota_showroom_test`:
+  69 passed, 0 failed.
+
 ## 2026-11-16 Hiện nút Xóa dòng xe dạng disabled khi dòng xe còn xe
 
 - Sửa: `resources/views/admin/car-categories/index.blade.php` — trước đây nút Xóa bị ẩn hẳn
