@@ -1,5 +1,23 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
+
+- Sửa: `tests/Feature/Auth/FrontendIntegrationTest` dùng cứng `/xe/1` cho mọi role; trên MySQL
+  (bộ test sạch, không seeder) xe đầu tiên không có ID 1 nên nhận 404. Giờ dùng ID của xe
+  visible tạo riêng trong test (`/xe/{car->id}`).
+- Ảnh hưởng: chỉ test, không đổi code chạy thật. Trên SQLite pass cả bản cũ.
+- Kiểm tra: chạy đủ suite với DB_CONNECTION=mysql và DB riêng `toyota_showroom_test`:
+  69 passed, 0 failed.
+
+## 2026-11-16 Hiện nút Xóa dòng xe dạng disabled khi dòng xe còn xe
+
+- Sửa: `resources/views/admin/car-categories/index.blade.php` — trước đây nút Xóa bị ẩn hẳn
+  khi `@can('delete', ...)` thất bại (dòng xe còn xe), khiến quản trị viên tưởng chức năng xóa
+  chưa tồn tại. Giờ hiển thị chữ "Xóa" màu xám, không bấm được, tooltip giải thích lý do.
+- Ảnh hưởng dữ liệu/quyền: không đổi; Policy `CarCategoryPolicy::delete` và controller
+  `destroy` vẫn từ chối xóa dòng xe còn xe (server-side giữ nguyên).
+- Kiểm tra: CatalogTest 12 pass/1 skip.
+
 ## 2026-10-20 Sửa lỗi mở form thêm xe và cho chọn ảnh ngay khi thêm xe
 
 - Sửa: `AdminCarController@create` trước đó không truyền biến `$car` cho form dùng chung
