@@ -2,6 +2,7 @@
 
 16/11: nhánh feature/customer-catalog-integration ghép TV3 từ PR #2/admin 56211fe
 với customer 9a71fe5. /xe và /xe/{car} đọc DB, giữ slider giới thiệu và card 3 cột;
+đã ghép main eb6399a/PR #8, giữ sửa test và trạng thái nút xóa dòng xe của nhóm.
 gallery mở đúng ảnh, tư vấn AJAX/booking dùng đúng ID xe. Giữ chat/lịch/video Auth.
 Đã kiểm 108 tests/874 assertions trên SQLite và MySQL 8.4.3, 5 JS tests, build;
 race upload giữ 10 ảnh/1 primary, locking tư vấn với xe sold/hidden đạt.

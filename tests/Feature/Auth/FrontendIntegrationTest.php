@@ -41,11 +41,12 @@ class FrontendIntegrationTest extends TestCase
     public function test_each_role_can_browse_frontend_with_account_and_logout_links(): void
     {
         $car = $this->visibleCar();
+        $carUrl = "/xe/{$car->id}";
         foreach (UserRole::cases() as $role) {
             $user = User::factory()->create();
             $user->forceFill(['role' => $role])->save();
             $this->actingAs($user);
-            foreach (['/', '/xe', '/xe/'.$car->id] as $url) {
+            foreach (['/', '/xe', $carUrl] as $url) {
                 $this->get($url)->assertOk()
                     ->assertSee('href="'.route('account').'"', false)
                     ->assertSee('action="'.route('logout').'"', false)

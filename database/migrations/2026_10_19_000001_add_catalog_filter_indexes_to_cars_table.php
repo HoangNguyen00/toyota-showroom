@@ -24,16 +24,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        // MySQL may replace an implicit FK index with the new composite index.
-        // Restore the single-column index before dropping the composite on rollback.
-        if (Schema::getConnection()->getDriverName() === 'mysql') {
-            if (! Schema::hasIndex('cars', 'cars_category_id_foreign')) {
-                Schema::table('cars', fn (Blueprint $table) => $table->index('category_id', 'cars_category_id_foreign'));
-            }
-            if (! Schema::hasIndex('car_images', 'car_images_car_id_foreign')) {
-                Schema::table('car_images', fn (Blueprint $table) => $table->index('car_id', 'car_images_car_id_foreign'));
-            }
-        }
         Schema::table('cars', function (Blueprint $table) {
             $table->dropIndex(['category_id', 'is_visible']);
             $table->dropIndex(['name']);

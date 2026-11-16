@@ -1,5 +1,24 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
+
+- Sửa: `tests/Feature/Auth/FrontendIntegrationTest` dùng cứng `/xe/1` cho mọi role; trên MySQL
+  (bộ test sạch, không seeder) xe đầu tiên không có ID 1 nên nhận 404. Giờ dùng ID của xe
+  visible tạo riêng trong test (`/xe/{car->id}`).
+- Ảnh hưởng: chỉ test, không đổi code chạy thật. Trên SQLite pass cả bản cũ.
+- Kiểm tra: chạy đủ suite với DB_CONNECTION=mysql và DB riêng `toyota_showroom_test`:
+  69 passed, 0 failed.
+
+## 2026-11-16 Hiện nút Xóa dòng xe dạng disabled khi dòng xe còn xe
+
+- Sửa: `resources/views/admin/car-categories/index.blade.php` — trước đây nút Xóa bị ẩn hẳn
+  khi `@can('delete', ...)` thất bại (dòng xe còn xe), khiến quản trị viên tưởng chức năng xóa
+  chưa tồn tại. Giờ hiển thị chữ "Xóa" màu xám, không bấm được, tooltip giải thích lý do.
+- Ảnh hưởng dữ liệu/quyền: không đổi; Policy `CarCategoryPolicy::delete` và controller
+  `destroy` vẫn từ chối xóa dòng xe còn xe (server-side giữ nguyên).
+- Kiểm tra: CatalogTest 12 pass/1 skip.
+
+
 ## 2026-11-16 Nối catalog TV3 với giao diện khách
 
 - Ghép PR #2/admin 56211fe vào customer 9a71fe5; giữ route/chat/lịch/video Auth.
@@ -11,8 +30,10 @@
   dưới lock cars; không xóa ảnh cuối của xe public. Giữ thứ tự category -> car khi SaveCar.
 - Giữ cả CatalogSeeder và DemoContentSeeder; chỉ bổ sung CatalogSeeder khi cài demo,
   không reset DB hoặc chạy lại UserSeeder. Giữ media upload/video local ngoài Git.
-- Sửa down() migration index catalog chưa merge để MySQL giữ index FK trước khi drop
-  composite; không sửa migration nền. Auth frontend test dùng ID thật, không cố định /xe/1.
+- Giữ nguyên migration catalog sau khi nhóm gộp PR #2; thêm migration 2026_11_16
+  khôi phục index FK một cột trên MySQL và giữ chúng khi rollback, để migration catalog
+  có thể drop composite an toàn. Auth frontend test dùng ID thật, không cố định /xe/1.
+- Ghép main eb6399a, giữ nút xóa dòng xe disabled và bản sửa test của nhóm (PR #8).
 - Kiểm tra: 108 tests/874 assertions trên SQLite và MySQL 8.4.3, Pint/syntax/inventory,
   5 JS tests, Vite build đạt (4 cảnh báo font baseline). MySQL hai upload đồng thời:
   1 nhận/1 từ chối, đúng 10 ảnh/1 primary; TV4 sold/hidden/category locking đạt.
@@ -151,6 +172,41 @@
   Full regression/build và composer check ghi kết quả ở docs/testing/TV4_VALIDATION.md.
 - Chưa nối public form/UI customer PR #11, chưa review trực quan responsive;
   không nhận hoàn thành các module khác. Hợp đồng ở docs/development/TV4_INTEGRATION.md.
+
+## 2026-10-20 Sửa lỗi mở form thêm xe và cho chọn ảnh ngay khi thêm xe
+
+- Sửa: `AdminCarController@create` trước đó không truyền biến `$car` cho form dùng chung
+  `admin/cars/_form.blade.php`, gây lỗi "Undefined variable $car" khi mở /admin/cars/create.
+  Giờ truyền `new Car` (form vẫn phân biệt thêm/sửa bằng `$car->exists`).
+- Thêm: chọn ảnh ngay khi thêm xe — ô `images[]` nhiều file trong `_form` (chỉ ở chế độ tạo,
+  enctype multipart), validate `images`/`images.*` trong `CarRequest` (tối đa 8 ảnh, JPG/PNG/WEBP,
+  ≤4 MB, ≥320x180), `store()` lưu từng ảnh qua `StoreCarImage::handle` sau khi tạo xe.
+- Ảnh hưởng dữ liệu/quyền: không đổi schema/route; ảnh vẫn tên UUID do server đặt, quyền upload
+  vẫn qua Policy trong service/kênh hiện có; form sửa xe không đổi.
+- Kiểm tra: CatalogTest 12 pass/1 skip; không chạy thử upload nhiều ảnh qua trình duyệt thật,
+  chưa kiểm MySQL riêng cho các rule mới (validate ảnh phụ thuộc extension).
+
+## 2026-10-19 TV3: CRUD xe, dòng xe, ảnh và catalog public (nhánh feature/car-crud-search)
+
+- Thêm: migration index `cars(category_id,is_visible)`, `cars(name)`, `car_images(car_id,is_primary)`;
+  factory Car/CarCategory; scope `Car::publiclyVisible`, `CarCategory::visible`; `CarImage::url()`.
+- Thêm: `Controllers/Catalog` (AdminCarController, AdminCarImageController, AdminCarCategoryController,
+  CarsController), `Requests/Catalog`, `Services/Catalog` (SaveCar, StoreCarImage),
+  `Policies/CarPolicy`, `Policies/CarCategoryPolicy`, `Support/Catalog/CarPresenter`.
+- Thêm view: `admin/cars/{index,create,edit,_form}`, `admin/car-categories/{index,form}`;
+  public `cars/index`, `cars/show` dùng DB; `components/car-card` nhận shape của CarPresenter.
+- Đổi route: `/xe` và `/xe/{car}` giờ là catalog DB (`cars.index`, `cars.show`); fixture UI
+  chuyển sang `/collection-preview` và `/xe-preview/{id}` (cars.collection-preview/cars.preview.show,
+  chỉ local/testing). `routes/catalog.php` require một lần từ web.php. Admin thêm
+  `admin.car-categories.*`, `admin.cars.*`.
+- Thêm `CatalogSeeder` (7 dòng, 15 chiếc, ảnh chính từ public/assets/products) và gọi trong
+  DatabaseSeeder; idempotent, không reset giá/visibility đã sửa.
+- Ảnh: JPG/PNG/WEBP ≤4 MB ≥320x180, tên file UUID do server đặt, một ảnh chính/xe.
+- Ảnh hưởng dữ liệu/quyền: migration chỉ thêm index, chạy `migrate` + `storage:link`;
+  catalog ghi chỉ admin (role + Policy), public chỉ đọc bản ghi visible.
+- Kiểm tra: `php artisan test` 47 pass/1 skip (SQLite);
+  `DB_CONNECTION=mysql DB_DATABASE=toyota_showroom_test php artisan test --filter=CatalogTest` 13/13 pass.
+- Chưa kiểm: trình duyệt/thiết bị thật, upload nhiều admin đồng thời, ảnh HEIC/LFS, JSON API riêng.
 
 ## 2026-10-19 Gộp năm nhánh vào main
 

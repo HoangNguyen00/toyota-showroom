@@ -59,8 +59,10 @@ Sau baseline, sửa schema bằng migration mới; cập nhật model, đặc t�
 
 Migration mới `2026_10_19_000001_add_catalog_filter_indexes_to_cars_table` chỉ thêm index:
 cars(category_id,is_visible), cars(name), car_images(car_id,is_primary). Không đổi cột/enum.
-16/11 sửa down() của migration catalog chưa merge: MySQL có thể dùng composite index cho
-FK và bỏ implicit index cũ, nên khôi phục index FK một cột trước khi drop composite.
+Migration bổ sung `2026_11_16_000001_preserve_catalog_foreign_key_indexes` khôi phục
+index FK một cột trên MySQL nếu InnoDB đã thay chúng bằng composite index catalog.
+Down giữ các index phục vụ FK nền để migration catalog cũ rollback an toàn. Giữ nguyên
+migration catalog đã gộp PR #2; không thay cột/enum hoặc xóa dữ liệu.
 Ảnh upload lưu `storage/app/public/cars/{car_id}/{uuid}.ext` (disk public, cần `storage:link`);
 seed dùng path `assets/products/...` trong public. One-primary-per-car chỉ được bảo đảm
 bởi StoreCarImage trong transaction (khóa hàng cars), không phải unique index DB.
