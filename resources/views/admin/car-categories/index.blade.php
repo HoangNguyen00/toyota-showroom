@@ -40,6 +40,8 @@
                                         @csrf @method('DELETE')
                                         <button type="submit" class="text-red-700 underline">Xóa</button>
                                     </form>
+                                @else
+                                    <span class="mt-2 block cursor-not-allowed text-zinc-400" title="Dòng xe vẫn còn xe nên không xóa được">Xóa</span>
                                 @endcan
                             </td>
                         </tr>

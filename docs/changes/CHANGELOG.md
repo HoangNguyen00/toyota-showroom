@@ -1,5 +1,14 @@
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-16 Hiện nút Xóa dòng xe dạng disabled khi dòng xe còn xe
+
+- Sửa: `resources/views/admin/car-categories/index.blade.php` — trước đây nút Xóa bị ẩn hẳn
+  khi `@can('delete', ...)` thất bại (dòng xe còn xe), khiến quản trị viên tưởng chức năng xóa
+  chưa tồn tại. Giờ hiển thị chữ "Xóa" màu xám, không bấm được, tooltip giải thích lý do.
+- Ảnh hưởng dữ liệu/quyền: không đổi; Policy `CarCategoryPolicy::delete` và controller
+  `destroy` vẫn từ chối xóa dòng xe còn xe (server-side giữ nguyên).
+- Kiểm tra: CatalogTest 12 pass/1 skip.
+
 ## 2026-10-20 Sửa lỗi mở form thêm xe và cho chọn ảnh ngay khi thêm xe
 
 - Sửa: `AdminCarController@create` trước đó không truyền biến `$car` cho form dùng chung
