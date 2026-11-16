@@ -1,17 +1,40 @@
 # Nhật ký thay đổi hệ thống
-## 2026-10-20 Lịch hẹn và dịch vụ (TV5 - feature/appointment-schedule)
-- Thêm: routes/appointments.php, AppointmentController, StoreAppointmentRequest/
-  UpdateStatusRequest, AppointmentService, AppointmentPolicy/ServicePolicy,
-  views appointments (create/index/manage), admin/services, customer/staff
-  appointments, tests Feature/Appointment (AppointmentTest, ServiceCrudTest).
-- Sửa: routes/admin.php, routes/staff.php, routes/customer.php, bootstrap/app.php
-  đăng ký nhóm route appointments; enum AppointmentStatus/AppointmentType/ServiceType
-  bổ sung giá trị no_show và loại bảo dưỡng.
-- Quyền: guest/customer đặt lịch viewing/maintenance; customer chỉ xem/hủy lịch của
-  mình trước giờ; sales/staff xem scoped; admin xác nhận (khóa slot + kiểm tra trùng giờ
-  trong transaction), hủy với lý do, kết thúc sau giờ xác nhận, đánh dấu no_show.
-- Kiểm tra: php artisan test 50 test/418 assertions pass; pint pass;
-  architecture-inventory --check pass. Chưa kiểm tra trực quan trình duyệt và MySQL thật.
+
+## 2026-10-20 Sửa lỗi mở form thêm xe và cho chọn ảnh ngay khi thêm xe
+
+- Sửa: `AdminCarController@create` trước đó không truyền biến `$car` cho form dùng chung
+  `admin/cars/_form.blade.php`, gây lỗi "Undefined variable $car" khi mở /admin/cars/create.
+  Giờ truyền `new Car` (form vẫn phân biệt thêm/sửa bằng `$car->exists`).
+- Thêm: chọn ảnh ngay khi thêm xe — ô `images[]` nhiều file trong `_form` (chỉ ở chế độ tạo,
+  enctype multipart), validate `images`/`images.*` trong `CarRequest` (tối đa 8 ảnh, JPG/PNG/WEBP,
+  ≤4 MB, ≥320x180), `store()` lưu từng ảnh qua `StoreCarImage::handle` sau khi tạo xe.
+- Ảnh hưởng dữ liệu/quyền: không đổi schema/route; ảnh vẫn tên UUID do server đặt, quyền upload
+  vẫn qua Policy trong service/kênh hiện có; form sửa xe không đổi.
+- Kiểm tra: CatalogTest 12 pass/1 skip; không chạy thử upload nhiều ảnh qua trình duyệt thật,
+  chưa kiểm MySQL riêng cho các rule mới (validate ảnh phụ thuộc extension).
+
+## 2026-10-19 TV3: CRUD xe, dòng xe, ảnh và catalog public (nhánh feature/car-crud-search)
+
+- Thêm: migration index `cars(category_id,is_visible)`, `cars(name)`, `car_images(car_id,is_primary)`;
+  factory Car/CarCategory; scope `Car::publiclyVisible`, `CarCategory::visible`; `CarImage::url()`.
+- Thêm: `Controllers/Catalog` (AdminCarController, AdminCarImageController, AdminCarCategoryController,
+  CarsController), `Requests/Catalog`, `Services/Catalog` (SaveCar, StoreCarImage),
+  `Policies/CarPolicy`, `Policies/CarCategoryPolicy`, `Support/Catalog/CarPresenter`.
+- Thêm view: `admin/cars/{index,create,edit,_form}`, `admin/car-categories/{index,form}`;
+  public `cars/index`, `cars/show` dùng DB; `components/car-card` nhận shape của CarPresenter.
+- Đổi route: `/xe` và `/xe/{car}` giờ là catalog DB (`cars.index`, `cars.show`); fixture UI
+  chuyển sang `/collection-preview` và `/xe-preview/{id}` (cars.collection-preview/cars.preview.show,
+  chỉ local/testing). `routes/catalog.php` require một lần từ web.php. Admin thêm
+  `admin.car-categories.*`, `admin.cars.*`.
+- Thêm `CatalogSeeder` (7 dòng, 15 chiếc, ảnh chính từ public/assets/products) và gọi trong
+  DatabaseSeeder; idempotent, không reset giá/visibility đã sửa.
+- Ảnh: JPG/PNG/WEBP ≤4 MB ≥320x180, tên file UUID do server đặt, một ảnh chính/xe.
+- Ảnh hưởng dữ liệu/quyền: migration chỉ thêm index, chạy `migrate` + `storage:link`;
+  catalog ghi chỉ admin (role + Policy), public chỉ đọc bản ghi visible.
+- Kiểm tra: `php artisan test` 47 pass/1 skip (SQLite);
+  `DB_CONNECTION=mysql DB_DATABASE=toyota_showroom_test php artisan test --filter=CatalogTest` 13/13 pass.
+- Chưa kiểm: trình duyệt/thiết bị thật, upload nhiều admin đồng thời, ảnh HEIC/LFS, JSON API riêng.
+
 ## 2026-10-19 Gộp năm nhánh vào main
 
 - Gộp theo thứ tự docs/review-v6-srs, feature/auth-middleware, feature/admin-users,

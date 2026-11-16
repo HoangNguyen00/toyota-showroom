@@ -3,6 +3,8 @@
 namespace Tests\Feature\Auth;
 
 use App\Enums\UserRole;
+use App\Models\Car;
+use App\Models\CarCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,9 +19,17 @@ class FrontendIntegrationTest extends TestCase
         $this->withoutVite();
     }
 
+    private function visibleCar(): Car
+    {
+        $category = CarCategory::factory()->create(['is_visible' => true]);
+
+        return Car::factory()->create(['category_id' => $category->id, 'is_visible' => true]);
+    }
+
     public function test_guest_can_reach_auth_from_home_catalog_and_detail(): void
     {
-        foreach (['/', '/xe', '/xe/1'] as $url) {
+        $car = $this->visibleCar();
+        foreach (['/', '/xe', "/xe/{$car->id}"] as $url) {
             $this->get($url)->assertOk()
                 ->assertSee('href="'.route('login').'"', false)
                 ->assertDontSee('data-preview="Đăng nhập"', false);
@@ -30,6 +40,7 @@ class FrontendIntegrationTest extends TestCase
 
     public function test_each_role_can_browse_frontend_with_account_and_logout_links(): void
     {
+        $car = $this->visibleCar();
         foreach (UserRole::cases() as $role) {
             $user = User::factory()->create();
             $user->forceFill(['role' => $role])->save();
