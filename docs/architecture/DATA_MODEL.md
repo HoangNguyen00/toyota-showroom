@@ -56,8 +56,10 @@ Sau baseline, sửa schema bằng migration mới; cập nhật model, đặc t�
 
 ## TV3 catalog (19/10)
 
-Migration mới `2026_10_19_000001_add_catalog_filter_indexes_to_cars_table` chỉ thêm index:
-cars(category_id,is_visible), cars(name), car_images(car_id,is_primary). Không đổi cột/enum.
+Migration `2026_10_19_000001_add_catalog_filter_indexes_to_cars_table` thêm index:
+cars(category_id,is_visible), cars(name), car_images(car_id,is_primary). Migration
+`2026_11_17_000001_add_cars_category_fk_support_index` giữ index đơn cars(category_id)
+để MySQL có thể rollback index lọc mà không làm mất index phục vụ foreign key. Không đổi cột/enum.
 Ảnh upload lưu `storage/app/public/cars/{car_id}/{uuid}.ext` (disk public, cần `storage:link`);
 seed dùng path `assets/products/...` trong public. One-primary-per-car chỉ được bảo đảm
 bởi StoreCarImage trong transaction (khóa hàng cars), không phải unique index DB.

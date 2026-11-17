@@ -4,6 +4,7 @@ namespace App\Services\Account;
 
 use App\Models\Inquiry;
 use App\Models\User;
+use App\Services\Inquiry\PublicationGate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -11,7 +12,7 @@ class UpdateUserStatus
 {
     public function handle(User $actor, User $target, bool $active): void
     {
-        DB::transaction(function () use ($actor, $target, $active): void {
+        app(PublicationGate::class)->run(fn () => DB::transaction(function () use ($actor, $target, $active): void {
             // Shared protocol: users in ID order, then affected inquiries.
             $users = User::whereIn('id', [$actor->id, $target->id])
                 ->orderBy('id')->lockForUpdate()->get()->keyBy('id');
@@ -32,6 +33,6 @@ class UpdateUserStatus
                         ->orWhere('assigned_to', $lockedTarget->id);
                 })->increment('access_version');
             }
-        }, 5);
+        }, 5));
     }
 }

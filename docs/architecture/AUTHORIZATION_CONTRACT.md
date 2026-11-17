@@ -1,8 +1,16 @@
 # H03 — Hợp đồng phân quyền theo bản ghi
 
+**Sau sửa F01 được phê duyệt 24/10:** PublicationGate chung giữa publisher/reassign/H02
+ngăn revocation commit chen SELECT cuối/dispatch khi cùng primary và session còn sở hữu.
+Security regression exit 0; MySQL hai process và Reverb thật đạt. Không đổi ma trận quyền;
+Hoàng cần review H02 trước merge. Xem ADR 0006 về outermost gate, timeout, session-loss,
+in-flight/acceptance/client receipt; không coi đây là bảo đảm tuyệt đối qua failover.
+
 17/10/2026, đề xuất cho owner review theo SRS 1.4/CONTRACTS.
-Không thêm endpoint/Policy giả hoàn thành. Đã có UserPolicy H02 và Car/CarCategoryPolicy (TV3,
-chờ review). InquiryPolicy, AppointmentPolicy, kiểm kênh chat vẫn chờ module owner.
+Không thêm endpoint/Policy giả hoàn thành. Đã có UserPolicy H02,
+Car/CarCategoryPolicy (TV3), AppointmentPolicy/ServicePolicy (TV5) và trên nhánh TV4
+có InquiryPolicy/MessagePolicy, scope danh sách cùng private channel thật. Các phần
+dùng chung và H02/PublicationGate vẫn cần owner review trước khi merge TV4 vào main.
 
 ## 1. Ba lớp cần kiểm
 
@@ -67,7 +75,8 @@ HTTP gửi và broadcast kiểm quyền/current version mới; không phát tin 
 Job giữ version ban đầu phải kiểm lại: version không còn đúng thì không phát event
 cũ; lịch sử tin vẫn trong DB để người còn quyền tải lại sau khi vào kênh mới.
 Không tuyên bố xóa dữ liệu đã được gửi hoặc chỉ đóng UI là đã thu hồi socket.
-Lock user → request sau thu hồi session hiện đã có; phía socket/job chưa có.
+Lock user → request sau thu hồi session đã có; TV4 job kiểm current version/quyền
+trước broadcast và không phát job cũ. Bằng chứng Reverb/queue thật ở TV4_VALIDATION.
 Chat new/closed chỉ đọc; không tự thêm reopen P2.
 Lịch final không sửa, no_show/completed sau giờ; confirm kiểm slot/xe/service.
 
@@ -75,11 +84,11 @@ Lịch final không sửa, no_show/completed sau giờ; confirm kiểm slot/xe/s
 
 | ID | Ca cần thử | Owner | Hiện trạng |
 | --- | --- | --- | --- |
-| H03-CAT | Đoán URL/POST ID xe hoặc dòng ẩn; xóa xe đã tham chiếu | TV3 | Có test: xe/dòng ẩn 404 (cả admin), xóa xe có inquiry trả validation, xóa dòng còn xe bị Policy+FK chặn; chờ review |
-| H03-INQ | Customer A list/detail hồ sơ B; sales A đọc/sửa hồ sơ của B | TV4 | Chưa có endpoint |
-| H03-CHAT | Customer/sales/admin dùng shared chat route; guest inquiry không chat | TV4 | Chưa có endpoint |
-| H03-REVOKE | Hai session + job chờ khi khóa user/chuyển sales; kênh cũ không nhận tin mới | Hoàng + TV4 | HTTP/version H01/H02 có test; socket chưa có |
-| H03-UUID | Retry sau mất quyền; UUID khác inquiry/nội dung không lộ tin | TV4 | Chưa triển khai |
+| H03-CAT | Đoán URL/POST ID xe hoặc dòng ẩn; xóa xe đã tham chiếu | TV3 | Có test xe/dòng ẩn 404, xóa xe có inquiry và dòng còn xe; chờ review |
+| H03-INQ | Customer A list/detail hồ sơ B; sales A đọc/sửa hồ sơ của B | TV4 | Có tests trên nhánh TV4; chờ review |
+| H03-CHAT | Customer/sales/admin dùng shared chat route; guest inquiry không chat | TV4 | Có tests HTTP/channel; chờ review |
+| H03-REVOKE | Hai session + job chờ khi khóa user/chuyển sales; kênh cũ không nhận tin mới | Hoàng + TV4 | Đã thử Reverb/Queue thật 24/10; chờ review |
+| H03-UUID | Retry sau mất quyền; UUID khác inquiry/nội dung không lộ tin | TV4 | Có tests UUID/409 + MySQL concurrency; chờ review |
 | H03-APT | Customer hủy lịch B; sales thao tác lịch khác người; admin không vượt final/giờ | TV5 | Chưa có endpoint |
 | H03-LINK | Gắn inquiry_id khác customer hoặc guest chỉ vì trùng phone | TV4 + TV5 | Chưa có endpoint |
 | H03-STATE | Form/state/role bị gửi thêm từ DevTools vẫn bị server chặn | Từng owner | H01/H02 đã có test riêng, module khác chưa |

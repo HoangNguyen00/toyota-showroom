@@ -1,5 +1,11 @@
 # Kế hoạch nghiệm thu P1 — SRS 1.4
 
+Sau sửa F01 được phê duyệt 24/10: security gate, MySQL hai process và Reverb thật tại
+SELECT/publish boundary đạt cho reassign/H02 lock customer/sales. CHAT-03 backend có
+bằng chứng gate chung trong phạm vi ADR 0006; không thu hồi ngược in-flight hoặc hứa
+failover tuyệt đối. H02 cần Hoàng review trước merge. F02/F03/F04 regression giữ đạt;
+không nâng toàn bộ UI khách/P1 lên hoàn tất chỉ vì backend suite pass.
+
 Chưa phải kết quả đã chạy. Mỗi mục ghi người kiểm, ngày, kết quả và PR/bằng chứng.
 Các tính năng P2 không nằm trong điều kiện đạt P1.
 
@@ -31,3 +37,17 @@ APT-03 phải dùng hai giao dịch/kết nối MySQL thật, không kết luậ
 hoặc hai lần request tuần tự. CHAT cần hai session độc lập và thử ngắt/nối mạng.
 Seed đủ >12 xe để thấy phân trang và đủ các trạng thái demo.
 Chỉ mở P2 sau khi nhóm ghi kết quả đạt toàn bộ bảng và xử lý lỗi P1.
+
+## Bằng chứng TV4 local — 24/10/2026
+
+Nhánh feature/inquiry-chat-websocket, chưa commit/merge. INQ-01/02/03 đã chạy
+backend tự động: input/owner/throttle/car visibility, assignment/reassignment,
+scope list/detail, note không lộ, trạng thái/close_result. CHAT-01/02/03 đã thử
+HTTP/session/CSRF thật, MySQL riêng, Reverb hai phiên: 1731 ms; retry không phát
+lặp, reconnect catch-up, socket/job cũ sau reassign/H02 lock không nhận tin mới.
+MySQL hai tiến trình độc lập cùng UUID và send/reassign: pass, không reset demo.
+Chi tiết: [TV4_VALIDATION](TV4_VALIDATION.md), harness trong scripts/testing.
+
+Đây là bằng chứng backend nhánh TV4, chưa nghiệm thu UI khách PR #11, form AJAX
+trực quan, responsive hoặc toàn bộ P1. Không đánh dấu các mục Catalog/Appointment
+đã đạt từ test TV4. Cần review nhóm và nối UI khách trước demo nghiệm thu tổng.

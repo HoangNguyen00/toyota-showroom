@@ -73,6 +73,14 @@ Auth giữ name login/register/account/logout như H01.
 
 ## 5. Phụ thuộc quyền và khóa dữ liệu
 
+Sau sửa F01 theo phê duyệt 24/10: publisher, InquiryService::update và H02
+UpdateUserStatus::handle lấy PublicationGate theo database TRƯỚC transaction; caller
+phải outermost, không reentrant. Bên trong giữ nguyên users ID tăng dần → inquiry.
+Publisher commit/nhả row locks rồi mới network, giữ advisory gate đến khi lời gọi
+phát kết thúc/throw. MessageService không lấy gate và không gọi network. Không có
+đường đang giữ row locks rồi chờ gate. Xem ADR 0006 về timeout, session loss, giới hạn
+single-primary/in-flight và yêu cầu Hoàng review H02; không đồng nhất gate với exactly-once.
+
 Hoàng/TV4 thống nhất trước khi viết H02/phân công:
 lock users liên quan theo ID tăng dần → lock inquiry; đọc lại active/role/quyền
 và assignment. Thay assigned_to/status/version trong transaction, broadcast sau commit.

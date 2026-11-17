@@ -24,7 +24,7 @@ function controlledProjectFiles(string $root): array
 {
     $paths = [];
     $directories = ['app', 'bootstrap', 'config', 'database', 'docs', 'public', 'resources', 'routes', 'scripts', 'tests', '.github'];
-    $excluded = ['bootstrap/cache', 'public/build', 'public/storage', 'docs/testing/local-results'];
+    $excluded = ['bootstrap/cache', 'public/build', 'public/hot', 'public/storage', 'docs/testing/local-results'];
 
     foreach ($directories as $directory) {
         $base = $root.'/'.$directory;

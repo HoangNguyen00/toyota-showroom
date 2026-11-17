@@ -8,6 +8,22 @@ require_once __DIR__.'/../../scripts/project-files.php';
 
 class InventoryHashTest extends TestCase
 {
+    public function test_vite_hot_marker_is_excluded_from_controlled_project_files(): void
+    {
+        $directory = sys_get_temp_dir().'/toyota-inventory-'.bin2hex(random_bytes(8));
+        mkdir($directory.'/public', 0777, true);
+        try {
+            file_put_contents($directory.'/public/hot', 'http://127.0.0.1:5173');
+            file_put_contents($directory.'/public/fixture.txt', 'controlled source');
+            $this->assertSame(['public/fixture.txt'], controlledProjectFiles($directory));
+        } finally {
+            unlink($directory.'/public/hot');
+            unlink($directory.'/public/fixture.txt');
+            rmdir($directory.'/public');
+            rmdir($directory);
+        }
+    }
+
     public function test_text_line_endings_are_portable_but_content_changes_are_detected(): void
     {
         $directory = sys_get_temp_dir().'/toyota-inventory-'.bin2hex(random_bytes(8));

@@ -4,6 +4,124 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-17 TV4 — đồng bộ main mới và xử lý conflict PR #1
+
+- Merge main `0b01c6442596255f5e5b7ec3acaebc02f2b8b160` vào nhánh TV4, giữ đồng thời
+  backend tư vấn/chat, TV3 Catalog và TV5 lịch hẹn/dịch vụ; không thay schema TV4.
+- Hợp nhất route admin theo namespace module; cập nhật contracts, authorization và
+  feature status theo mã thật; tái tạo inventory bằng script chính thức.
+- Ảnh hưởng quyền: giữ nguyên Policy/invariant từng module và PublicationGate H02/TV4;
+  không mở quyền mới, không đưa UI khách ở nhánh tích hợp riêng vào backend TV4.
+- Kiểm tra: `composer check` đạt 90 tests / 737 assertions trên SQLite, 1 test biên số
+  được skip có chủ đích cho MySQL; inventory, syntax, tracked-path và Pint đạt. `npm run build`
+  đạt (Vite chỉ cảnh báo font tĩnh được resolve lúc runtime); 4 JavaScript tests đạt. Chưa chạy
+  lại MySQL, Reverb hoặc kiểm thử trình duyệt trong đợt xử lý conflict này; giữ nguyên các kết quả
+  lịch sử bên dưới.
+
+## 2026-11-17 TV3 — sửa rollback index Catalog trên MySQL
+
+- CI sau khi ghép TV4 với main phát hiện MySQL không cho xóa index
+  `cars(category_id,is_visible)` vì foreign key category đang dùng index đó.
+- Thêm migration nối tiếp tạo index hỗ trợ đơn `cars(category_id)`; `down()` chủ đích giữ index
+  đến khi migration nền xóa bảng, tránh sửa ngược migration TV3 đã merge hoặc tắt foreign key.
+- Không đổi cột, dữ liệu hay quyền. `composer check` local đạt 90 tests / 737 assertions;
+  GitHub Actions sau sửa đạt cả PHP SQLite, PHP MySQL và frontend. JavaScript local đạt 4 tests.
+
+## 2026-11-16 TV4 — xử lý xung đột PR #1 trên repository mới
+
+- Ghép main `ed06179` vào backend TV4 `1438af2`, giữ cả route/import chat và lịch hẹn;
+  giữ toàn bộ lịch sử hai module và tạo lại inventory thay vì chọn một phía.
+- Không đổi schema, dữ liệu demo, quyền hoặc nội dung giao diện khách. UI khách được
+  giữ trên nhánh tích hợp riêng của Đạt; PR #1 vẫn dành cho backend TV4.
+- Kiểm tra: composer check đạt 78 tests / 635 assertions trên SQLite, Pint/syntax/inventory;
+  npm run build và 4 test JavaScript đạt. MySQL 8.4.3: UUID cạnh tranh, send/reassign,
+  crash trước/sau commit, gate khi reassign/khóa sales/khóa customer, session loss và
+  xe/dòng ẩn đã đạt trên DB thử riêng. Hai phiên Reverb thật nhận tin trong 1303 ms;
+  retry/reconnect/CSRF/throttle và stale socket/job sau thu hồi quyền đều đạt.
+  Chưa kiểm responsive/thiết bị thật, tải lớn hoặc failover; giữ giới hạn ADR 0006.
+
+## 2026-10-24 TV4 — đồng bộ tài liệu sau commit/push
+
+- Sửa trạng thái bàn giao theo commit chức năng `a7bf4059764fc506f1ee3e1aa10a8ea2b61199d6`
+  đã push lên `feature/inquiry-chat-websocket`; chưa tạo Pull Request TV4, chưa merge main.
+- Giữ kết quả kiểm thử lịch sử, quyết định ADR, giới hạn bảo mật và yêu cầu owner review;
+  không sửa mã ứng dụng, schema, dữ liệu hoặc quyền. Regenerate inventory bằng script chính thức.
+- Kiểm tra: inventory --check, git diff --check và đối chiếu diff từng file; không chạy
+  lại MySQL/Reverb trong đợt đồng bộ tài liệu. Các mục dưới là lịch sử các đợt triển khai.
+- Composer check theo quy định repo đạt: SQLite 57 tests / 507 assertions, syntax/encoding/Pint;
+  không thay các số liệu MySQL/Reverb lịch sử bằng kết quả chạy mới.
+
+## 2026-10-24 F01 — tích hợp publication/revocation theo phê duyệt giới hạn
+
+- Thêm PublicationGate chung theo DB: MySQL GET_LOCK session PDO riêng không TTL/
+  reconnect, SQLite flock test; bounded wait, ownership check, fail closed với nested/
+  outer transaction. Publisher giữ gate qua synchronous dispatch, nhả row locks trước network.
+- Bọc InquiryService::update và CHỈ transaction gốc UpdateUserStatus::handle bằng gate;
+  không đổi Policy/active/version/idempotency/deadlock retry H02. Hoàng phải review trước merge.
+- Thêm regression publication/outside-transaction/rollback-idempotency; H02 tests dùng
+  DatabaseMigrations + DB guard thay implicit test transaction. Giữ toàn bộ ca cũ.
+- Security gate từ FAIL trước sửa sang PASS; thêm MySQL independent revoker, process
+  death/session-loss trước dispatch, Reverb thật hai socket cho reassign/lock sales/customer.
+- Không đổi schema/config/dependency/Auth khác H02/Catalog/Appointment/Frontend của Đạt,
+  không merge PR #11; tại đợt khắc phục này chưa stage/commit/push. F02/F03/F04 regression chạy lại.
+- Dữ liệu demo nguyên fingerprint. Giới hạn single-primary/gate ownership/in-flight,
+  head-of-line blocking và acceptance không đồng nhất receipt ở ADR 0006; kết quả thật TV4_VALIDATION.
+
+## 2026-10-24 Khắc phục findings TV4 trong phạm vi owner
+
+- Sửa F02: message và database job ghi cùng connection/transaction, beforeCommit chỉ
+  cho INSERT intent; driver/connection sai fail closed. Không thay bảng/dependency;
+  rollback/enqueue failure không để message thiếu intent, worker chỉ thấy sau commit.
+- Sửa F03 phía TV4: locking reads user → category shared → car shared; từ chối xe
+  chuyển category, không khóa thêm ngược thứ tự. TV3 cần review khi tích hợp CRUD.
+- Sửa F04: composer input revision/raw value bảo vệ draft mới khi response chậm;
+  giữ UUID retry/error. Không đổi UI/layout/CSS khách hay contract response/event.
+- Giữ F01 OPEN: chưa sửa H02 khi chưa được phép. Thêm security regression chính thức
+  exit 1 cho reassign và H02-lock commit trước dispatch; không che bằng mock pass.
+  Đề xuất fence/phối hợp Hoàng ở TV4_INTEGRATION. Không network trong DB transaction.
+- Thêm PHPUnit enqueue/rollback/retry/config guard, Node DOM regression, MySQL
+  process crash trước/sau commit và Catalog UPDATE locking độc lập. Không xóa test cũ.
+- Không sửa Auth/H02/Catalog/Appointment/schema/lockfile hoặc merge PR #11; không
+  reset/seed demo. Kết quả thực tế/giới hạn ở TV4_VALIDATION; chưa READY vì F01.
+
+## 2026-10-24 Backend TV4 tư vấn/chat trên nhánh riêng (lịch sử trước commit)
+
+- Thêm InquiryCloseResult, InquiryPolicy/MessagePolicy, FormRequests/controllers,
+  InquiryLock/InquiryService/MessageService/MessageData, BroadcastInquiryMessage job
+  và InquiryMessageCreated event; thêm tests và harness MySQL/Reverb độc lập.
+- Thêm POST /tu-van, customer/staff/admin scoped list/detail và mutation theo quyền;
+  chat HTTP shared auth/active, private channel version thật thay deny-by-default.
+- Thêm Blade staff tối thiểu + Echo JS: history, retry UUID, catch-up, lỗi/kết nối,
+  textContent chống XSS. Không chép frontend customer PR #11 (vẫn draft/unmerged).
+- Shared files: routes/web/customer/staff/admin/channels, app.js; giữ middleware,
+  H01/H02/TV3/TV5 và layout/CSS. Không đổi model/migration/schema/dependency/lockfile.
+- Sửa scripts/project-files.php loại trừ public/hot (Vite marker vốn bị Git ignore)
+  khỏi inventory; thêm regression InventoryHashTest để CI không phụ thuộc Vite local.
+- Dữ liệu/quyền: không hard-delete; owner/sender từ session; internal_note không
+  trả customer/events; users theo ID → inquiry và recheck trong transaction;
+  unique sender/UUID + khóa sender; enqueue sau commit; job recheck version/active.
+- DB demo toyota_showroom không migrate/reset/seed; kiểm MySQL trên DB local test
+  mới, user riêng chỉ có quyền DB test. Root password chỉ nhập hộp thoại cục bộ.
+- Đã thử MySQL concurrent UUID/send+reassign; hai phiên Reverb thật 1731 ms;
+  retry/catch-up, job chờ và socket kênh cũ sau chuyển sales/khóa user: đạt.
+  Full regression/build và composer check ghi kết quả ở docs/testing/TV4_VALIDATION.md.
+- Chưa nối public form/UI customer PR #11, chưa review trực quan responsive;
+  không nhận hoàn thành các module khác. Hợp đồng ở docs/development/TV4_INTEGRATION.md.
+
+## 2026-10-20 Lịch hẹn và dịch vụ (TV5 - feature/appointment-schedule)
+- Thêm: routes/appointments.php, AppointmentController, StoreAppointmentRequest/
+  UpdateStatusRequest, AppointmentService, AppointmentPolicy/ServicePolicy,
+  views appointments (create/index/manage), admin/services, customer/staff
+  appointments, tests Feature/Appointment (AppointmentTest, ServiceCrudTest).
+- Sửa: routes/admin.php, routes/staff.php, routes/customer.php, bootstrap/app.php
+  đăng ký nhóm route appointments; enum AppointmentStatus/AppointmentType/ServiceType
+  bổ sung giá trị no_show và loại bảo dưỡng.
+- Quyền: guest/customer đặt lịch viewing/maintenance; customer chỉ xem/hủy lịch của
+  mình trước giờ; sales/staff xem scoped; admin xác nhận (khóa slot + kiểm tra trùng giờ
+  trong transaction), hủy với lý do, kết thúc sau giờ xác nhận, đánh dấu no_show.
+- Kiểm tra: php artisan test 50 test/418 assertions pass; pint pass;
+  architecture-inventory --check pass. Chưa kiểm tra trực quan trình duyệt và MySQL thật.
+
 ## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
 
 - Sửa: `tests/Feature/Auth/FrontendIntegrationTest` dùng cứng `/xe/1` cho mọi role; trên MySQL

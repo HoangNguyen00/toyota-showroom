@@ -7,14 +7,25 @@ use App\Models\Inquiry;
 use App\Models\User;
 use App\Services\Account\UpdateUserStatus;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AdminUsersTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseMigrations;
+
+    protected function beforeRefreshingDatabase(): void
+    {
+        $connection = config('database.default');
+        $database = config("database.connections.$connection.database");
+        if (! ($connection === 'sqlite' && $database === ':memory:')
+            && ! ($connection === 'mysql' && config('database.connections.mysql.host') === '127.0.0.1'
+                && ($database === 'toyota_showroom_test' || preg_match('/^toyota_showroom_tv4_test_\d+$/', $database)))) {
+            throw new \RuntimeException('H02 regression requires a dedicated local test database.');
+        }
+    }
 
     protected function setUp(): void
     {
@@ -162,5 +173,33 @@ class AdminUsersTest extends TestCase
         }
         $this->assertTrue($sales->fresh()->is_active);
         $this->assertSame(1, $inquiry->fresh()->access_version);
+    }
+
+    public function test_gate_releases_after_rollback_and_retries_preserve_h02_idempotency(): void
+    {
+        $admin = $this->user(UserRole::Admin);
+        $sales = $this->user(UserRole::Sales);
+        $inquiry = $this->inquiry($this->user(), $sales);
+        $armed = true;
+        DB::listen(function ($query) use (&$armed): void {
+            if ($armed && str_starts_with(strtolower($query->sql), 'update') && str_contains($query->sql, 'inquiries')) {
+                $armed = false;
+                throw new \RuntimeException('Injected revocation rollback');
+            }
+        });
+        try {
+            app(UpdateUserStatus::class)->handle($admin, $sales, false);
+            $this->fail('Failure must propagate');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Injected revocation rollback', $e->getMessage());
+        }
+        $this->assertTrue($sales->fresh()->is_active);
+        $this->assertSame(1, $inquiry->fresh()->access_version);
+        app(UpdateUserStatus::class)->handle($admin, $sales, false);
+        app(UpdateUserStatus::class)->handle($admin, $sales, false);
+        $this->assertSame(2, $inquiry->fresh()->access_version);
+        $this->assertFalse($sales->fresh()->is_active);
+        app(UpdateUserStatus::class)->handle($admin, $sales, true);
+        $this->assertSame(2, $inquiry->fresh()->access_version);
     }
 }
