@@ -18,6 +18,15 @@
   lại MySQL, Reverb hoặc kiểm thử trình duyệt trong đợt xử lý conflict này; giữ nguyên các kết quả
   lịch sử bên dưới.
 
+## 2026-11-17 TV3 — sửa rollback index Catalog trên MySQL
+
+- CI sau khi ghép TV4 với main phát hiện MySQL không cho xóa index
+  `cars(category_id,is_visible)` vì foreign key category đang dùng index đó.
+- Thêm migration nối tiếp tạo index hỗ trợ đơn `cars(category_id)`; `down()` chủ đích giữ index
+  đến khi migration nền xóa bảng, tránh sửa ngược migration TV3 đã merge hoặc tắt foreign key.
+- Không đổi cột, dữ liệu hay quyền. SQLite/composer, frontend và JavaScript đã đạt trước thay đổi;
+  kết quả MySQL sẽ được cập nhật sau khi CI chạy lại.
+
 ## 2026-11-16 TV4 — xử lý xung đột PR #1 trên repository mới
 
 - Ghép main `ed06179` vào backend TV4 `1438af2`, giữ cả route/import chat và lịch hẹn;
