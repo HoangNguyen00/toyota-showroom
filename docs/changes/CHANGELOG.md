@@ -24,8 +24,8 @@
   `cars(category_id,is_visible)` vì foreign key category đang dùng index đó.
 - Thêm migration nối tiếp tạo index hỗ trợ đơn `cars(category_id)`; `down()` chủ đích giữ index
   đến khi migration nền xóa bảng, tránh sửa ngược migration TV3 đã merge hoặc tắt foreign key.
-- Không đổi cột, dữ liệu hay quyền. SQLite/composer, frontend và JavaScript đã đạt trước thay đổi;
-  kết quả MySQL sẽ được cập nhật sau khi CI chạy lại.
+- Không đổi cột, dữ liệu hay quyền. `composer check` local đạt 90 tests / 737 assertions;
+  GitHub Actions sau sửa đạt cả PHP SQLite, PHP MySQL và frontend. JavaScript local đạt 4 tests.
 
 ## 2026-11-16 TV4 — xử lý xung đột PR #1 trên repository mới
 
