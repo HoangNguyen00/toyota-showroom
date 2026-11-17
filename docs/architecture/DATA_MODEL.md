@@ -17,8 +17,7 @@ SRS 1.4 giữ 9 bảng nền cho P1; không coi yêu cầu trong tài liệu là
 
 Tất cả bảng có id/timestamps. Mọi FK nghiệp vụ restrictOnDelete, ngoại trừ
 car_images.car_id cascade khi xóa xe chưa được tham chiếu. Activity target là tham chiếu
-đa loại (target_type/target_id), không tạo FK giả tới nhiều bảng. Giá decimal(15,0), không float.
-User.role/is_active không mass assignable. Inquiry.internal_note hidden mặc định, nhưng
+đa loại (target_type/target_id), không tạo FK giả tới nhiều bảng. Giá decimal(15,0), không float.User.role/is_active không mass assignable. Inquiry.internal_note hidden mặc định, nhưng
 điều này không thay API Resource/policy để tránh lộ các trường liên hệ khác.
 
 Phone users cho phép null ở DB để factory/seed nền; FormRequest đăng ký vẫn bắt buộc phone.
@@ -54,6 +53,18 @@ Cập nhật access_version trong transaction với chuyển người/khóa acco
 Dữ liệu vãng lai không gắn sang account chỉ vì trùng phone. Không hard-delete hồ sơ/tin/lịch.
 
 Sau baseline, sửa schema bằng migration mới; cập nhật model, đặc tả, contracts, test và inventory.
+
+## TV3 catalog (19/10)
+
+Migration mới `2026_10_19_000001_add_catalog_filter_indexes_to_cars_table` chỉ thêm index:
+cars(category_id,is_visible), cars(name), car_images(car_id,is_primary). Không đổi cột/enum.
+Ảnh upload lưu `storage/app/public/cars/{car_id}/{uuid}.ext` (disk public, cần `storage:link`);
+seed dùng path `assets/products/...` trong public. One-primary-per-car chỉ được bảo đảm
+bởi StoreCarImage trong transaction (khóa hàng cars), không phải unique index DB.
+Scope `Car::publiclyVisible()` là nguồn duy nhất cho điều kiện public; TV4/TV5 dùng lại.
+`specs` là mảng [{label,value}] tối đa 30 dòng; rỗng lưu null.
+Giá lọc so sánh decimal(15,0) với integer — trên MySQL đã test; SQLite so sánh chuỗi
+nên test giới hạn giá chỉ chạy trên MySQL.
 
 ## Đích P1 theo SRS 1.4 / ADR 0003
 

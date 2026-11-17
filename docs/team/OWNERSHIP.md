@@ -23,7 +23,8 @@ trên layout đó, phối hợp cùng Đạt để thống nhất màu/chữ/com
 Schema/model/enum đã có baseline chung. Chủ module tiếp tục hoàn thiện logic
 và kiểm thử, tạo migration mới nếu cần; không xóa bảng hoặc sửa migration đã chạy.
 DatabaseSeeder do Hoàng tổng hợp; mỗi module bổ sung seeder riêng.
-UserSeeder cần mật khẩu demo trên máy; chưa có seed giá/ảnh xe thực tế.
+UserSeeder cần mật khẩu demo trên máy; CatalogSeeder có 7 dòng và 15 chiếc Toyota
+kèm ảnh chính từ public/assets/products (giá minh họa); chưa có ảnh thật nhiều góc.
 
 Trước khi làm: đọc AGENTS, spec, contracts, trạng thái; chọn issue nhỏ đúng module.
 Thay đổi shared files (User, route groups, bootstrap, config, package/lockfile,
@@ -35,6 +36,7 @@ Mỗi người chịu kiểm thử và báo cáo phần mình; Hoàng không t�
 Đọc SRS 1.4 và COURSE_SCOPE. Không triển khai đích 10 bảng v6 trước P1.
 - Hoàng: Auth/Policy/active, failure-only login limiter, seed tổng, review quyền và tích hợp.
 - Võ Nguyễn Thành Đạt (TV3): CRUD xe/dòng/ảnh, catalog/search/filter/pagination, Toyota cố định, seed >12 xe.
+  Đã triển khai P1 trên nhánh feature/car-crud-search; theo dõi ở [TV3_TASKS](TV3_TASKS.md), chờ review trước khi gộp main.
 - Nguyễn Huy Hoàng (TV4): form tư vấn AJAX, phân công/trạng thái/internal_note; chat Reverb văn bản/lịch sử/retry/quyền.
 - Phan Võ Chí Bảo (TV5): nội dung warranty/maintenance, form lịch/phân công/xác nhận có khóa và hủy/hoàn tất/no_show.
 - Đạt: UI khách/layout, responsive, trạng thái form/chat; chủ module làm UI admin/staff chung layout.

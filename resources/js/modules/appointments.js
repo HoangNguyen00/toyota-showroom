@@ -23,7 +23,6 @@ if (form) {
         }
     });
 }
-
 // Đánh dấu body các trang appointment để header/footer dùng nền tối đồng bộ.
 const page = document.querySelector('.appointment-page');
 if (page) document.body.classList.add('dark-page');

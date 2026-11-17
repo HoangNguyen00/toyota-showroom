@@ -7,9 +7,10 @@ Hoàng cần review H02 trước merge. Xem ADR 0006 về outermost gate, timeou
 in-flight/acceptance/client receipt; không coi đây là bảo đảm tuyệt đối qua failover.
 
 17/10/2026, đề xuất cho owner review theo SRS 1.4/CONTRACTS.
-Không thêm endpoint/Policy giả hoàn thành. UserPolicy H02 và trên nhánh TV4
-24/10/2026 có InquiryPolicy/MessagePolicy, scope danh sách và private channel thật.
-AppointmentPolicy/Catalog policies vẫn chờ module owner. TV4 chưa merge.
+Không thêm endpoint/Policy giả hoàn thành. Đã có UserPolicy H02,
+Car/CarCategoryPolicy (TV3), AppointmentPolicy/ServicePolicy (TV5) và trên nhánh TV4
+có InquiryPolicy/MessagePolicy, scope danh sách cùng private channel thật. Các phần
+dùng chung và H02/PublicationGate vẫn cần owner review trước khi merge TV4 vào main.
 
 ## 1. Ba lớp cần kiểm
 
@@ -34,6 +35,9 @@ ID, mã yêu cầu và số điện thoại không cấp quyền. CSRF bắt bu�
 | Hủy lịch khách | Không | Own pending/confirmed trước giờ | Theo staff action, lịch được giao và chưa final | Theo admin action, chưa final |
 | Confirm/complete/no_show | Không | Không | Assigned, đúng chuyển trạng thái và giờ | Đúng trạng thái/giờ, có sales active khi confirm |
 | CRUD dòng/xe/ảnh/dịch vụ | Không | Không | Không | Có, FK/history/ảnh/public constraints vẫn áp dụng |
+
+Catalog đã triển khai (TV3) theo đúng dòng CRUD này: route admin.* + CarPolicy/
+CarCategoryPolicy từng bản ghi, brand Toyota và visibility do server kiểm. Xem TV3_TASKS.
 | List/create sales/khóa user | Không | Không | Không | UserPolicy H02; không tạo/khóa admin hoặc xóa user |
 
 “Mọi inquiry/lịch” chỉ trong màn quản trị được bảo vệ, không cho response public
@@ -80,7 +84,7 @@ Lịch final không sửa, no_show/completed sau giờ; confirm kiểm slot/xe/s
 
 | ID | Ca cần thử | Owner | Hiện trạng |
 | --- | --- | --- | --- |
-| H03-CAT | Đoán URL/POST ID xe hoặc dòng ẩn; xóa xe đã tham chiếu | TV3 | Chưa nghiệm thu |
+| H03-CAT | Đoán URL/POST ID xe hoặc dòng ẩn; xóa xe đã tham chiếu | TV3 | Có test xe/dòng ẩn 404, xóa xe có inquiry và dòng còn xe; chờ review |
 | H03-INQ | Customer A list/detail hồ sơ B; sales A đọc/sửa hồ sơ của B | TV4 | Có tests trên nhánh TV4; chờ review |
 | H03-CHAT | Customer/sales/admin dùng shared chat route; guest inquiry không chat | TV4 | Có tests HTTP/channel; chờ review |
 | H03-REVOKE | Hai session + job chờ khi khóa user/chuyển sales; kênh cũ không nhận tin mới | Hoàng + TV4 | Đã thử Reverb/Queue thật 24/10; chờ review |
