@@ -5,9 +5,9 @@ import vm from 'node:vm';
 
 // Execute the actual module with a minimal DOM/transport boundary, not a replacement composer.
 const source = (await readFile(new URL('../../resources/js/modules/chat/inquiry-chat.js', import.meta.url), 'utf8'))
-    .replace(/^import .*;\r?\n/, '');
+    .replace(/^import .*;\r?\n/, '').replace(/^export /gm, '');
 
-function mount() {
+function mount({ echoFails = false } = {}) {
     let submit; let input; let sequence = 0;
     const requests = []; const rows = [];
     const draft = { value: '', addEventListener: (name, handler) => { if (name === 'input') input = handler; } };
@@ -24,7 +24,10 @@ function mount() {
     vm.runInNewContext(source, {
         document: { querySelectorAll: () => [root], querySelector: () => ({ content: 'test-only-csrf' }), createElement: () => ({}) },
         window: { addEventListener() {} }, crypto: { randomUUID: () => `test-uuid-${++sequence}` },
-        createEcho: () => ({ private: () => channel, connector: { pusher: { connection: { bind() {} } } } }),
+        createEcho: () => {
+            if (echoFails) throw new Error('Missing WebSocket config');
+            return { private: () => channel, connector: { pusher: { connection: { bind() {} } } } };
+        },
         fetch: (_, options) => new Promise((resolve, reject) => requests.push({
             payload: JSON.parse(options.body), reject,
             respond: (statusCode = 201) => resolve({ ok: statusCode < 400, status: statusCode,
@@ -68,4 +71,13 @@ test('editing away and back is still a changed composer; busy submit does not du
     const first = ui.submit(); await ui.submit(); assert.equal(ui.requests.length, 1);
     ui.type('B'); ui.type('A'); ui.requests[0].respond(); await first;
     assert.equal(ui.draft.value, 'A');
+});
+
+test('missing WebSocket config does not turn a submit into native navigation', async () => {
+    const ui = mount({ echoFails: true });
+    assert.match(ui.status.textContent, /Chưa thể kết nối/);
+    ui.type('A'); const sending = ui.submit();
+    assert.equal(ui.requests.length, 1);
+    ui.requests[0].respond(); await sending;
+    assert.equal(ui.rows.length, 1); assert.equal(ui.draft.value, '');
 });

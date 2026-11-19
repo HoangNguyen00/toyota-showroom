@@ -4,6 +4,19 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-19 Đồng bộ PR #4 với main đã gộp TV4/TV5
+
+- Ghép main 96aa13c theo review của Hoàng; giữ route Catalog, tư vấn/chat, lịch/dịch vụ
+  và giao diện account/customer. Giữ phân trang lịch khách khi hợp nhất Blade.
+- Giữ migration hỗ trợ index FK của main; không sửa schema đã merge, dữ liệu demo,
+  Policy hoặc PublicationGate. PR #9 tiếp tục giữ thay đổi catalog riêng.
+- Bổ sung điều hướng tư vấn/chat cho sales, tư vấn và quản lý xe cho admin từ account;
+  không đổi role/Policy. Nút gửi chat có tên truy cập khi chỉ hiện biểu tượng trên mobile.
+- Kiểm tra: SQLite 98 passed/1 skipped (802 assertions), MySQL 99 passed (807 assertions);
+  5 JS tests và build đạt. Browser 390px: account/chat/lịch không tràn ngang, chuyển danh sách
+  và hội thoại; customer/sales gửi nhận thật hai chiều không reload. Chưa kiểm điện thoại thật,
+  tải lớn/failover; CI của SHA mới theo dõi trên GitHub.
+
 ## 2026-11-17 TV4 — đồng bộ main mới và xử lý conflict PR #1
 
 - Merge main `0b01c6442596255f5e5b7ec3acaebc02f2b8b160` vào nhánh TV4, giữ đồng thời
@@ -40,6 +53,69 @@
   retry/reconnect/CSRF/throttle và stale socket/job sau thu hồi quyền đều đạt.
   Chưa kiểm responsive/thiết bị thật, tải lớn hoặc failover; giữ giới hạn ADR 0006.
 
+## 2026-11-16 Tích hợp lại frontend và TV4 trên repository mới
+
+- Ghép backend sửa xung đột PR #1 (1151428) với giao diện 3dc88d8; giữ cả chat,
+  account, lịch TV5, hiệu ứng trang chủ và video Auth. Không đổi schema hoặc dữ liệu demo.
+- Giữ shared HTTP chat cho ba role, route customer riêng và cả hai module JS chat/lịch;
+  tạo lại inventory theo mã hợp nhất. Backend đã kiểm 78 tests/635 assertions trên
+  SQLite và MySQL 8.4.3; 4 test JS, publication boundary, MySQL race/crash/locking đạt;
+  hai phiên Reverb thật 1303 ms, retry/reconnect/revoke/stale job đều đạt.
+- Nhánh tích hợp: composer check đạt 86 tests/700 assertions, Pint/syntax/inventory;
+  5 test JavaScript và Vite build đạt. Browser gửi tin từ customer, phiên sales đọc và
+  trả lời; phản hồi hiện ngay trong bubble khách mà không reload. Chưa kiểm mobile mới,
+  tải lớn hoặc failover; không tự merge main, CI repository mới được theo dõi riêng.
+
+## 2026-11-05 Video Camry cho đăng nhập / đăng ký
+
+- Layout Auth hỗ trợ clip Camry thật 9 giây, tự phát im lặng/lặp với nút tạm dừng; tôn trọng giảm chuyển động và dừng khi tab/khung không hiển thị.
+- Giữ ảnh dự phòng khi thiếu file hoặc phát lỗi. Clip Toyota lưu local tại public storage, không phân phối qua Git; nguồn/đường dẫn/giới hạn sử dụng ở AUTH_VIDEO.md.
+- Chỉ thay trình bày Auth, không thay dữ liệu hoặc nghiệp vụ tài khoản. Build/composer check đạt (86 tests / 700 assertions); browser phát 1080p/9s, lặp/pause đạt, đăng ký dùng cùng media. Browser đang giảm chuyển động nên khởi đầu bằng ảnh; chưa kiểm preference false/điện thoại thật.
+
+## 2026-11-05 Sửa chữ trang chủ chồng lên mô tả
+
+- Thu gọn và đặt chữ TOYOTA trong vùng phía trên xe, chừa cột mô tả bên phải; mobile dùng cỡ chữ riêng, giữ chữ bạc sắc nét.
+- Không đổi thời gian clip tách xe hoặc nghiệp vụ. Ảnh đăng nhập giữ nguyên trong khi chọn nguồn clip xe chạy phù hợp.
+- Kiểm tra: Vite build và composer check đạt (86 tests / 700 assertions, Pint/inventory/syntax/encoding). Browser desktop 1280px ở đoạn tách xe: hai vùng chữ không giao nhau, cách nhau hơn 63px; chưa kiểm lại điện thoại thật.
+
+## 2026-10-28 Nhánh tích hợp chat khách hàng với TV4
+
+- Ghép backend TV4 trên nhánh riêng; giữ lịch TV5 và account FE.
+- QA: 86 tests/700 assertions + 5 JS tests + Vite build đạt; browser hai chiều không reload, reconnect catch-up và giữ draft đạt, tạo yêu cầu thật ở DB QA riêng. Chưa xác minh viewport mobile mới/MySQL concurrency.
+- GET workspace chỉ truy vấn own inquiry, danh sách và thread thật; tái sử dụng transport Echo/history/UUID của TV4 với bubble customer, mount lazy và draft theo thread.
+- Không sửa schema/seed/PublicationGate/HTTP send. Cần review H02 của Hoàng trước merge main; kiểm thử riêng không chứng nhận race/failover.
+
+
+## 2026-10-28 Đồng bộ lịch hẹn với tài khoản khách
+
+- Ghép main ed06179 vào nhánh giao diện, giữ appointment TV5 và account/chat preview.
+- AccountController chỉ đọc lịch sắp tới của đúng customer; điều hướng và danh sách lịch dùng layout customer, hủy theo endpoint hiện có với lý do/CSRF.
+- Không đổi migration, seed, trạng thái hoặc nghiệp vụ xác nhận/đổi lịch; chưa ghép TV4 trong mốc này.
+- Kiểm tra bằng suite chung và browser với DB QA riêng; không reset DB người dùng.
+
+
+## 2026-10-23 Giao diện tài khoản và chat khách hàng
+
+- Customer có layout riêng, hồ sơ từ session, hero ảnh xe chạy, điều hướng tài khoản/chat/catalog và logout POST CSRF.
+- Chat preview local/testing có danh sách/search/thread/new/closed/composer/feedback chưa kết nối, bản nháp DOM; không gửi request hoặc giả tin thành công.
+- Giữ màn account admin/sales, backend Auth/H02 và toàn bộ schema. Không seed hoặc sửa database người dùng.
+- Route preview customer-only, không thay shared HTTP/private channel TV4. Lịch hẹn ghi sắp có; không giả số liệu.
+- Kiểm tra composer check/build và browser responsive; xem hướng dẫn CUSTOMER_ACCOUNT_CHAT_UI.md về phạm vi chưa nối backend.
+
+
+## 2026-10-20 Lịch hẹn và dịch vụ (TV5 - feature/appointment-schedule)
+- Thêm: routes/appointments.php, AppointmentController, StoreAppointmentRequest/
+  UpdateStatusRequest, AppointmentService, AppointmentPolicy/ServicePolicy,
+  views appointments (create/index/manage), admin/services, customer/staff
+  appointments, tests Feature/Appointment (AppointmentTest, ServiceCrudTest).
+- Sửa: routes/admin.php, routes/staff.php, routes/customer.php, bootstrap/app.php
+  đăng ký nhóm route appointments; enum AppointmentStatus/AppointmentType/ServiceType
+  bổ sung giá trị no_show và loại bảo dưỡng.
+- Quyền: guest/customer đặt lịch viewing/maintenance; customer chỉ xem/hủy lịch của
+  mình trước giờ; sales/staff xem scoped; admin xác nhận (khóa slot + kiểm tra trùng giờ
+  trong transaction), hủy với lý do, kết thúc sau giờ xác nhận, đánh dấu no_show.
+- Kiểm tra: php artisan test 50 test/418 assertions pass; pint pass;
+  architecture-inventory --check pass. Chưa kiểm tra trực quan trình duyệt và MySQL thật.
 ## 2026-10-24 TV4 — đồng bộ tài liệu sau commit/push
 
 - Sửa trạng thái bàn giao theo commit chức năng `a7bf4059764fc506f1ee3e1aa10a8ea2b61199d6`
@@ -107,20 +183,6 @@
   Full regression/build và composer check ghi kết quả ở docs/testing/TV4_VALIDATION.md.
 - Chưa nối public form/UI customer PR #11, chưa review trực quan responsive;
   không nhận hoàn thành các module khác. Hợp đồng ở docs/development/TV4_INTEGRATION.md.
-
-## 2026-10-20 Lịch hẹn và dịch vụ (TV5 - feature/appointment-schedule)
-- Thêm: routes/appointments.php, AppointmentController, StoreAppointmentRequest/
-  UpdateStatusRequest, AppointmentService, AppointmentPolicy/ServicePolicy,
-  views appointments (create/index/manage), admin/services, customer/staff
-  appointments, tests Feature/Appointment (AppointmentTest, ServiceCrudTest).
-- Sửa: routes/admin.php, routes/staff.php, routes/customer.php, bootstrap/app.php
-  đăng ký nhóm route appointments; enum AppointmentStatus/AppointmentType/ServiceType
-  bổ sung giá trị no_show và loại bảo dưỡng.
-- Quyền: guest/customer đặt lịch viewing/maintenance; customer chỉ xem/hủy lịch của
-  mình trước giờ; sales/staff xem scoped; admin xác nhận (khóa slot + kiểm tra trùng giờ
-  trong transaction), hủy với lý do, kết thúc sau giờ xác nhận, đánh dấu no_show.
-- Kiểm tra: php artisan test 50 test/418 assertions pass; pint pass;
-  architecture-inventory --check pass. Chưa kiểm tra trực quan trình duyệt và MySQL thật.
 
 ## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
 

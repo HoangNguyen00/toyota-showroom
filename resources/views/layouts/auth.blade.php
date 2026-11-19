@@ -11,7 +11,17 @@
     <a class="skip-link" href="#auth-main">Đi đến biểu mẫu</a>
     <div class="auth-shell">
         <aside class="auth-visual" aria-label="Toyota trên hành trình">
-            <img src="{{ asset('assets/home/toyota-driving.jpg') }}" alt="Xe Toyota màu đen đang chạy trên đường" width="6000" height="3487" fetchpriority="high">
+            @php
+                $authVideoPath = 'storage/site-media/camry-driving.mp4';
+                $authPosterPath = 'storage/site-media/camry-driving-poster.jpg';
+                $hasAuthVideo = is_file(public_path($authVideoPath));
+                $hasAuthPoster = is_file(public_path($authPosterPath));
+            @endphp
+            <img src="{{ asset($hasAuthPoster ? $authPosterPath : 'assets/home/toyota-driving.jpg') }}" alt="Xe Toyota Camry đang chạy trên đường" width="{{ $hasAuthPoster ? 1920 : 6000 }}" height="{{ $hasAuthPoster ? 1080 : 3487 }}" fetchpriority="high">
+            @if($hasAuthVideo)
+                <video class="auth-driving-video" data-auth-video muted loop playsinline preload="none" aria-hidden="true" tabindex="-1" disablepictureinpicture><source src="{{ asset($authVideoPath) }}" type="video/mp4"></video>
+                <button type="button" class="auth-video-toggle" data-auth-video-toggle hidden aria-label="Phát video xe chạy">Phát video</button>
+            @endif
             <a class="auth-brand" href="{{ route('home') }}" aria-label="Toyota — Trang chủ">TOYOTA<span>SHOWROOM</span></a>
             <div class="auth-story"><p>CHUYỂN ĐỘNG CÙNG TOYOTA</p><h2>Khởi đầu<br> hành trình của bạn.</h2><span>Mỗi hành trình, một dấu ấn riêng.</span></div>
             <span class="auth-image-caption">TOYOTA / ON THE MOVE</span>

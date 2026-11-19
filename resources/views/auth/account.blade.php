@@ -20,11 +20,14 @@
                 <a href="{{ route('customer.appointments.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Lịch hẹn của tôi →</a>
             </div>
         @elseif (auth()->user()->role === \App\Enums\UserRole::Sales)
-            <div class="mt-6">
+            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                <a href="{{ route('staff.inquiries.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Tư vấn và tin nhắn →</a>
                 <a href="{{ route('staff.appointments.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Quản lý lịch hẹn →</a>
             </div>
         @else
             <div class="mt-6 grid gap-3 sm:grid-cols-3">
+                <a href="{{ route('admin.inquiries.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Tư vấn và tin nhắn →</a>
+                <a href="{{ route('admin.cars.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Quản lý xe và dòng xe →</a>
                 <a href="{{ route('staff.appointments.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Quản lý lịch hẹn →</a>
                 <a href="{{ route('admin.services.index') }}" class="rounded-lg border border-zinc-200 bg-white p-4 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50">Quản lý dịch vụ →</a>
                 @can('viewAny', \App\Models\User::class)

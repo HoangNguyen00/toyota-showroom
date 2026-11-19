@@ -150,6 +150,11 @@ Xem [PARALLEL_WORK](../team/PARALLEL_WORK.md) về namespace route, fixture/seed
 phân công file chung và thứ tự khóa giữa tài khoản/tư vấn/lịch.
 TV4/TV5 dùng hợp đồng chung và test MySQL, không khóa dữ liệu ngược thứ tự.
 
+## Preview UI khách hàng — 23/10/2026 (lịch sử; đã thay trên nhánh tích hợp 28/10)
+
+GET /tai-khoan giữ name account, auth/active; customer dùng view customer.account, admin/sales giữ auth.account.
+GET /tai-khoan/tin-nhan (customer.chat.preview) chỉ local/testing và customer active.
+Chỉ dữ liệu fixture, không có HTTP mutation hoặc mở private channel. Shared chat thật vẫn theo TV4 trong routes/inquiries.php; preview không là endpoint nghiệp vụ.
 ## TV4 triển khai 24/10/2026 (chưa merge)
 
 POST /tu-van nhận name/phone/email/content/car_id, ánh xạ contact_*; guest/customer,
@@ -160,3 +165,8 @@ PATCH admin.inquiries.assign nhận assigned_to sales active; staff/admin start/
 Chỉ assigned → in_progress → closed; close_result theo enum. Closed chỉ đọc, không DELETE.
 Ghi chú một ô tối đa 10000 ký tự; reassign giữ in_progress, chỉ bump version khi đổi sales.
 Schema endpoint/response/error/demo đầy đủ ở [TV4_INTEGRATION](../development/TV4_INTEGRATION.md).
+
+## Customer realtime integration — 28/10/2026
+
+Nhánh tích hợp nối GET /tai-khoan/tin-nhan (customer.chat.index) vào DB own inquiry, tối đa 15 thread/trang; tìm q và chọn conversation đã scoped owner. Không serialize ghi chú nội bộ. Dùng lại HTTP messages TV4, UUID/cursor và Echo, không tạo API gửi thứ hai. Shared HTTP vẫn cho ba role với Policy.
+Preview fixture không còn là màn mặc định. Main và PR #11 vẫn cần review trước khi gộp backend TV4. Appointment UI dùng các route TV5, không sửa protocol khóa hoặc schema.
