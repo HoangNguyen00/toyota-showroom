@@ -10,6 +10,7 @@
   tự phát im lặng/lặp; form dùng kính trong suốt để vẫn thấy cảnh phía sau.
 - Header/logo và về trang chủ nằm phía trên; mobile form giữa, đăng ký dài cuộn
   bình thường trong khi video fixed. Giữ fallback ảnh nếu thiếu/hỏng/chặn media.
+- Thu gọn khoảng đệm trên màn hình laptop thấp để đăng nhập và footer nằm gọn.
 - Không đổi endpoint, validation, CSRF, tài khoản hoặc database. Clip vẫn ngoài Git.
   Composer check đạt 108 tests/874 assertions, Pint/inventory/syntax; Vite build đạt.
 - Browser 1440x900 và 390x844: video 9 giây tự phát, muted/loop, phủ đúng viewport,
