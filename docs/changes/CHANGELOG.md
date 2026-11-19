@@ -1,4 +1,57 @@
+### Cập nhật định dạng code và kiến trúc
+
+- Chuẩn hóa định dạng 14 file PHP bằng Laravel Pint.
+- Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
+
+## 2026-11-19 Đồng bộ PR #4 với main đã gộp TV4/TV5
+
+- Ghép main 96aa13c theo review của Hoàng; giữ route Catalog, tư vấn/chat, lịch/dịch vụ
+  và giao diện account/customer. Giữ phân trang lịch khách khi hợp nhất Blade.
+- Giữ migration hỗ trợ index FK của main; không sửa schema đã merge, dữ liệu demo,
+  Policy hoặc PublicationGate. PR #9 tiếp tục giữ thay đổi catalog riêng.
+- Bổ sung điều hướng tư vấn/chat cho sales, tư vấn và quản lý xe cho admin từ account;
+  không đổi role/Policy. Nút gửi chat có tên truy cập khi chỉ hiện biểu tượng trên mobile.
+- Kiểm tra: SQLite 98 passed/1 skipped (802 assertions), MySQL 99 passed (807 assertions);
+  5 JS tests và build đạt. Browser 390px: account/chat/lịch không tràn ngang, chuyển danh sách
+  và hội thoại; customer/sales gửi nhận thật hai chiều không reload. Chưa kiểm điện thoại thật,
+  tải lớn/failover; CI của SHA mới theo dõi trên GitHub.
+
+## 2026-11-17 TV4 — đồng bộ main mới và xử lý conflict PR #1
+
+- Merge main `0b01c6442596255f5e5b7ec3acaebc02f2b8b160` vào nhánh TV4, giữ đồng thời
+  backend tư vấn/chat, TV3 Catalog và TV5 lịch hẹn/dịch vụ; không thay schema TV4.
+- Hợp nhất route admin theo namespace module; cập nhật contracts, authorization và
+  feature status theo mã thật; tái tạo inventory bằng script chính thức.
+- Ảnh hưởng quyền: giữ nguyên Policy/invariant từng module và PublicationGate H02/TV4;
+  không mở quyền mới, không đưa UI khách ở nhánh tích hợp riêng vào backend TV4.
+- Kiểm tra: `composer check` đạt 90 tests / 737 assertions trên SQLite, 1 test biên số
+  được skip có chủ đích cho MySQL; inventory, syntax, tracked-path và Pint đạt. `npm run build`
+  đạt (Vite chỉ cảnh báo font tĩnh được resolve lúc runtime); 4 JavaScript tests đạt. Chưa chạy
+  lại MySQL, Reverb hoặc kiểm thử trình duyệt trong đợt xử lý conflict này; giữ nguyên các kết quả
+  lịch sử bên dưới.
+
+## 2026-11-17 TV3 — sửa rollback index Catalog trên MySQL
+
+- CI sau khi ghép TV4 với main phát hiện MySQL không cho xóa index
+  `cars(category_id,is_visible)` vì foreign key category đang dùng index đó.
+- Thêm migration nối tiếp tạo index hỗ trợ đơn `cars(category_id)`; `down()` chủ đích giữ index
+  đến khi migration nền xóa bảng, tránh sửa ngược migration TV3 đã merge hoặc tắt foreign key.
+- Không đổi cột, dữ liệu hay quyền. `composer check` local đạt 90 tests / 737 assertions;
+  GitHub Actions sau sửa đạt cả PHP SQLite, PHP MySQL và frontend. JavaScript local đạt 4 tests.
+
+## 2026-11-16 TV4 — xử lý xung đột PR #1 trên repository mới
+
+- Ghép main `ed06179` vào backend TV4 `1438af2`, giữ cả route/import chat và lịch hẹn;
+  giữ toàn bộ lịch sử hai module và tạo lại inventory thay vì chọn một phía.
+- Không đổi schema, dữ liệu demo, quyền hoặc nội dung giao diện khách. UI khách được
+  giữ trên nhánh tích hợp riêng của Đạt; PR #1 vẫn dành cho backend TV4.
+- Kiểm tra: composer check đạt 78 tests / 635 assertions trên SQLite, Pint/syntax/inventory;
+  npm run build và 4 test JavaScript đạt. MySQL 8.4.3: UUID cạnh tranh, send/reassign,
+  crash trước/sau commit, gate khi reassign/khóa sales/khóa customer, session loss và
+  xe/dòng ẩn đã đạt trên DB thử riêng. Hai phiên Reverb thật nhận tin trong 1303 ms;
+  retry/reconnect/CSRF/throttle và stale socket/job sau thu hồi quyền đều đạt.
+  Chưa kiểm responsive/thiết bị thật, tải lớn hoặc failover; giữ giới hạn ADR 0006.
 
 ## 2026-11-16 Tích hợp lại frontend và TV4 trên repository mới
 
@@ -130,6 +183,59 @@
   Full regression/build và composer check ghi kết quả ở docs/testing/TV4_VALIDATION.md.
 - Chưa nối public form/UI customer PR #11, chưa review trực quan responsive;
   không nhận hoàn thành các module khác. Hợp đồng ở docs/development/TV4_INTEGRATION.md.
+
+## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
+
+- Sửa: `tests/Feature/Auth/FrontendIntegrationTest` dùng cứng `/xe/1` cho mọi role; trên MySQL
+  (bộ test sạch, không seeder) xe đầu tiên không có ID 1 nên nhận 404. Giờ dùng ID của xe
+  visible tạo riêng trong test (`/xe/{car->id}`).
+- Ảnh hưởng: chỉ test, không đổi code chạy thật. Trên SQLite pass cả bản cũ.
+- Kiểm tra: chạy đủ suite với DB_CONNECTION=mysql và DB riêng `toyota_showroom_test`:
+  69 passed, 0 failed.
+
+## 2026-11-16 Hiện nút Xóa dòng xe dạng disabled khi dòng xe còn xe
+
+- Sửa: `resources/views/admin/car-categories/index.blade.php` — trước đây nút Xóa bị ẩn hẳn
+  khi `@can('delete', ...)` thất bại (dòng xe còn xe), khiến quản trị viên tưởng chức năng xóa
+  chưa tồn tại. Giờ hiển thị chữ "Xóa" màu xám, không bấm được, tooltip giải thích lý do.
+- Ảnh hưởng dữ liệu/quyền: không đổi; Policy `CarCategoryPolicy::delete` và controller
+  `destroy` vẫn từ chối xóa dòng xe còn xe (server-side giữ nguyên).
+- Kiểm tra: CatalogTest 12 pass/1 skip.
+
+## 2026-10-20 Sửa lỗi mở form thêm xe và cho chọn ảnh ngay khi thêm xe
+
+- Sửa: `AdminCarController@create` trước đó không truyền biến `$car` cho form dùng chung
+  `admin/cars/_form.blade.php`, gây lỗi "Undefined variable $car" khi mở /admin/cars/create.
+  Giờ truyền `new Car` (form vẫn phân biệt thêm/sửa bằng `$car->exists`).
+- Thêm: chọn ảnh ngay khi thêm xe — ô `images[]` nhiều file trong `_form` (chỉ ở chế độ tạo,
+  enctype multipart), validate `images`/`images.*` trong `CarRequest` (tối đa 8 ảnh, JPG/PNG/WEBP,
+  ≤4 MB, ≥320x180), `store()` lưu từng ảnh qua `StoreCarImage::handle` sau khi tạo xe.
+- Ảnh hưởng dữ liệu/quyền: không đổi schema/route; ảnh vẫn tên UUID do server đặt, quyền upload
+  vẫn qua Policy trong service/kênh hiện có; form sửa xe không đổi.
+- Kiểm tra: CatalogTest 12 pass/1 skip; không chạy thử upload nhiều ảnh qua trình duyệt thật,
+  chưa kiểm MySQL riêng cho các rule mới (validate ảnh phụ thuộc extension).
+
+## 2026-10-19 TV3: CRUD xe, dòng xe, ảnh và catalog public (nhánh feature/car-crud-search)
+
+- Thêm: migration index `cars(category_id,is_visible)`, `cars(name)`, `car_images(car_id,is_primary)`;
+  factory Car/CarCategory; scope `Car::publiclyVisible`, `CarCategory::visible`; `CarImage::url()`.
+- Thêm: `Controllers/Catalog` (AdminCarController, AdminCarImageController, AdminCarCategoryController,
+  CarsController), `Requests/Catalog`, `Services/Catalog` (SaveCar, StoreCarImage),
+  `Policies/CarPolicy`, `Policies/CarCategoryPolicy`, `Support/Catalog/CarPresenter`.
+- Thêm view: `admin/cars/{index,create,edit,_form}`, `admin/car-categories/{index,form}`;
+  public `cars/index`, `cars/show` dùng DB; `components/car-card` nhận shape của CarPresenter.
+- Đổi route: `/xe` và `/xe/{car}` giờ là catalog DB (`cars.index`, `cars.show`); fixture UI
+  chuyển sang `/collection-preview` và `/xe-preview/{id}` (cars.collection-preview/cars.preview.show,
+  chỉ local/testing). `routes/catalog.php` require một lần từ web.php. Admin thêm
+  `admin.car-categories.*`, `admin.cars.*`.
+- Thêm `CatalogSeeder` (7 dòng, 15 chiếc, ảnh chính từ public/assets/products) và gọi trong
+  DatabaseSeeder; idempotent, không reset giá/visibility đã sửa.
+- Ảnh: JPG/PNG/WEBP ≤4 MB ≥320x180, tên file UUID do server đặt, một ảnh chính/xe.
+- Ảnh hưởng dữ liệu/quyền: migration chỉ thêm index, chạy `migrate` + `storage:link`;
+  catalog ghi chỉ admin (role + Policy), public chỉ đọc bản ghi visible.
+- Kiểm tra: `php artisan test` 47 pass/1 skip (SQLite);
+  `DB_CONNECTION=mysql DB_DATABASE=toyota_showroom_test php artisan test --filter=CatalogTest` 13/13 pass.
+- Chưa kiểm: trình duyệt/thiết bị thật, upload nhiều admin đồng thời, ảnh HEIC/LFS, JSON API riêng.
 
 ## 2026-10-19 Gộp năm nhánh vào main
 
