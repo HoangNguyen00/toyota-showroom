@@ -39,7 +39,7 @@
                 <select name="car_id" id="car_id">
                     <option value="">— Chọn xe —</option>
                     @foreach ($cars as $car)
-                        <option value="{{ $car->id }}" @selected(old('car_id', $preselectCar) == $car->id)>{{ $car->name }}</option>
+                        <option value="{{ $car->id }}" @selected(old('car_id', $preselectCar) == $car->id)>{{ $car->name }} · {{ $car->code }} · {{ $car->color }}</option>
                     @endforeach
                 </select>
                 @error('car_id') <p class="field-error">{{ $message }}</p> @enderror

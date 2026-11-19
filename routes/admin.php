@@ -27,6 +27,7 @@ Route::get('/inquiries/{inquiry}', [InquiryController::class, 'show'])->name('in
 foreach (['assign', 'start', 'note', 'close'] as $action) {
     Route::patch('/inquiries/{inquiry}/'.$action, [InquiryController::class, 'update'])->name('inquiries.'.$action);
 }
+
 // TV3 catalog — admin.car-categories.* and admin.cars.*
 Route::get('/car-categories', [AdminCarCategoryController::class, 'index'])->name('car-categories.index');
 Route::get('/car-categories/create', [AdminCarCategoryController::class, 'create'])->name('car-categories.create');

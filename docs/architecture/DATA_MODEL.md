@@ -63,6 +63,11 @@ Migration bổ sung `2026_11_16_000001_preserve_catalog_foreign_key_indexes` kh�
 index FK một cột trên MySQL nếu InnoDB đã thay chúng bằng composite index catalog.
 Down giữ các index phục vụ FK nền để migration catalog cũ rollback an toàn. Giữ nguyên
 migration catalog đã gộp PR #2; không thay cột/enum hoặc xóa dữ liệu.
+Main bổ sung migration
+`2026_11_17_000001_add_cars_category_fk_support_index` giữ index đơn cars(category_id)
+để MySQL có thể rollback index lọc mà không làm mất index phục vụ foreign key. Không đổi cột/enum.
+Giữ cả hai migration hỗ trợ để tương thích máy đã chạy nhánh ngày 16/11 và main ngày 17/11;
+index cùng chức năng trên cars có thể tồn tại với hai tên. Không sửa ngược migration đã chạy.
 Ảnh upload lưu `storage/app/public/cars/{car_id}/{uuid}.ext` (disk public, cần `storage:link`);
 seed dùng path `assets/products/...` trong public. One-primary-per-car chỉ được bảo đảm
 bởi StoreCarImage trong transaction (khóa hàng cars), không phải unique index DB.

@@ -18,7 +18,7 @@
                     @endif
                 </button>
             </div>
-            <div class="gallery-caption"><span>{{ str_pad((string) max($images->count(), 1), 2, '0', STR_PAD_LEFT) }} ảnh</span><span>{{ $images->isEmpty() ? 'Showroom sẽ bổ sung ảnh' : 'Chạm ảnh để xem lớn hơn' }}</span></div>
+            <div class="gallery-caption"><span>{{ str_pad((string) $images->count(), 2, '0', STR_PAD_LEFT) }} ảnh</span><span>{{ $images->isEmpty() ? 'Showroom sẽ bổ sung ảnh' : 'Chạm ảnh để xem lớn hơn' }}</span></div>
             @foreach ($images->skip(1) as $image)
                 <button class="gallery-thumb" type="button" data-gallery-open aria-label="Xem ảnh {{ $loop->iteration + 1 }} của {{ $car->name }}"><img src="{{ $image->url() }}" alt="" width="110" height="65"><span>Ảnh {{ $loop->iteration + 1 }}</span></button>
             @endforeach
@@ -52,7 +52,7 @@
         <div><p class="eyebrow">THÔNG TIN XE</p><h2 id="spec-title">Chi tiết, rõ ràng.</h2></div>
         <dl>
             <div><dt>Dòng xe</dt><dd>{{ $car->category?->name ?? 'Toyota' }}</dd></div>
-            @forelse (($car->specs ?? []) as $spec)
+            @forelse (collect($car->specs ?? [])->reject(fn ($spec) => mb_strtolower(trim($spec['label'] ?? '')) === 'dòng xe') as $spec)
                 <div><dt>{{ $spec['label'] ?? '' }}</dt><dd>{{ $spec['value'] ?? '' }}</dd></div>
             @empty
                 <div><dt>Thông số</dt><dd>Đang cập nhật — liên hệ showroom để xác nhận</dd></div>

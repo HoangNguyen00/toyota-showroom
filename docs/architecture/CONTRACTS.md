@@ -7,18 +7,44 @@ Policy/private channel thật. Xem phần triển khai và [hợp đồng đầy
 GET / tên home: preview trang chủ Camry trong local/testing; production giữ welcome.
 /#dich-vu và /#showroom là anchor giới thiệu, không phải endpoint dịch vụ/đặt lịch.
 
-Preview local/testing: GET /xe/{id} tên cars.preview.show cho ID fixture 1–9;
-ID không có trả 404. Không truy vấn DB; chưa thay hợp đồng Catalog production.
+Preview local/testing: GET /xe-preview/{id} tên cars.preview.show chỉ còn cho fixture
+ID 1–9 của giao diện minh họa; ID không có trả 404. Không truy vấn DB.
 
-Frontend local 16/10/2026: GET /xe tên cars.preview đã có trong local/testing,
-chỉ render fixtures minh họa, không phải endpoint Catalog production.
-Query q/category/price/status/sort do JS lọc fixture; chưa là API/backend filter.
-Các route nghiệp vụ khác bên dưới vẫn chưa triển khai.
+## Catalog đã triển khai (TV3)
 
-**Bảng dưới là hợp đồng P1; catalog/lịch chưa đăng ký, tư vấn/chat đã có trên nhánh TV4.**
+GET /xe tên cars.index: q (tên/mã/màu, ≤100), category (slug), status (enum),
+min_price/max_price (VND, độc lập; nếu có cả hai thì max ≥ min),
+sort newest|price_asc|price_desc, page; 12 xe/trang.
+GET /xe/{car} tên cars.show, dùng ID (không slug), 404 nếu xe hoặc dòng ẩn — kể cả admin.
+Chỉ xe và dòng cùng visible mới công khai (scope `publiclyVisible` cho TV4/TV5 dùng lại).
+
+Admin (web/auth/active/role:admin, Policy từng bản ghi):
+GET/POST /admin/car-categories (admin.car-categories.index/store),
+GET /admin/car-categories/create, GET/PUT/DELETE /admin/car-categories/{category}
+(…create/edit/update/destroy); brand luôn Toyota do server gán, slug sinh từ tên.
+GET /admin/cars (q/category/status/visible, 20/trang), GET /admin/cars/create,
+POST /admin/cars, GET /admin/cars/{car}/edit, PUT/DELETE /admin/cars/{car}.
+POST /admin/cars/{car}/images (multipart image + is_primary),
+PATCH /admin/cars/{car}/images/{image} (sort_order/is_primary),
+DELETE /admin/cars/{car}/images/{image}. Ảnh JPG/PNG/WEBP ≤5 MB, tối thiểu 320x180,
+tên file do server đặt; tối đa 10 ảnh và một ảnh chính; thao tác khóa hàng cars.
+
+Giá nhập số nguyên VND từ 1 triệu (decimal(15,0), không float). Mã chiếc xe unique,
+regex chữ in hoa/số/gạch ngang; mỗi cars là một chiếc. Xe mới ẩn; công khai cần
+dòng visible và đúng một ảnh chính. Không xóa ảnh cuối của xe public.
+Xe có inquiry/appointment trả validation (không xóa) → ẩn thay thế.
+Trả view Blade + redirect/flash; chưa có JSON API CRUD riêng cho catalog.
+
+Bản xem trước fixture cũ đổi URL: GET /collection-preview (cars.collection-preview)
+và GET /xe-preview/{id} (cars.preview.show), chỉ local/testing.
+Frontend local 16/10/2026 (lịch sử): /xe từng là fixture minh họa; từ 19/10 là catalog DB.
+
+**Bảng dưới là hợp đồng P1; Catalog, lịch/dịch vụ và tư vấn/chat đã đăng ký trong main.**
 Khi làm route thật, module owner cập nhật bảng và FEATURE_STATUS.
-Route chạy hiện tại xem php artisan route:list; TV4 thêm các route được liệt kê
-trong TV4_INTEGRATION, giữ home/Auth/admin user/health/broadcast auth.
+Route chạy hiện tại xem `php artisan route:list`: home, catalog public `/xe`,
+dịch vụ/lịch TV5, auth/tài khoản, admin users/cars/car-categories/services,
+health và broadcast auth. TV4 bổ sung tư vấn/chat theo TV4_INTEGRATION,
+giữ nguyên các route đã có của TV3/TV5/Auth.
 
 | Nhóm | Route đích | Quyền |
 | --- | --- | --- |
@@ -154,4 +180,5 @@ Năm từ 2000 đến năm hiện tại+1, giá VND nguyên từ 1.000.000; tạ
 Preview fixture chỉ còn /collection-preview và /xe-preview/{id}, không là nguồn public catalog.
 Nút tư vấn public gửi POST /tu-van qua JSON/CSRF, car_id đúng chiếc; guest nhận xác nhận,
 customer có liên kết cuộc tư vấn. Đặt lịch dùng appointments.create?type=viewing&car={id}.
+Danh sách xe đặt lịch hiển thị tên, mã chiếc và màu; value vẫn là car_id thật.
 PATCH /admin/cars/{car}/images/{image} nhận sort_order và is_primary, kiểm đúng xe/Policy.

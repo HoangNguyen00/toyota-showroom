@@ -1,5 +1,18 @@
 # Trạng thái thực tế
 
+## Đồng bộ catalog PR #9 — 19/11/2026
+
+Nhánh catalog ghép customer 7d039c3 và main 96aa13c, giữ slider/card/ảnh chính,
+lọc DB và CTA tư vấn/đặt lịch thật. Giữ cả hai migration index hỗ trợ đã có để
+tương thích máy đã chạy bản 16/11 và main 17/11; không đổi cột hoặc dữ liệu.
+Nhánh đồng bộ đạt 108 tests/874 assertions trên SQLite/MySQL 8.4.3, 5 JS tests và build.
+Browser 1280/390px: slider, lọc max riêng, card/chi tiết không tràn ngang, tư vấn AJAX
+nhận ID thật và đặt lịch lưu cùng chiếc Vios. Bộ chọn lịch thêm mã/màu để phân biệt
+các chiếc cùng tên; thông số không lặp Dòng xe, ảnh thiếu hiện đúng số lượng.
+Kết quả CI của SHA cuối ghi trên PR; chưa nghiệm thu điện thoại thật/tải lớn/failover.
+
+## Lịch sử tích hợp catalog — 16/11/2026
+
 16/11: nhánh feature/customer-catalog-integration ghép TV3 từ PR #2/admin 56211fe
 với customer 9a71fe5. /xe và /xe/{car} đọc DB, giữ slider giới thiệu và card 3 cột;
 đã ghép main eb6399a/PR #8, giữ sửa test và trạng thái nút xóa dòng xe của nhóm.
@@ -9,6 +22,17 @@ race upload giữ 10 ảnh/1 primary, locking tư vấn với xe sold/hidden đ�
 Browser: lọc max riêng, slider, gallery, tư vấn lỗi/giữ draft/gửi thành công, booking
 và admin thêm xe nháp/chặn public thiếu ảnh đều đạt. Chưa merge main hoặc nghiệm thu
 toàn bộ P1; chưa kiểm mới điện thoại thật, tải lớn và failover.
+## Đồng bộ PR #4 — 19/11/2026
+
+Main 96aa13c đã gộp backend TV4 (PR #1), Catalog TV3 và lịch/dịch vụ TV5 (PR #10).
+Nhánh customer đồng bộ main, giữ account/chat thật, lịch khách có phân trang,
+video Auth và route quản trị các module. PR #4 chuyển base về main theo review.
+Catalog có dữ liệu DB từ main; phần slider/CTA và sửa quản lý ảnh nằm riêng ở PR #9.
+SQLite 98 passed/1 skipped, MySQL 99 passed; 5 JS tests/build đạt. Browser 390px kiểm
+account, chat hai chiều với phiên sales riêng, lịch và điều hướng danh sách/hội thoại.
+Account sales/admin có liên kết vào các module đã triển khai. Chưa nghiệm thu toàn bộ P1;
+mobile là viewport mô phỏng, chưa kiểm điện thoại thật/tải lớn/failover.
+Các mốc bên dưới là lịch sử, không mô tả trạng thái main mới nhất.
 
 16/11: nhánh feature/customer-realtime-newrepo ghép bản sửa xung đột PR #1 (backend 1151428)
 vào giao diện mới nhất 3dc88d8. Giữ account, lịch hẹn, form tư vấn, chat thật và video Auth.
@@ -40,8 +64,8 @@ Nhánh tích hợp có backend tư vấn/chat TV4 và lịch hẹn TV5; main ch�
 | Dữ liệu | 8 bảng core + audit, enum/model | Seed Toyota; giữ brand=Toyota, internal_note | Võ Nguyễn Thành Đạt (TV3)/Phan Võ Chí Bảo (TV5) + Hoàng |
 | Auth | H01; H02 UserPolicy, admin list/search/pagination/tạo sales/khóa-mở, transaction tăng version khi khóa; test HTTP pass | Review/kiểm trực quan H02, tích hợp thu hồi socket/job với TV4 | Hoàng |
 | Catalog | Nhánh tích hợp: TV3 CRUD/dòng/ảnh/giá/trạng thái, /xe DB + filter/sort/12-trang, gallery/tư vấn/booking; regression và browser đạt | Nhóm review PR tích hợp, kiểm mobile và dữ liệu demo toàn luồng | Võ Nguyễn Thành Đạt (TV3) + Đạt |
-| Tư vấn | Main: model/enum; nhánh tích hợp: TV4 backend + form AJAX khách thật | Review H02/PublicationGate, nghiệm thu quyền/race MySQL | Nguyễn Huy Hoàng (TV4) + Đạt |
-| Chat | Nhánh tích hợp: TV4 gửi/lưu/phát/history + UI khách; QA browser hai chiều pass | Chưa gộp main; review thu hồi quyền và kiểm concurrency MySQL | Nguyễn Huy Hoàng (TV4) + Đạt |
+| Tư vấn | Main: TV4 tiếp nhận AJAX, scoped list/detail, phân công/trạng thái/internal_note/quyền; Blade staff | Review nhóm và form catalog ở PR #9 | Nguyễn Huy Hoàng (TV4) + Đạt |
+| Chat | Main: TV4 HTTP/UUID/history, private channel/event/Queue; PR #4 có UI khách thật | Review bản đồng bộ và mobile trước Ready | Nguyễn Huy Hoàng (TV4) + Đạt |
 | Lịch/dịch vụ | Form + rights; CRUD dịch vụ admin; xác nhận khóa/trùng giờ; hủy/hoàn tất/no_show; tests pass | Kiểm trực quan trình duyệt và MySQL thật | Phan Võ Chí Bảo (TV5) |
 | Audit | Bảng/model/namespace | Không buộc làm module riêng P1; giữ nền | Hoàng |
 | Bàn giao | Kiểm tra nền từng pass local và CI | Test nghiệp vụ, responsive, báo cáo, demo cả 5 người | Cả nhóm |

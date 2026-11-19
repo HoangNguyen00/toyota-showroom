@@ -7,9 +7,11 @@ Hoàng cần review H02 trước merge. Xem ADR 0006 về outermost gate, timeou
 in-flight/acceptance/client receipt; không coi đây là bảo đảm tuyệt đối qua failover.
 
 17/10/2026, đề xuất cho owner review theo SRS 1.4/CONTRACTS.
-Không thêm endpoint/Policy giả hoàn thành. UserPolicy H02 và trên nhánh TV4
-24/10/2026 có InquiryPolicy/MessagePolicy, scope danh sách và private channel thật.
-AppointmentPolicy/Catalog policies vẫn chờ module owner. TV4 chưa merge.
+Không thêm endpoint/Policy giả hoàn thành. Đã có UserPolicy H02,
+Car/CarCategoryPolicy (TV3), AppointmentPolicy/ServicePolicy (TV5) và trên nhánh TV4
+có InquiryPolicy/MessagePolicy, scope danh sách cùng private channel thật. Các phần
+dùng chung vẫn cần review khi tích hợp. Main 96aa13c đã gộp TV4; PR #4/#9 là giao diện
+và tích hợp catalog, không thay ma trận quyền hoặc PublicationGate.
 
 ## 1. Ba lớp cần kiểm
 
@@ -80,7 +82,7 @@ Lịch final không sửa, no_show/completed sau giờ; confirm kiểm slot/xe/s
 
 | ID | Ca cần thử | Owner | Hiện trạng |
 | --- | --- | --- | --- |
-| H03-CAT | Đoán URL/POST ID xe hoặc dòng ẩn; xóa xe đã tham chiếu | TV3 | Chưa nghiệm thu |
+| H03-CAT | Đoán URL/POST ID xe hoặc dòng ẩn; xóa xe đã tham chiếu | TV3 | Có test xe/dòng ẩn 404, xóa xe có inquiry và dòng còn xe; chờ review |
 | H03-INQ | Customer A list/detail hồ sơ B; sales A đọc/sửa hồ sơ của B | TV4 | Có tests trên nhánh TV4; chờ review |
 | H03-CHAT | Customer/sales/admin dùng shared chat route; guest inquiry không chat | TV4 | Có tests HTTP/channel; chờ review |
 | H03-REVOKE | Hai session + job chờ khi khóa user/chuyển sales; kênh cũ không nhận tin mới | Hoàng + TV4 | Đã thử Reverb/Queue thật 24/10; chờ review |

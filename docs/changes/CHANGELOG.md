@@ -1,4 +1,25 @@
+### Cập nhật định dạng code và kiến trúc
+
+- Chuẩn hóa định dạng 14 file PHP bằng Laravel Pint.
+- Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
+
+## 2026-11-19 Đồng bộ PR #9 sau khi backend và lịch/dịch vụ đã gộp
+
+- Ghép customer 7d039c3/main 96aa13c; giữ cả UI khách, TV3 Catalog, TV4 tư vấn/chat
+  và TV5 lịch/dịch vụ. Hợp nhất docs, route admin và tạo lại inventory.
+- Giữ nguyên migration 16/11 của nhánh và migration 17/11 của main để tương thích
+  các máy đã chạy; không sửa ngược migration, không reset/seed lại tài khoản.
+- Browser phát hiện thông số Dòng xe bị lặp với seed; chỉ hiển thị dòng canonical một lần.
+  Xe chưa có ảnh hiện đúng 00 ảnh thay vì báo 01 ảnh. Chỉ sửa Blade, không đổi dữ liệu.
+- Bộ chọn xe đặt lịch thêm mã chiếc xe/màu để phân biệt các xe cùng tên. Controller TV5
+  chỉ chọn thêm cột hiển thị; giữ nguyên ID, validation, quyền và service xác nhận.
+- Kiểm tra: full SQLite/MySQL 8.4.3 đạt 108 tests/874 assertions; sau sửa trình bày,
+  kiểm lại Appointment/Catalog (39 tests). 5 JS tests/build đạt. Browser 1280/390px:
+  slider, max_price riêng, 3 card Camry desktop/1 cột mobile, tư vấn tạo hồ sơ #2 đúng
+  Vios và lịch mới chọn đúng car_id=1. Chat mobile hai phiên đạt trên PR #4.
+- Chưa kiểm điện thoại thật/tải lớn/failover. Theo dõi CI SHA mới và chờ nhóm review;
+  không tự merge main hoặc đánh dấu toàn bộ P1 đã hoàn tất.
 
 ## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
 
@@ -41,6 +62,54 @@
   và giữ draft, gửi lại tạo hồ sơ thật; lịch xem lưu đúng car, không tự giữ xe. Admin
   tạo nháp khi specs trống, chặn public thiếu ảnh. Chưa kiểm điện thoại/tải lớn/failover;
   review trên GitHub, không tự merge main.
+## 2026-11-19 Đồng bộ PR #4 với main đã gộp TV4/TV5
+
+- Ghép main 96aa13c theo review của Hoàng; giữ route Catalog, tư vấn/chat, lịch/dịch vụ
+  và giao diện account/customer. Giữ phân trang lịch khách khi hợp nhất Blade.
+- Giữ migration hỗ trợ index FK của main; không sửa schema đã merge, dữ liệu demo,
+  Policy hoặc PublicationGate. PR #9 tiếp tục giữ thay đổi catalog riêng.
+- Bổ sung điều hướng tư vấn/chat cho sales, tư vấn và quản lý xe cho admin từ account;
+  không đổi role/Policy. Nút gửi chat có tên truy cập khi chỉ hiện biểu tượng trên mobile.
+- Kiểm tra: SQLite 98 passed/1 skipped (802 assertions), MySQL 99 passed (807 assertions);
+  5 JS tests và build đạt. Browser 390px: account/chat/lịch không tràn ngang, chuyển danh sách
+  và hội thoại; customer/sales gửi nhận thật hai chiều không reload. Chưa kiểm điện thoại thật,
+  tải lớn/failover; CI của SHA mới theo dõi trên GitHub.
+
+## 2026-11-17 TV4 — đồng bộ main mới và xử lý conflict PR #1
+
+- Merge main `0b01c6442596255f5e5b7ec3acaebc02f2b8b160` vào nhánh TV4, giữ đồng thời
+  backend tư vấn/chat, TV3 Catalog và TV5 lịch hẹn/dịch vụ; không thay schema TV4.
+- Hợp nhất route admin theo namespace module; cập nhật contracts, authorization và
+  feature status theo mã thật; tái tạo inventory bằng script chính thức.
+- Ảnh hưởng quyền: giữ nguyên Policy/invariant từng module và PublicationGate H02/TV4;
+  không mở quyền mới, không đưa UI khách ở nhánh tích hợp riêng vào backend TV4.
+- Kiểm tra: `composer check` đạt 90 tests / 737 assertions trên SQLite, 1 test biên số
+  được skip có chủ đích cho MySQL; inventory, syntax, tracked-path và Pint đạt. `npm run build`
+  đạt (Vite chỉ cảnh báo font tĩnh được resolve lúc runtime); 4 JavaScript tests đạt. Chưa chạy
+  lại MySQL, Reverb hoặc kiểm thử trình duyệt trong đợt xử lý conflict này; giữ nguyên các kết quả
+  lịch sử bên dưới.
+
+## 2026-11-17 TV3 — sửa rollback index Catalog trên MySQL
+
+- CI sau khi ghép TV4 với main phát hiện MySQL không cho xóa index
+  `cars(category_id,is_visible)` vì foreign key category đang dùng index đó.
+- Thêm migration nối tiếp tạo index hỗ trợ đơn `cars(category_id)`; `down()` chủ đích giữ index
+  đến khi migration nền xóa bảng, tránh sửa ngược migration TV3 đã merge hoặc tắt foreign key.
+- Không đổi cột, dữ liệu hay quyền. `composer check` local đạt 90 tests / 737 assertions;
+  GitHub Actions sau sửa đạt cả PHP SQLite, PHP MySQL và frontend. JavaScript local đạt 4 tests.
+
+## 2026-11-16 TV4 — xử lý xung đột PR #1 trên repository mới
+
+- Ghép main `ed06179` vào backend TV4 `1438af2`, giữ cả route/import chat và lịch hẹn;
+  giữ toàn bộ lịch sử hai module và tạo lại inventory thay vì chọn một phía.
+- Không đổi schema, dữ liệu demo, quyền hoặc nội dung giao diện khách. UI khách được
+  giữ trên nhánh tích hợp riêng của Đạt; PR #1 vẫn dành cho backend TV4.
+- Kiểm tra: composer check đạt 78 tests / 635 assertions trên SQLite, Pint/syntax/inventory;
+  npm run build và 4 test JavaScript đạt. MySQL 8.4.3: UUID cạnh tranh, send/reassign,
+  crash trước/sau commit, gate khi reassign/khóa sales/khóa customer, session loss và
+  xe/dòng ẩn đã đạt trên DB thử riêng. Hai phiên Reverb thật nhận tin trong 1303 ms;
+  retry/reconnect/CSRF/throttle và stale socket/job sau thu hồi quyền đều đạt.
+  Chưa kiểm responsive/thiết bị thật, tải lớn hoặc failover; giữ giới hạn ADR 0006.
 
 ## 2026-11-16 Tích hợp lại frontend và TV4 trên repository mới
 

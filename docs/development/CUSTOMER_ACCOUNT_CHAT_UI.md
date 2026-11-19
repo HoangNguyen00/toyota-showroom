@@ -1,5 +1,10 @@
 # Customer workspace integration — 28/10/2026
 
+19/11/2026: PR #4 đồng bộ main 96aa13c sau khi TV4/TV5 đã gộp. Giữ phân trang lịch;
+account sales/admin có liên kết tư vấn/chat và quản lý xe theo role. Nút gửi chat mobile
+có aria-label. Browser 390px kiểm account/chat/lịch và chat customer/sales hai chiều thật;
+không có tràn ngang trang ở các màn này. Chưa kiểm điện thoại thật hoặc toàn bộ P1.
+
 Nhánh feature/customer-realtime-integration ghép main ed06179/lịch TV5, PR #11 FE và TV4 tại 1438af2. Chưa merge main; H02/PublicationGate vẫn cần Hoàng review, không tự nhận toàn bộ module đã nghiệm thu.
 
 - /tai-khoan: thông tin từ session và tối đa 3 lịch pending/confirmed sắp tới của đúng customer.
