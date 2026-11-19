@@ -1,5 +1,15 @@
 # Task list của Võ Nguyễn Thành Đạt (TV3) — Xe & Catalog
 
+## Tích hợp 16/11/2026
+
+Nhánh `feature/customer-catalog-integration` ghép PR #2/admin 56211fe với frontend/chat.
+Đã đối chiếu SRS 1.4: xe mới ẩn, công khai cần một ảnh chính; năm từ 2000, giá từ
+1.000.000 VND, tối đa 10 ảnh JPEG/PNG/WebP x 5 MB. Có form sửa thứ tự/chọn ảnh chính,
+giữ primary khi xóa và không xóa ảnh cuối của xe public. Lọc min/max độc lập; gallery
+mở đúng thumbnail. Card/chi tiết/tư vấn/lịch dùng ID DB, slider giữ hình giới thiệu dòng.
+Full suite MySQL và kiểm thử browser được ghi trong PR tích hợp. Phần dưới là lịch sử
+bàn giao 19/10, các giới hạn 1990/0 đồng/4MB và trạng thái kiểm tra cũ không còn áp dụng.
+
 Phạm vi P1 theo SRS 1.4. Nhánh làm việc: `feature/car-crud-search`.
 Vị trí file: `Controllers/Catalog`, `Requests/Catalog`, `Services/Catalog`,
 `Policies/Car*`, `resources/views/admin/cars`, `resources/views/admin/car-categories`,

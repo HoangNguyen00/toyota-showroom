@@ -21,7 +21,7 @@ final class CarPresenter
 
     public static function fromCar(Car $car): array
     {
-        $images = $car->images->sortByDesc('is_primary')->sortBy('sort_order')->values();
+        $images = $car->images->sortBy([['is_primary', 'desc'], ['sort_order', 'asc'], ['id', 'asc']])->values();
         $primary = $images->firstWhere('is_primary', true) ?? $images->first();
 
         return [

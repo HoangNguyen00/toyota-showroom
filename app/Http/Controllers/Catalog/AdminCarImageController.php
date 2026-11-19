@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Catalog\CarImageRequest;
+use App\Http\Requests\Catalog\UpdateCarImageRequest;
 use App\Models\Car;
 use App\Models\CarImage;
 use App\Services\Catalog\StoreCarImage;
@@ -27,5 +28,13 @@ class AdminCarImageController extends Controller
         $service->delete($image);
 
         return redirect()->route('admin.cars.edit', $car)->with('status', 'Đã xóa ảnh.');
+    }
+
+    public function update(UpdateCarImageRequest $request, Car $car, CarImage $image, StoreCarImage $service): RedirectResponse
+    {
+        abort_unless($image->car_id === $car->id, 404);
+        $service->update($image, (int) $request->validated('sort_order'), $request->boolean('is_primary'));
+
+        return redirect()->route('admin.cars.edit', $car)->with('status', 'Đã cập nhật thứ tự và ảnh chính.');
     }
 }

@@ -46,7 +46,7 @@ class AppointmentController extends Controller
             ->where('status', CarStatus::Available)
             ->whereHas('category', fn ($q) => $q->where('is_visible', true))
             ->orderBy('name')
-            ->get(['id', 'name', 'slug']);
+            ->get(['id', 'name', 'slug', 'code', 'color']);
 
         $services = Service::query()
             ->where('is_visible', true)

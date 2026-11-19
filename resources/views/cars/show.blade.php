@@ -5,7 +5,7 @@
     <nav class="breadcrumbs" aria-label="Đường dẫn"><a href="{{ route('cars.index') }}">Dòng xe</a><span aria-hidden="true">/</span><span aria-current="page">{{ $car->name }}</span></nav>
     <section class="vehicle-overview" aria-labelledby="vehicle-title">
         <div class="vehicle-gallery" data-gallery>
-            @php($images = $car->images->sortByDesc('is_primary')->sortBy('sort_order')->values())
+            @php($images = $car->images->sortBy([['is_primary', 'desc'], ['sort_order', 'asc'], ['id', 'asc']])->values())
             @php($primary = $images->first())
             <div class="gallery-stage">
                 <span class="gallery-label">TOYOTA / {{ strtoupper($car->category?->name ?? $car->name) }}</span>
@@ -18,7 +18,7 @@
                     @endif
                 </button>
             </div>
-            <div class="gallery-caption"><span>{{ str_pad((string) max($images->count(), 1), 2, '0', STR_PAD_LEFT) }} ảnh</span><span>{{ $images->isEmpty() ? 'Showroom sẽ bổ sung ảnh' : 'Chạm ảnh để xem lớn hơn' }}</span></div>
+            <div class="gallery-caption"><span>{{ str_pad((string) $images->count(), 2, '0', STR_PAD_LEFT) }} ảnh</span><span>{{ $images->isEmpty() ? 'Showroom sẽ bổ sung ảnh' : 'Chạm ảnh để xem lớn hơn' }}</span></div>
             @foreach ($images->skip(1) as $image)
                 <button class="gallery-thumb" type="button" data-gallery-open aria-label="Xem ảnh {{ $loop->iteration + 1 }} của {{ $car->name }}"><img src="{{ $image->url() }}" alt="" width="110" height="65"><span>Ảnh {{ $loop->iteration + 1 }}</span></button>
             @endforeach
@@ -35,10 +35,10 @@
                 <div><dt>Năm sản xuất</dt><dd>{{ $car->year }}</dd></div>
             </dl>
             @if ($car->status === \App\Enums\CarStatus::Available)
-                <div class="detail-actions"><button class="button button-red" type="button" data-preview="Tư vấn {{ $car->name }}">Yêu cầu tư vấn</button><button class="button" type="button" data-preview="Đặt lịch xem {{ $car->name }}">Đặt lịch xem xe</button></div>
+                <div class="detail-actions"><button class="button button-red" type="button" data-open-catalog-inquiry data-car-id="{{ $car->id }}" data-car-name="{{ $car->name }}">Yêu cầu tư vấn</button><a class="button" href="{{ route('appointments.create', ['type' => 'viewing', 'car' => $car->id]) }}">Đặt lịch xem xe</a></div>
                 <p class="availability-note">Gửi yêu cầu đặt lịch không đồng nghĩa xe đã được giữ chỗ.</p>
             @elseif ($car->status === \App\Enums\CarStatus::Reserved)
-                <div class="detail-actions"><button class="button button-red" type="button" data-preview="Tư vấn {{ $car->name }}">Yêu cầu tư vấn</button><button class="button" type="button" disabled>Chưa nhận lịch xem</button></div>
+                <div class="detail-actions"><button class="button button-red" type="button" data-open-catalog-inquiry data-car-id="{{ $car->id }}" data-car-name="{{ $car->name }}">Yêu cầu tư vấn</button><button class="button" type="button" disabled>Chưa nhận lịch xem</button></div>
                 <p class="availability-note">Chiếc xe này đang được giữ chỗ. Bạn vẫn có thể liên hệ tư vấn.</p>
             @else
                 <div class="detail-actions"><a href="{{ route('cars.index') }}" class="button button-dark">Khám phá xe khác ↗</a></div>
@@ -52,13 +52,16 @@
         <div><p class="eyebrow">THÔNG TIN XE</p><h2 id="spec-title">Chi tiết, rõ ràng.</h2></div>
         <dl>
             <div><dt>Dòng xe</dt><dd>{{ $car->category?->name ?? 'Toyota' }}</dd></div>
-            @forelse (($car->specs ?? []) as $spec)
+            @forelse (collect($car->specs ?? [])->reject(fn ($spec) => mb_strtolower(trim($spec['label'] ?? '')) === 'dòng xe') as $spec)
                 <div><dt>{{ $spec['label'] ?? '' }}</dt><dd>{{ $spec['value'] ?? '' }}</dd></div>
             @empty
                 <div><dt>Thông số</dt><dd>Đang cập nhật — liên hệ showroom để xác nhận</dd></div>
             @endforelse
         </dl>
     </section>
+    @if ($related->isNotEmpty())
+        <section class="related-cars" aria-labelledby="related-title"><div class="related-heading"><h2 id="related-title">Khám phá xe khác.</h2><a href="{{ route('cars.index') }}">Tất cả dòng xe ↗</a></div><div class="car-grid">@foreach ($related as $relatedCar)<x-car-card :car="\App\Support\Catalog\CarPresenter::fromCar($relatedCar)" />@endforeach</div></section>
+    @endif
 </div>
 @if ($primary)
     <dialog class="image-dialog" aria-labelledby="image-dialog-title" data-image-dialog><form method="dialog"><button class="image-close button" aria-label="Đóng ảnh">Đóng ×</button></form><h2 class="sr-only" id="image-dialog-title">{{ $car->name }}</h2><img src="{{ $primary->url() }}" alt="{{ $car->name }}" width="1100" height="600"><p>{{ $car->name }} · {{ $car->code }}</p></dialog>

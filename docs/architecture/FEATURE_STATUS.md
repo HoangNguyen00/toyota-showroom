@@ -1,5 +1,27 @@
 # Trạng thái thực tế
 
+## Đồng bộ catalog PR #9 — 19/11/2026
+
+Nhánh catalog ghép customer 7d039c3 và main 96aa13c, giữ slider/card/ảnh chính,
+lọc DB và CTA tư vấn/đặt lịch thật. Giữ cả hai migration index hỗ trợ đã có để
+tương thích máy đã chạy bản 16/11 và main 17/11; không đổi cột hoặc dữ liệu.
+Nhánh đồng bộ đạt 108 tests/874 assertions trên SQLite/MySQL 8.4.3, 5 JS tests và build.
+Browser 1280/390px: slider, lọc max riêng, card/chi tiết không tràn ngang, tư vấn AJAX
+nhận ID thật và đặt lịch lưu cùng chiếc Vios. Bộ chọn lịch thêm mã/màu để phân biệt
+các chiếc cùng tên; thông số không lặp Dòng xe, ảnh thiếu hiện đúng số lượng.
+Kết quả CI của SHA cuối ghi trên PR; chưa nghiệm thu điện thoại thật/tải lớn/failover.
+
+## Lịch sử tích hợp catalog — 16/11/2026
+
+16/11: nhánh feature/customer-catalog-integration ghép TV3 từ PR #2/admin 56211fe
+với customer 9a71fe5. /xe và /xe/{car} đọc DB, giữ slider giới thiệu và card 3 cột;
+đã ghép main eb6399a/PR #8, giữ sửa test và trạng thái nút xóa dòng xe của nhóm.
+gallery mở đúng ảnh, tư vấn AJAX/booking dùng đúng ID xe. Giữ chat/lịch/video Auth.
+Đã kiểm 108 tests/874 assertions trên SQLite và MySQL 8.4.3, 5 JS tests, build;
+race upload giữ 10 ảnh/1 primary, locking tư vấn với xe sold/hidden đạt.
+Browser: lọc max riêng, slider, gallery, tư vấn lỗi/giữ draft/gửi thành công, booking
+và admin thêm xe nháp/chặn public thiếu ảnh đều đạt. Chưa merge main hoặc nghiệm thu
+toàn bộ P1; chưa kiểm mới điện thoại thật, tải lớn và failover.
 ## Đồng bộ PR #4 — 19/11/2026
 
 Main 96aa13c đã gộp backend TV4 (PR #1), Catalog TV3 và lịch/dịch vụ TV5 (PR #10).
@@ -30,12 +52,9 @@ tích hợp auth vào giao diện frontend (feature/frontend-auth-integration) v
 feature/appointment-schedule (TV5: đặt lịch, phân công, xác nhận, hủy, hoàn tất).
 H03 mới có hợp đồng quyền/gói review. Chưa có nghiệp vụ tư vấn/chat hoàn chỉnh.
 
-TV3 (19/10): catalog P1 trên nhánh feature/car-crud-search — CRUD dòng/xe/ảnh,
-giá/tình trạng, search/filter/pagination, admin xe, public /xe + /xe/{id} dùng DB thật,
-`publiclyVisible` scope, `CatalogSeeder` 15 xe. Chưa gộp main, chờ review.
-
-Trang chủ tối, video/canvas, hai ảnh chi tiết, /xe slider/card/lọc và /xe/{id} ID 1–9
-vẫn dùng fixture local/testing (chỉ chạy ở local/testing). Header đã nối Auth thật,
+Trang chủ tối, video/canvas và hai ảnh chi tiết giữ thiết kế hiện có. Catalog /xe
+và /xe/{car} dùng DB; fixture chỉ ở /collection-preview và /xe-preview/{id} local/testing.
+Header đã nối Auth thật,
 form đăng nhập/đăng ký dùng ảnh xe chạy và nền tối; backend H01/H02 giữ nguyên.
 Nhánh tích hợp có backend tư vấn/chat TV4 và lịch hẹn TV5; main chưa gộp TV4. Chưa nghiệm thu toàn bộ concurrency hoặc giao diện các module.
 
@@ -44,7 +63,7 @@ Nhánh tích hợp có backend tư vấn/chat TV4 và lịch hẹn TV5; main ch�
 | Framework | Laravel/lockfile/Vite/Tailwind/CI | Cài/demo máy khác | Hoàng + nhóm |
 | Dữ liệu | 8 bảng core + audit, enum/model | Seed Toyota; giữ brand=Toyota, internal_note | Võ Nguyễn Thành Đạt (TV3)/Phan Võ Chí Bảo (TV5) + Hoàng |
 | Auth | H01; H02 UserPolicy, admin list/search/pagination/tạo sales/khóa-mở, transaction tăng version khi khóa; test HTTP pass | Review/kiểm trực quan H02, tích hợp thu hồi socket/job với TV4 | Hoàng |
-| Catalog | TV3 P1: CRUD dòng/xe/ảnh upload an toàn, giá/tình trạng, admin và public search/filter/sort/pagination, scope visible; test SQLite/MySQL đã được báo cáo | Review nhóm, ảnh demo và kiểm tra trực quan | Võ Nguyễn Thành Đạt (TV3) + Đạt |
+| Catalog | Nhánh tích hợp: TV3 CRUD/dòng/ảnh/giá/trạng thái, /xe DB + filter/sort/12-trang, gallery/tư vấn/booking; regression và browser đạt | Nhóm review PR tích hợp, kiểm mobile và dữ liệu demo toàn luồng | Võ Nguyễn Thành Đạt (TV3) + Đạt |
 | Tư vấn | Main: TV4 tiếp nhận AJAX, scoped list/detail, phân công/trạng thái/internal_note/quyền; Blade staff | Review nhóm và form catalog ở PR #9 | Nguyễn Huy Hoàng (TV4) + Đạt |
 | Chat | Main: TV4 HTTP/UUID/history, private channel/event/Queue; PR #4 có UI khách thật | Review bản đồng bộ và mobile trước Ready | Nguyễn Huy Hoàng (TV4) + Đạt |
 | Lịch/dịch vụ | Form + rights; CRUD dịch vụ admin; xác nhận khóa/trùng giờ; hủy/hoàn tất/no_show; tests pass | Kiểm trực quan trình duyệt và MySQL thật | Phan Võ Chí Bảo (TV5) |
