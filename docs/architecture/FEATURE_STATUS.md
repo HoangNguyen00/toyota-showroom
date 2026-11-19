@@ -1,5 +1,14 @@
 # Trạng thái thực tế
 
+## Auth toàn màn hình — 19/11/2026
+
+Đổi layout đăng nhập/đăng ký sang video nền fixed phủ viewport, form trong suốt nổi
+phía trên; bỏ nút video và tự phát/lặp kể cả reduced-motion theo yêu cầu Đạt.
+Giữ ảnh dự phòng và media local, không sửa form/session/quyền hoặc database.
+Composer check đạt 108 tests/874 assertions và build đạt. Browser 1440x900/390x844:
+video tự phát im lặng, tiếp tục lặp sau hơn 21 giây, không controls/nút video;
+form không tràn ngang, đăng ký cuộn và footer không đè form. Chưa kiểm điện thoại thật.
+
 ## Đồng bộ catalog PR #9 — 19/11/2026
 
 Nhánh catalog ghép customer 7d039c3 và main 96aa13c, giữ slider/card/ảnh chính,

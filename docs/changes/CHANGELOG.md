@@ -4,6 +4,20 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
+
+- Theo yêu cầu Đạt, bỏ nền chia đôi và nút phát/dừng: video Camry phủ viewport,
+  tự phát im lặng/lặp; form dùng kính trong suốt để vẫn thấy cảnh phía sau.
+- Header/logo và về trang chủ nằm phía trên; mobile form giữa, đăng ký dài cuộn
+  bình thường trong khi video fixed. Giữ fallback ảnh nếu thiếu/hỏng/chặn media.
+- Thu gọn khoảng đệm trên màn hình laptop thấp để đăng nhập và footer nằm gọn.
+- Không đổi endpoint, validation, CSRF, tài khoản hoặc database. Clip vẫn ngoài Git.
+  Composer check đạt 108 tests/874 assertions, Pint/inventory/syntax; Vite build đạt.
+- Browser 1440x900 và 390x844: video 9 giây tự phát, muted/loop, phủ đúng viewport,
+  vẫn phát sau 21 giây; không controls/nút phát-dừng. Form trong suốt blur 12px,
+  hiện/ẩn mật khẩu hoạt động; đăng ký cuộn, không tràn ngang hoặc đè footer.
+  Console không có lỗi; chưa kiểm điện thoại thật. Không đổi hoặc reset dữ liệu.
+
 ## 2026-11-19 Đồng bộ PR #9 sau khi backend và lịch/dịch vụ đã gộp
 
 - Ghép customer 7d039c3/main 96aa13c; giữ cả UI khách, TV3 Catalog, TV4 tư vấn/chat
