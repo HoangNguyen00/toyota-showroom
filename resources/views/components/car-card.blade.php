@@ -8,6 +8,7 @@
         <div class="product-tags"><span class="year-tag">{{ $car['year'] }}</span><span>Xe mới</span><span class="product-state">{{ $car['status_label'] }}</span></div>
         <dl class="product-highlights"><div><dd>{{ $car['color'] }}</dd><dt>Màu ngoại thất</dt></div><div><dd>{{ $car['category_name'] ?? 'Toyota' }}</dd><dt>Dòng xe</dt></div><div><dd>{{ $car['code'] }}</dd><dt>Mã chiếc xe tại showroom</dt></div></dl>
         <a class="product-spec-link" href="{{ $detailUrl }}#thong-so">Thông số và trang bị tiêu chuẩn</a>
+        @unless($car['fixture'] ?? false)<a class="product-spec-link product-compare-link" href="{{ route('cars.compare', ['xe1' => $car['id']]) }}">So sánh với xe khác<span class="sr-only"> {{ $car['name'] }} {{ $car['code'] }}</span></a>@endunless
         <div class="product-card-actions"><a class="button button-dark" href="{{ $detailUrl }}">Xem chi tiết<span class="sr-only"> {{ $car['name'] }}</span></a>
         @if($car['status'] !== 'sold')<button class="button" type="button" @if($car['fixture'] ?? false) data-preview="Tư vấn {{ $car['name'] }}" @else data-open-catalog-inquiry data-car-id="{{ $car['id'] }}" data-car-name="{{ $car['name'] }}" @endif>Tư vấn</button>@else<span class="button product-sold">Đã bán</span>@endif</div>
         <p class="product-price-note">Giá công bố tham khảo, chưa gồm chi phí lăn bánh.</p>

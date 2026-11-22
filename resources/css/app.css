@@ -6,6 +6,7 @@
 @import './home-atmosphere.css';
 @import './home-details.css';
 @import './catalog-redesign.css';
+@import './car-compare.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
