@@ -1,3 +1,25 @@
+// Local footage is optional; the image remains visible until playback succeeds.
+const authVideo = document.querySelector('[data-auth-video]');
+if (authVideo) {
+    let failed = false;
+    authVideo.muted = true;
+    const play = () => {
+        if (!failed && !document.hidden) authVideo.play().catch(() => {});
+    };
+    authVideo.addEventListener('playing', () => authVideo.classList.add('is-ready'));
+    authVideo.addEventListener('loadeddata', play);
+    authVideo.addEventListener('pause', play);
+    const fallback = () => { failed = true; authVideo.pause(); authVideo.classList.remove('is-ready'); };
+    authVideo.addEventListener('error', fallback);
+    authVideo.querySelector('source').addEventListener('error', fallback);
+    document.addEventListener('visibilitychange', play);
+    window.addEventListener('pageshow', play);
+    // A browser may require an initial gesture even for muted video.
+    document.addEventListener('pointerdown', play, {once: true});
+    document.addEventListener('keydown', play, {once: true});
+    play();
+}
+
 document.querySelectorAll('[data-auth-form]').forEach((form) => {
     form.querySelectorAll('input[type="password"]').forEach((input) => {
         const wrapper = document.createElement('div');

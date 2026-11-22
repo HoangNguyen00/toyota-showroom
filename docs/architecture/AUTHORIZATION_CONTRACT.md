@@ -10,7 +10,8 @@ in-flight/acceptance/client receipt; không coi đây là bảo đảm tuyệt �
 Không thêm endpoint/Policy giả hoàn thành. Đã có UserPolicy H02,
 Car/CarCategoryPolicy (TV3), AppointmentPolicy/ServicePolicy (TV5) và trên nhánh TV4
 có InquiryPolicy/MessagePolicy, scope danh sách cùng private channel thật. Các phần
-dùng chung và H02/PublicationGate vẫn cần owner review trước khi merge TV4 vào main.
+dùng chung vẫn cần review khi tích hợp. Main 96aa13c đã gộp TV4; PR #4/#9 là giao diện
+và tích hợp catalog, không thay ma trận quyền hoặc PublicationGate.
 
 ## 1. Ba lớp cần kiểm
 
@@ -35,9 +36,6 @@ ID, mã yêu cầu và số điện thoại không cấp quyền. CSRF bắt bu�
 | Hủy lịch khách | Không | Own pending/confirmed trước giờ | Theo staff action, lịch được giao và chưa final | Theo admin action, chưa final |
 | Confirm/complete/no_show | Không | Không | Assigned, đúng chuyển trạng thái và giờ | Đúng trạng thái/giờ, có sales active khi confirm |
 | CRUD dòng/xe/ảnh/dịch vụ | Không | Không | Không | Có, FK/history/ảnh/public constraints vẫn áp dụng |
-
-Catalog đã triển khai (TV3) theo đúng dòng CRUD này: route admin.* + CarPolicy/
-CarCategoryPolicy từng bản ghi, brand Toyota và visibility do server kiểm. Xem TV3_TASKS.
 | List/create sales/khóa user | Không | Không | Không | UserPolicy H02; không tạo/khóa admin hoặc xóa user |
 
 “Mọi inquiry/lịch” chỉ trong màn quản trị được bảo vệ, không cho response public
@@ -96,3 +94,9 @@ Lịch final không sửa, no_show/completed sau giờ; confirm kiểm slot/xe/s
 List bị lọt bản ghi là lỗi quyền ngay cả khi trang detail đã chặn.
 Khi có mã, owner ghi test/PR/bằng chứng vào ACCEPTANCE; ma trận này không tự là
 test pass. Scope/Policy chưa áp thì deny-by-default, không mở channel demo để qua UI.
+
+## Catalog sau tích hợp — 16/11/2026
+
+CarPolicy/CarCategoryPolicy của TV3 bảo vệ admin CRUD; public scope kiểm xe và dòng
+visible kể cả admin. Tư vấn vẫn qua Policy/validation TV4, booking vẫn qua TV5;
+không dùng ID preview làm ID xe thật. Không cho sales/customer sửa xe hoặc ảnh.

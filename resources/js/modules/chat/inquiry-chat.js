@@ -1,7 +1,11 @@
 import { createEcho } from '../../echo';
 
-// Functional TV4 screen only. Customer preview in PR #11 remains owned by Frontend.
-document.querySelectorAll('[data-inquiry-chat]').forEach((root) => {
+// Shared transport for staff and customer UI. Mount once, lazily per visible thread.
+const mountedThreads = new WeakSet();
+let sharedEcho;
+export function mountInquiryChat(root) {
+    if (mountedThreads.has(root)) return;
+    mountedThreads.add(root);
     const id = root.dataset.id;
     const version = Number(root.dataset.version);
     const url = `/yeu-cau/${id}/tin-nhan`;
@@ -9,6 +13,8 @@ document.querySelectorAll('[data-inquiry-chat]').forEach((root) => {
     const status = root.querySelector('[data-chat-status]');
     const form = root.querySelector('[data-chat-form]');
     const older = root.querySelector('[data-chat-older]');
+    const scroll = root.querySelector('[data-chat-scroll]');
+    let loadingOlder = false;
     const messages = new Map();
     let synced = 0;
     let oldestLoaded = null;
@@ -19,13 +25,26 @@ document.querySelectorAll('[data-inquiry-chat]').forEach((root) => {
     form?.elements.content.addEventListener('input', () => { draftRevision += 1; });
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const render = (message) => {
+        const followLatest = scroll && !loadingOlder && (messages.size === 0 || scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 80);
         messages.set(message.id, message);
         list.replaceChildren(...[...messages.values()].sort((a, b) => a.id - b.id).map((item) => {
             const li = document.createElement('li');
-            li.className = 'my-2 whitespace-pre-wrap';
-            li.textContent = `${item.sender.name}: ${item.content}`;
+            if (root.dataset.skin === 'customer') {
+                li.className = `chat-message chat-message-${Number(item.sender.id) === Number(root.dataset.userId) ? 'customer' : 'staff'}`;
+                const bubble = document.createElement('div');
+                const text = document.createElement('p');
+                text.textContent = item.content;
+                bubble.append(text);
+                const meta = document.createElement('span');
+                meta.textContent = `${item.sender.name} · ${new Date(item.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+                li.append(bubble, meta);
+            } else {
+                li.className = 'my-2 whitespace-pre-wrap';
+                li.textContent = `${item.sender.name}: ${item.content}`;
+            }
             return li;
         }));
+        if (followLatest) scroll.scrollTop = scroll.scrollHeight;
     };
     const request = async (target, options = {}) => {
         const response = await fetch(target, { ...options, headers: {
@@ -58,12 +77,27 @@ document.querySelectorAll('[data-inquiry-chat]').forEach((root) => {
         } catch (error) { status.textContent = error.message; }
     };
     older.addEventListener('click', async () => {
+        const height = scroll?.scrollHeight ?? 0;
+        const top = scroll?.scrollTop ?? 0;
+        loadingOlder = true;
         try {
             const body = await history(oldestLoaded === null ? '' : `?before_id=${oldestLoaded}`);
             older.disabled = !body.has_more;
+            if (scroll) scroll.scrollTop = top + scroll.scrollHeight - height;
         } catch (error) { status.textContent = error.message; }
+        finally { loadingOlder = false; }
     });
-    const echo = createEcho();
+    // History stays readable even while WebSocket is unavailable.
+    if (root.dataset.skin === 'customer') {
+        history().then((body) => {
+            initialized = true;
+            older.disabled = !body.has_more;
+        }).catch((error) => { status.textContent = `Không tải được lịch sử: ${error.message}`; });
+    }
+    let echo;
+    try { echo = sharedEcho ??= createEcho(); }
+    catch (error) { status.textContent = 'Chưa thể kết nối tin nhắn. Kiểm tra cấu hình hoặc tải lại trang.'; }
+    if (echo) {
     echo.private(`inquiry.${id}.v${version}`)
         .listen('.message.created', render)
         .subscribed(catchUp)
@@ -74,6 +108,7 @@ document.querySelectorAll('[data-inquiry-chat]').forEach((root) => {
     echo.connector.pusher.connection.bind('unavailable', () => {
         status.textContent = 'Không thể kết nối WebSocket.';
     });
+    }
     form?.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (busy) return;
@@ -96,8 +131,11 @@ document.querySelectorAll('[data-inquiry-chat]').forEach((root) => {
         } catch (error) { status.textContent = `Gửi thất bại: ${error.message}. Có thể thử lại.`; }
         finally { busy = false; form.querySelector('button').disabled = false; }
     });
-    window.addEventListener('pagehide', () => echo.disconnect());
+    window.addEventListener('pagehide', () => echo?.disconnect());
     window.addEventListener('pageshow', (event) => {
-        if (event.persisted) echo.connect();
+        if (event.persisted) echo?.connect();
     });
+}
+document.querySelectorAll('[data-inquiry-chat]').forEach((root) => {
+    if (!root.hidden) mountInquiryChat(root);
 });

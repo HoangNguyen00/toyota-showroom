@@ -1,45 +1,59 @@
 # Trạng thái thực tế
 
-## Đồng bộ repository mới — 16/11/2026
+## Auth toàn màn hình — 19/11/2026
 
-PR #1 tại `HoangNguyen00/toyota-showroom` tái tạo backend TV4. Nhánh sửa xung đột
-ghép main `ed06179`, giữ endpoint tư vấn/chat và toàn bộ lịch hẹn TV5. Chưa gộp main;
-review H02/PublicationGate và kiểm thử mới được ghi ở PR. UI khách của Đạt nằm trên
-nhánh tích hợp riêng, không đưa vào backend TV4. Các kết quả bên dưới là lịch sử.
+Đổi layout đăng nhập/đăng ký sang video nền fixed phủ viewport, form trong suốt nổi
+phía trên; bỏ nút video và tự phát/lặp kể cả reduced-motion theo yêu cầu Đạt.
+Giữ ảnh dự phòng và media local, không sửa form/session/quyền hoặc database.
+Composer check đạt 108 tests/874 assertions và build đạt. Browser 1440x900/390x844:
+video tự phát im lặng, tiếp tục lặp sau hơn 21 giây, không controls/nút video;
+form không tràn ngang, đăng ký cuộn và footer không đè form. Chưa kiểm điện thoại thật.
 
-## Bàn giao TV4 sau push — 24/10/2026
+## Đồng bộ catalog PR #9 — 19/11/2026
 
-Mã TV4 đã commit và push tại `a7bf4059764fc506f1ee3e1aa10a8ea2b61199d6` lên
-`feature/inquiry-chat-websocket`. Chưa tạo Pull Request TV4, chưa merge vào main.
-Hoàng vẫn cần review H02/PublicationGate; TV3 review lock protocol và Đạt tích hợp
-UI khách. Không nâng mức nghiệm thu vì push; giữ nguyên giới hạn bảo mật và kết quả
-kiểm thử lịch sử bên dưới. Đợt đồng bộ tài liệu này không chạy lại MySQL/Reverb.
+Nhánh catalog ghép customer 7d039c3 và main 96aa13c, giữ slider/card/ảnh chính,
+lọc DB và CTA tư vấn/đặt lịch thật. Giữ cả hai migration index hỗ trợ đã có để
+tương thích máy đã chạy bản 16/11 và main 17/11; không đổi cột hoặc dữ liệu.
+Nhánh đồng bộ đạt 108 tests/874 assertions trên SQLite/MySQL 8.4.3, 5 JS tests và build.
+Browser 1280/390px: slider, lọc max riêng, card/chi tiết không tràn ngang, tư vấn AJAX
+nhận ID thật và đặt lịch lưu cùng chiếc Vios. Bộ chọn lịch thêm mã/màu để phân biệt
+các chiếc cùng tên; thông số không lặp Dòng xe, ảnh thiếu hiện đúng số lượng.
+Kết quả CI của SHA cuối ghi trên PR; chưa nghiệm thu điện thoại thật/tải lớn/failover.
 
-## Sau audit TV4 — 24/10/2026
+## Lịch sử tích hợp catalog — 16/11/2026
 
-F01 đã có gate chung publication/reassign/H02 theo phê duyệt giới hạn của người dùng;
-security gate, MySQL process và Reverb thật đạt trong phạm vi ADR 0006. H02 chỉ bọc
-transaction, cần Hoàng review trước merge. Không nhận bảo đảm qua failover/network in-flight.
-F02 đã đổi sang message + database job cùng transaction/connection; F03 phía TV4
-khóa category → car; F04 giữ draft theo input revision. Có regression PHPUnit/Node
-và harness MySQL/crash/locking. Kết quả mới nhất ở TV4_VALIDATION; suite pass không
-thay security gate F01 độc lập (nay exit 0). Không sửa TV3/Auth khác H02/TV5, schema hay PR #11.
-Phần dưới là lịch sử triển khai trước audit; kết quả mới nhất ở TV4_VALIDATION.
+16/11: nhánh feature/customer-catalog-integration ghép TV3 từ PR #2/admin 56211fe
+với customer 9a71fe5. /xe và /xe/{car} đọc DB, giữ slider giới thiệu và card 3 cột;
+đã ghép main eb6399a/PR #8, giữ sửa test và trạng thái nút xóa dòng xe của nhóm.
+gallery mở đúng ảnh, tư vấn AJAX/booking dùng đúng ID xe. Giữ chat/lịch/video Auth.
+Đã kiểm 108 tests/874 assertions trên SQLite và MySQL 8.4.3, 5 JS tests, build;
+race upload giữ 10 ảnh/1 primary, locking tư vấn với xe sold/hidden đạt.
+Browser: lọc max riêng, slider, gallery, tư vấn lỗi/giữ draft/gửi thành công, booking
+và admin thêm xe nháp/chặn public thiếu ảnh đều đạt. Chưa merge main hoặc nghiệm thu
+toàn bộ P1; chưa kiểm mới điện thoại thật, tải lớn và failover.
+## Đồng bộ PR #4 — 19/11/2026
 
-## TV4 trên nhánh feature/inquiry-chat-websocket — 24/10/2026
+Main 96aa13c đã gộp backend TV4 (PR #1), Catalog TV3 và lịch/dịch vụ TV5 (PR #10).
+Nhánh customer đồng bộ main, giữ account/chat thật, lịch khách có phân trang,
+video Auth và route quản trị các module. PR #4 chuyển base về main theo review.
+Catalog có dữ liệu DB từ main; phần slider/CTA và sửa quản lý ảnh nằm riêng ở PR #9.
+SQLite 98 passed/1 skipped, MySQL 99 passed; 5 JS tests/build đạt. Browser 390px kiểm
+account, chat hai chiều với phiên sales riêng, lịch và điều hướng danh sách/hội thoại.
+Account sales/admin có liên kết vào các module đã triển khai. Chưa nghiệm thu toàn bộ P1;
+mobile là viewport mô phỏng, chưa kiểm điện thoại thật/tải lớn/failover.
+Các mốc bên dưới là lịch sử, không mô tả trạng thái main mới nhất.
 
-Đã triển khai và push nhánh riêng, chưa merge: POST tư vấn AJAX; customer/staff/admin
-list/detail scoped + phân trang; assign/reassign, start, internal_note, close_result;
-HTTP message/history/UUID; private channel thật; job after-commit có kiểm lại quyền/
-version; màn Blade TV4 tối thiểu với Echo/retry/catch-up. Giữ schema/H01/H02.
-MySQL concurrency và hai phiên HTTP/session/CSRF + Reverb thật đã chạy; độ trễ
-1731 ms với worker đang chạy. Job chờ sau reassign/H02 lock không phát kênh cũ.
-Chi tiết/bằng chứng: [TV4_VALIDATION](../testing/TV4_VALIDATION.md).
+16/11: nhánh feature/customer-realtime-newrepo ghép bản sửa xung đột PR #1 (backend 1151428)
+vào giao diện mới nhất 3dc88d8. Giữ account, lịch hẹn, form tư vấn, chat thật và video Auth.
+Backend đã kiểm lại 78 tests/635 assertions trên SQLite và MySQL 8.4.3; Reverb hai phiên
+1303 ms, UUID/reconnect và thu hồi kênh/job cũ đạt. Chưa gộp main hoặc nghiệm thu P1;
+review và kiểm tra nhánh giao diện được ghi trong PR tích hợp ở repository mới.
+Nhánh giao diện đạt composer check 86 tests/700 assertions, 5 test JS, build và
+browser chat hai chiều không reload; chưa kiểm lại mobile/tải lớn/failover.
 
-PR #11 vẫn draft/open tại lúc kiểm, chưa tích hợp UI customer của Đạt.
-Public form backend sẵn sàng, form/CTA khách chung chờ Frontend nối. Chưa review
-trực quan responsive; chưa coi toàn bộ P1 hoặc UI khách hoàn tất.
-Các ghi chú main ngày 19/10 bên dưới là lịch sử baseline trước thay đổi TV4 này.
+05/11: sửa chữ TOYOTA ở hero không chồng cột mô tả. Layout đăng nhập/đăng ký hỗ trợ video Camry local 9 giây với ảnh dự phòng; clip nguồn không được commit, xem docs/development/AUTH_VIDEO.md.
+
+28/10: nhánh giao diện đồng bộ lịch hẹn từ main, account customer có lịch sắp tới từ DB và liên kết /lich-hen. Trang lịch khách dùng layouts.customer, hủy theo endpoint TV5 có kiểm owner/time/state. Chat customer đã nối TV4 trên nhánh tích hợp riêng: dữ liệu own inquiry, HTTP history/send và Echo private channel; đã kiểm QA hai chiều trên browser, còn chờ review H02/PublicationGate trước merge main.
 
 Ngày 20/10/2026. Đã gộp vào main: docs/review-v6-srs, H01 (feature/auth-middleware),
 H02 (feature/admin-users), frontend home/catalog preview (feature/frontend-layout),
@@ -47,24 +61,20 @@ tích hợp auth vào giao diện frontend (feature/frontend-auth-integration) v
 feature/appointment-schedule (TV5: đặt lịch, phân công, xác nhận, hủy, hoàn tất).
 H03 mới có hợp đồng quyền/gói review. Chưa có nghiệp vụ tư vấn/chat hoàn chỉnh.
 
-TV3 (19/10): catalog P1 trên nhánh feature/car-crud-search — CRUD dòng/xe/ảnh,
-giá/tình trạng, search/filter/pagination, admin xe, public /xe + /xe/{id} dùng DB thật,
-`publiclyVisible` scope, `CatalogSeeder` 15 xe. Chưa gộp main, chờ review.
-
-Trang chủ tối, video/canvas, hai ảnh chi tiết, /xe slider/card/lọc và /xe/{id} ID 1–9
-vẫn dùng fixture local/testing (chỉ chạy ở local/testing). Header đã nối Auth thật,
+Trang chủ tối, video/canvas và hai ảnh chi tiết giữ thiết kế hiện có. Catalog /xe
+và /xe/{car} dùng DB; fixture chỉ ở /collection-preview và /xe-preview/{id} local/testing.
+Header đã nối Auth thật,
 form đăng nhập/đăng ký dùng ảnh xe chạy và nền tối; backend H01/H02 giữ nguyên.
-Nhánh TV4 có backend tư vấn/chat và lịch hẹn; form tư vấn và UI khách chung chờ
-nhánh tích hợp frontend. Main chưa có backend TV4.
+Nhánh tích hợp có backend tư vấn/chat TV4 và lịch hẹn TV5; main chưa gộp TV4. Chưa nghiệm thu toàn bộ concurrency hoặc giao diện các module.
 
 | Module | Đã có | P1 còn làm | Chủ trách nhiệm |
 | --- | --- | --- | --- |
 | Framework | Laravel/lockfile/Vite/Tailwind/CI | Cài/demo máy khác | Hoàng + nhóm |
 | Dữ liệu | 8 bảng core + audit, enum/model | Seed Toyota; giữ brand=Toyota, internal_note | Võ Nguyễn Thành Đạt (TV3)/Phan Võ Chí Bảo (TV5) + Hoàng |
 | Auth | H01; H02 UserPolicy, admin list/search/pagination/tạo sales/khóa-mở, transaction tăng version khi khóa; test HTTP pass | Review/kiểm trực quan H02, tích hợp thu hồi socket/job với TV4 | Hoàng |
-| Catalog | TV3 P1: CRUD dòng/xe/ảnh upload an toàn, giá/tình trạng, admin và public search/filter/sort/pagination, scope visible; test SQLite/MySQL đã được báo cáo | Review nhóm, ảnh demo và kiểm tra trực quan | Võ Nguyễn Thành Đạt (TV3) + Đạt |
-| Tư vấn | Nhánh TV4: tiếp nhận AJAX, scoped list/detail, phân công/trạng thái/internal_note/quyền; Blade staff | Review nhóm, nối form/UI khách | Nguyễn Huy Hoàng (TV4) + Đạt |
-| Chat | Nhánh TV4: HTTP/UUID/history, private channel/event/Queue, thu hồi version; test hai phiên Reverb thật | Nối UI khách PR #11, review UI/responsive | Nguyễn Huy Hoàng (TV4) + Đạt |
+| Catalog | Nhánh tích hợp: TV3 CRUD/dòng/ảnh/giá/trạng thái, /xe DB + filter/sort/12-trang, gallery/tư vấn/booking; regression và browser đạt | Nhóm review PR tích hợp, kiểm mobile và dữ liệu demo toàn luồng | Võ Nguyễn Thành Đạt (TV3) + Đạt |
+| Tư vấn | Main: TV4 tiếp nhận AJAX, scoped list/detail, phân công/trạng thái/internal_note/quyền; Blade staff | Review nhóm và form catalog ở PR #9 | Nguyễn Huy Hoàng (TV4) + Đạt |
+| Chat | Main: TV4 HTTP/UUID/history, private channel/event/Queue; PR #4 có UI khách thật | Review bản đồng bộ và mobile trước Ready | Nguyễn Huy Hoàng (TV4) + Đạt |
 | Lịch/dịch vụ | Form + rights; CRUD dịch vụ admin; xác nhận khóa/trùng giờ; hủy/hoàn tất/no_show; tests pass | Kiểm trực quan trình duyệt và MySQL thật | Phan Võ Chí Bảo (TV5) |
 | Audit | Bảng/model/namespace | Không buộc làm module riêng P1; giữ nền | Hoàng |
 | Bàn giao | Kiểm tra nền từng pass local và CI | Test nghiệp vụ, responsive, báo cáo, demo cả 5 người | Cả nhóm |

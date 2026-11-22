@@ -17,7 +17,8 @@ SRS 1.4 giữ 9 bảng nền cho P1; không coi yêu cầu trong tài liệu là
 
 Tất cả bảng có id/timestamps. Mọi FK nghiệp vụ restrictOnDelete, ngoại trừ
 car_images.car_id cascade khi xóa xe chưa được tham chiếu. Activity target là tham chiếu
-đa loại (target_type/target_id), không tạo FK giả tới nhiều bảng. Giá decimal(15,0), không float.User.role/is_active không mass assignable. Inquiry.internal_note hidden mặc định, nhưng
+đa loại (target_type/target_id), không tạo FK giả tới nhiều bảng. Giá decimal(15,0), không float.
+User.role/is_active không mass assignable. Inquiry.internal_note hidden mặc định, nhưng
 điều này không thay API Resource/policy để tránh lộ các trường liên hệ khác.
 
 Phone users cho phép null ở DB để factory/seed nền; FormRequest đăng ký vẫn bắt buộc phone.
@@ -56,17 +57,27 @@ Sau baseline, sửa schema bằng migration mới; cập nhật model, đặc t�
 
 ## TV3 catalog (19/10)
 
-Migration `2026_10_19_000001_add_catalog_filter_indexes_to_cars_table` thêm index:
-cars(category_id,is_visible), cars(name), car_images(car_id,is_primary). Migration
+Migration mới `2026_10_19_000001_add_catalog_filter_indexes_to_cars_table` chỉ thêm index:
+cars(category_id,is_visible), cars(name), car_images(car_id,is_primary). Không đổi cột/enum.
+Migration bổ sung `2026_11_16_000001_preserve_catalog_foreign_key_indexes` khôi phục
+index FK một cột trên MySQL nếu InnoDB đã thay chúng bằng composite index catalog.
+Down giữ các index phục vụ FK nền để migration catalog cũ rollback an toàn. Giữ nguyên
+migration catalog đã gộp PR #2; không thay cột/enum hoặc xóa dữ liệu.
+Main bổ sung migration
 `2026_11_17_000001_add_cars_category_fk_support_index` giữ index đơn cars(category_id)
 để MySQL có thể rollback index lọc mà không làm mất index phục vụ foreign key. Không đổi cột/enum.
+Giữ cả hai migration hỗ trợ để tương thích máy đã chạy nhánh ngày 16/11 và main ngày 17/11;
+index cùng chức năng trên cars có thể tồn tại với hai tên. Không sửa ngược migration đã chạy.
 Ảnh upload lưu `storage/app/public/cars/{car_id}/{uuid}.ext` (disk public, cần `storage:link`);
 seed dùng path `assets/products/...` trong public. One-primary-per-car chỉ được bảo đảm
 bởi StoreCarImage trong transaction (khóa hàng cars), không phải unique index DB.
 Scope `Car::publiclyVisible()` là nguồn duy nhất cho điều kiện public; TV4/TV5 dùng lại.
 `specs` là mảng [{label,value}] tối đa 30 dòng; rỗng lưu null.
-Giá lọc so sánh decimal(15,0) với integer — trên MySQL đã test; SQLite so sánh chuỗi
-nên test giới hạn giá chỉ chạy trên MySQL.
+Sau tích hợp 16/11: cả hai giới hạn giá được validate độc lập, không bỏ max_price;
+regression kiểm numeric range trên cả SQLite/MySQL. SaveCar lấy category shared
+(ID tăng dần) trước car update, cùng thứ tự TV4. Xe mới ẩn; công khai cần dòng visible
+và đúng một ảnh chính. StoreCarImage khóa cars khi upload/reorder/chọn/xóa ảnh,
+giữ tối đa 10 ảnh, chọn ảnh thay thế khi xóa primary; không xóa ảnh cuối của xe public.
 
 ## Đích P1 theo SRS 1.4 / ADR 0003
 

@@ -27,6 +27,10 @@ class CarRequest extends FormRequest
             'color' => is_string($this->input('color')) ? trim($this->input('color')) : $this->input('color'),
             'is_visible' => $this->boolean('is_visible'),
         ]);
+        if (is_array($this->input('specs'))) {
+            $this->merge(['specs' => array_values(array_filter($this->input('specs'), fn ($row) => ! is_array($row)
+                || filled($row['label'] ?? null) || filled($row['value'] ?? null)))]);
+        }
     }
 
     public function rules(): array
@@ -40,16 +44,17 @@ class CarRequest extends FormRequest
             ],
             'code' => ['required', 'string', 'max:50', 'regex:/^[A-Z0-9][A-Z0-9-]*$/', Rule::unique('cars', 'code')->ignore($car?->id)],
             'name' => ['required', 'string', 'max:200'],
-            'year' => ['required', 'integer', 'min:1990', 'max:'.(now()->year + 1)],
+            'year' => ['required', 'integer', 'min:2000', 'max:'.(now()->year + 1)],
             'color' => ['required', 'string', 'max:100'],
-            'price' => ['required', 'integer', 'min:0', 'max:999999999999999'],
+            'price' => ['required', 'integer', 'min:1000000', 'max:999999999999999'],
             'status' => ['required', Rule::enum(CarStatus::class)],
             'specs' => ['nullable', 'array', 'max:30'],
+            'specs.*' => ['array:label,value'],
             'specs.*.label' => ['required', 'string', 'max:100'],
             'specs.*.value' => ['required', 'string', 'max:150'],
             'is_visible' => ['boolean'],
-            'images' => ['nullable', 'array', 'max:8'],
-            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:min_width=320,min_height=180'],
+            'images' => ['nullable', 'array', 'max:10'],
+            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=320,min_height=180'],
         ];
     }
 
@@ -60,10 +65,10 @@ class CarRequest extends FormRequest
             'code.regex' => 'Mã xe chỉ gồm chữ in hoa, số và dấu gạch ngang.',
             'code.unique' => 'Mã xe đã được dùng cho một chiếc khác.',
             'price.integer' => 'Giá là số nguyên VND, không dùng dấu chấm hay số lẻ.',
-            'images.max' => 'Tối đa 8 ảnh cho một xe.',
+            'images.max' => 'Tối đa 10 ảnh cho một xe.',
             'images.*.image' => 'Tệp tải lên phải là ảnh.',
             'images.*.mimes' => 'Chỉ nhận ảnh JPG, PNG hoặc WEBP.',
-            'images.*.max' => 'Mỗi ảnh tối đa 4 MB.',
+            'images.*.max' => 'Mỗi ảnh tối đa 5 MB.',
             'images.*.dimensions' => 'Ảnh phải lớn hơn 320x180 điểm ảnh.',
         ];
     }
@@ -72,6 +77,9 @@ class CarRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
+                if ($validator->errors()->isNotEmpty()) {
+                    return;
+                }
                 $category = CarCategory::find($this->input('category_id'));
                 if ($category && ! $category->is_visible && $this->boolean('is_visible')) {
                     $validator->errors()->add('is_visible', 'Phải bật hiển thị dòng xe trước khi công khai xe.');

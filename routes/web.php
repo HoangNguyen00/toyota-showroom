@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Customer\AccountController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__.'/inquiries.php';
@@ -38,6 +39,6 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::middleware(['auth', 'ensure.active'])->group(function (): void {
-    Route::view('/tai-khoan', 'auth.account')->name('account');
+    Route::get('/tai-khoan', AccountController::class)->name('account');
     Route::post('/dang-xuat', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });

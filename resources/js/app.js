@@ -6,5 +6,8 @@ import './modules/home-atmosphere';
 export { createEcho } from './echo';
 
 import './modules/auth';
-import './modules/chat/inquiry-chat';
+import './modules/catalog-inquiry';
+
+import './modules/customer-chat';
 import './modules/appointments';
+import './modules/chat/inquiry-chat';

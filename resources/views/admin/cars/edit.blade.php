@@ -12,7 +12,7 @@
 
         <section class="rounded-xl border border-zinc-200 bg-white p-5" aria-labelledby="images-title">
             <h2 id="images-title" class="text-lg font-semibold">Ảnh xe</h2>
-            <p class="mt-1 text-sm text-zinc-600">JPG, PNG hoặc WEBP, tối đa 4 MB. Tên tệp được hệ thống tự đặt, không dùng tên từ máy bạn.</p>
+            <p class="mt-1 text-sm text-zinc-600">Tối đa 10 ảnh JPEG/PNG/WebP, mỗi ảnh 5 MB. Ảnh chính hiển thị trên card; số thứ tự nhỏ hiển thị trước. Ẩn xe trước khi xóa ảnh cuối.</p>
             @if ($car->images->isEmpty())
                 <p class="mt-4 text-sm text-zinc-500">Chưa có ảnh cho xe này.</p>
             @else
@@ -20,6 +20,12 @@
                     @foreach ($car->images as $image)
                         <li class="rounded-lg border border-zinc-200 p-2">
                             <img src="{{ $image->url() }}" alt="Ảnh {{ $car->name }} số {{ $loop->iteration }}" class="h-32 w-full rounded object-cover">
+                            <form method="POST" action="{{ route('admin.cars.images.update', [$car, $image]) }}" class="my-3 space-y-2 text-sm">
+                                @csrf @method('PATCH')
+                                <label class="block">Thứ tự ảnh {{ $loop->iteration }}<input name="sort_order" type="number" min="0" max="9999" required value="{{ $image->sort_order }}" class="w-full rounded border p-2"></label>
+                                <label class="block"><input name="is_primary" type="checkbox" value="1" @checked($image->is_primary)> Đặt làm ảnh chính</label>
+                                <button class="rounded border px-3 py-2">Lưu ảnh</button>
+                            </form>
                             <div class="mt-2 flex items-center justify-between gap-2 text-xs">
                                 <span>{{ $image->is_primary ? 'Ảnh chính' : 'Thứ tự '.$image->sort_order }}</span>
                                 @can('deleteImage', $car)
