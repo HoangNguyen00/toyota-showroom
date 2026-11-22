@@ -44,6 +44,10 @@
                 <div class="detail-actions"><a href="{{ route('cars.index') }}" class="button button-dark">Khám phá xe khác ↗</a></div>
                 <p class="availability-note">Chiếc xe này đã bán. Các xe khác cùng dòng có thể còn khả dụng.</p>
             @endif
+            <div class="detail-save">
+                <button class="button save-car-detail" type="button" data-save-car data-save-car-id="{{ $car->id }}" aria-pressed="false" hidden><span aria-hidden="true" data-save-icon>♡</span>&nbsp;<span data-save-label>Lưu xe</span><span class="sr-only"> {{ $car->name }} {{ $car->code }}</span></button>
+                <a class="detail-save-link" href="{{ route('cars.saved') }}">Xem xe quan tâm <span class="saved-count" data-saved-count hidden></span></a>
+            </div>
         </div>
     </section>
     <nav class="detail-section-nav" aria-label="Nội dung chi tiết"><a href="#tong-quan">Tổng quan</a><a href="#thong-so">Thông số</a></nav>

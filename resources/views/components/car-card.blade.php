@@ -1,7 +1,8 @@
 @props(['car'])
 @php($detailUrl = ($car['fixture'] ?? false) ? route('cars.preview.show', $car['id']) : route('cars.show', $car['id']))
 <article class="car-card" data-car data-name="{{ $car['name'] }}" data-code="{{ $car['code'] }}" data-category="{{ $car['category'] }}" data-price="{{ $car['price'] }}" data-status="{{ $car['status'] }}">
-    <div class="product-image-wrap">@if($car['image'])<img class="card-image" src="{{ $car['image'] }}" alt="{{ $car['image_alt'] }}" width="800" height="450" loading="lazy">@else<p class="gallery-placeholder">Ảnh xe đang được cập nhật</p>@endif</div>
+    <div class="product-image-wrap">@if($car['image'])<img class="card-image" src="{{ $car['image'] }}" alt="{{ $car['image_alt'] }}" width="800" height="450" loading="lazy">@else<p class="gallery-placeholder">Ảnh xe đang được cập nhật</p>@endif
+        @unless($car['fixture'] ?? false)<button class="save-car-toggle" type="button" data-save-car data-save-car-id="{{ $car['id'] }}" aria-pressed="false" hidden><span aria-hidden="true" data-save-icon>♡</span> <span data-save-label>Lưu xe</span><span class="sr-only"> {{ $car['name'] }} {{ $car['code'] }}</span></button>@endunless</div>
     <div class="product-card-body">
         <h3>{{ $car['name'] }}</h3>
         <p class="product-price">{{ number_format($car['price'], 0, ',', '.') }} ₫ <small>· giá công bố</small></p>
