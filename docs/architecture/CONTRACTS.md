@@ -80,6 +80,12 @@ Form đăng ký name/email/phone/password/password_confirmation; login email/pas
 Mật khẩu không có NUL và tối đa 72 byte cho bcrypt hiện tại;
 đăng ký vẫn tối thiểu 8 ký tự. Giới hạn byte khác giới hạn số ký tự Unicode.
 Mật khẩu không được fill lại vào HTML/session flash. Email trim/lowercase.
+Quên mật khẩu (P2 đề xuất, ADR 0010), đều guest: GET/POST /quen-mat-khau (password.request/
+password.email, throttle 10/phút/IP + 3 lần/10 phút theo IP+email), GET /dat-lai-mat-khau/{token}
+(password.reset), POST /dat-lai-mat-khau (password.store). Phản hồi gửi link giống nhau cho mọi
+email; tài khoản khóa không nhận link và không đặt lại được. Token băm trong password_reset_tokens,
+hết hạn 60 phút, dùng một lần; link dựng từ APP_URL. Đặt lại thành công: đổi remember_token,
+xóa dòng sessions của user, không tự đăng nhập, giữ role/is_active.
 Guest vào route auth bị redirect login; JSON trả 401.
 User khóa bị logout/invalidate session: web redirect login với account_error,
 JSON 403; kiểm active áp dụng cả web công khai để tránh giữ phiên khóa.

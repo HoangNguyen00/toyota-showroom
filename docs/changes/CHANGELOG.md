@@ -4,6 +4,21 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-23 Quên mật khẩu (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: PasswordResetController, ResetPasswordRequest, ResetPasswordNotification (tiếng Việt,
+  link theo APP_URL), view auth/forgot-password và auth/reset-password, 4 route guest; ADR 0010.
+- Sửa: link “Quên mật khẩu?” trên trang đăng nhập; User::sendPasswordResetNotification.
+- Lý do: người dùng yêu cầu luồng quên mật khẩu (SRS §9 xếp là P2).
+- Ảnh hưởng: không migration; dùng password_reset_tokens có sẵn. Đặt lại xóa sessions DB của user,
+  đổi remember_token; role/is_active giữ nguyên; tài khoản khóa không nhận/không dùng được link.
+- Kiểm tra: 8 test PasswordResetTest (phản hồi giống nhau, khóa, giới hạn tần suất, link APP_URL
+  với Host giả, token băm, đặt lại + thu hồi phiên, dùng lại, sai token, hết hạn, xác nhận sai,
+  mật khẩu ngắn, đăng nhập cũ/mới). Toàn bộ 116 tests đạt trên SQLite và MySQL 8.4.3 riêng
+  (toyota_showroom_test). Browser + Mailpit: 1 thư cho email có tài khoản, link đúng APP_URL,
+  dùng lại link bị từ chối, mật khẩu mới đăng nhập được.
+- Chưa kiểm: SMTP thật; thu hồi phiên chỉ áp dụng SESSION_DRIVER=database (demo browser dùng file).
+
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
 
 - Theo yêu cầu Đạt, bỏ nền chia đôi và nút phát/dừng: video Camry phủ viewport,
