@@ -9,15 +9,11 @@ use App\Models\User;
 
 class AppointmentPolicy
 {
-    // Assign/confirm: sales on own appointment, admin on any.
+    // Phân công/chuyển/bỏ phân công: chỉ admin (AUTHORIZATION_CONTRACT §2, SRS 1.4).
+    // Sales không tự nhận lịch chưa phân công; trạng thái pending do service kiểm.
     public function assign(User $user, Appointment $appointment): bool
     {
-        if ($user->role === UserRole::Admin) {
-            return true;
-        }
-
-        return $user->role === UserRole::Sales
-            && $appointment->status === AppointmentStatus::Pending;
+        return $user->role === UserRole::Admin;
     }
 
     public function confirm(User $user, Appointment $appointment): bool

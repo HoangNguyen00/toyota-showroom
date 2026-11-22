@@ -4,6 +4,29 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-23 H03-APT: chỉ admin phân công lịch hẹn (TV5)
+
+- Sửa: AppointmentPolicy::assign() chỉ trả true cho admin; trước đây sales được
+  phân công/đổi/bỏ phân công mọi lịch pending, kể cả lịch của sales khác.
+- Sửa: AppointmentService::assign() kiểm lại Policy trên bản ghi đã lockForUpdate
+  trong transaction, không dựa vào lần kiểm trước khi khóa ở controller.
+- Lý do: AUTHORIZATION_CONTRACT §2 (Phân công/chuyển sales: sales "Không") và
+  SRS 1.4 mục lịch hẹn "Admin phân công sales active trước khi xác nhận".
+  Đặc tả không có quy tắc sales tự nhận lịch chưa phân công nên ca này cũng bị chặn.
+- Ảnh hưởng quyền: sales không còn thấy/gửi form phân công (403). Admin giữ nguyên;
+  kiểm pending/sales active giữ nguyên. Không đổi schema, route hay dữ liệu.
+- Kiểm tra: thêm 4 test hồi quy (sales B đổi/bỏ phân công lịch của A, sales tự nhận
+  lịch chưa phân công, service gọi trực tiếp bởi sales, admin đổi/bỏ phân công).
+  Test chạy SQLite :memory:; composer check và git diff --check đạt.
+- Sửa tiếp: AppointmentController::manage() bỏ orWhereNull('assigned_to'); sales chỉ
+  thấy lịch assigned_to = self đúng ma trận list lịch. Admin vẫn thấy mọi lịch, kể cả
+  chưa phân công. Lịch chưa phân công chỉ hiện với sales sau khi admin giao.
+- Kiểm tra bổ sung: test danh sách staff xác nhận sales thấy lịch của mình, không thấy
+  lịch người khác/chưa phân công; admin thấy lịch chưa phân công, giao xong sales mới thấy.
+  Test fail với truy vấn cũ, pass sau sửa.
+- Chưa kiểm: chỉ chạy SQLite :memory:, chưa chạy MySQL cục bộ (không có DB test riêng
+  cho TV5); cần CI ma trận MySQL xác nhận.
+
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
 
 - Theo yêu cầu Đạt, bỏ nền chia đôi và nút phát/dừng: video Camry phủ viewport,
