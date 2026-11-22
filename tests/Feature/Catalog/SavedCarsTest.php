@@ -95,10 +95,13 @@ class SavedCarsTest extends TestCase
     public function test_compare_selection_appears_only_when_compare_route_exists(): void
     {
         Car::factory()->create();
-        $this->get('/xe-quan-tam')->assertOk()->assertDontSee('data-saved-compare', false);
+        // Chạy đúng cả trước và sau khi PR So sánh 2 xe được merge.
+        if (! Route::has('cars.compare')) {
+            $this->get('/xe-quan-tam')->assertOk()->assertDontSee('data-saved-compare', false);
 
-        Route::get('/xe/so-sanh', fn () => 'compare')->name('cars.compare');
-        Route::getRoutes()->refreshNameLookups();
+            Route::get('/xe/so-sanh', fn () => 'compare')->name('cars.compare');
+            Route::getRoutes()->refreshNameLookups();
+        }
 
         $this->get('/xe-quan-tam')->assertOk()->assertSee('data-saved-compare', false)
             ->assertSee('data-compare-url="'.route('cars.compare').'"', false);

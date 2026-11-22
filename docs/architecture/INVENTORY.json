@@ -339,7 +339,7 @@
         "tests/Feature/Catalog/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
         "tests/Feature/Catalog/CatalogIntegrationTest.php": "71e00d7ad8d1787f15c63b38db0af3ff49730dbc67062e00aea645f039c02d90",
         "tests/Feature/Catalog/CatalogTest.php": "2b77f4d78e800b63fbee32e9a8d0aa9fd05518addd0891e76863a39f563c3d90",
-        "tests/Feature/Catalog/SavedCarsTest.php": "05804398140106abc0bf81e514ac3941e4162800c65aebb5bfdf8d844cf48ed0",
+        "tests/Feature/Catalog/SavedCarsTest.php": "1b7680db2055024ba66807081e9bcbac608554bdf92f007ac9978cbbd1f22c75",
         "tests/Feature/CollectionPreviewTest.php": "566ab3993afa53d2bb105f59c57c765aa2d243546945d76bbc32fcc466613bf4",
         "tests/Feature/ExampleTest.php": "47dfaa6aeaa114f74e6c37640bf9e60293825a5ce914253b7d81446047a84f92",
         "tests/Feature/FoundationTest.php": "9a08fcfa69e347f9080ee8f8a282bd15c84d4023f912afbd96b66f3846915ed0",
