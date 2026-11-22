@@ -1,5 +1,17 @@
 # Trạng thái thực tế
 
+## So sánh 2 xe (P2 đề xuất, chờ leader duyệt) — 23/11/2026
+
+Nhánh codex/car-comparison từ main 1c70a4d thêm GET /xe/so-sanh (cars.compare), chỉ đọc.
+Khách vãng lai chọn hai chiếc công khai theo tên · mã · màu, nhóm theo dòng xe;
+lối vào từ bộ lọc Catalog và link “So sánh với xe khác” trên card (chọn sẵn xe1).
+Server dùng Car::publiclyVisible() + CarPresenter: từ chối trùng xe, ID sai, xe ẩn
+hoặc dòng ẩn (422, giữ lựa chọn); giữ thứ tự khách chọn; thông số thiếu “Đang cập nhật”.
+Không schema/dependency mới; không đổi luồng Catalog/tư vấn/đặt lịch.
+Đây là P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa được nhóm ghi đạt toàn bộ,
+nên tính năng chờ leader quyết định giữ hay hoãn. Đã kiểm SQLite + browser 1440/390px;
+chưa chạy MySQL cục bộ, chờ CI.
+
 ## Auth toàn màn hình — 19/11/2026
 
 Đổi layout đăng nhập/đăng ký sang video nền fixed phủ viewport, form trong suốt nổi
