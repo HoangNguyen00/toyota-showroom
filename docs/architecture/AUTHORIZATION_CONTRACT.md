@@ -87,7 +87,7 @@ Lịch final không sửa, no_show/completed sau giờ; confirm kiểm slot/xe/s
 | H03-CHAT | Customer/sales/admin dùng shared chat route; guest inquiry không chat | TV4 | Có tests HTTP/channel; chờ review |
 | H03-REVOKE | Hai session + job chờ khi khóa user/chuyển sales; kênh cũ không nhận tin mới | Hoàng + TV4 | Đã thử Reverb/Queue thật 24/10; chờ review |
 | H03-UUID | Retry sau mất quyền; UUID khác inquiry/nội dung không lộ tin | TV4 | Có tests UUID/409 + MySQL concurrency; chờ review |
-| H03-APT | Customer hủy lịch B; sales thao tác lịch khác người; admin không vượt final/giờ | TV5 | Chưa có endpoint |
+| H03-APT | Customer hủy lịch B; sales thao tác lịch khác người; admin không vượt final/giờ | TV5 | Phân công chỉ admin, kiểm lại trên bản ghi khóa, có test hồi quy; chờ review |
 | H03-LINK | Gắn inquiry_id khác customer hoặc guest chỉ vì trùng phone | TV4 + TV5 | Chưa có endpoint |
 | H03-STATE | Form/state/role bị gửi thêm từ DevTools vẫn bị server chặn | Từng owner | H01/H02 đã có test riêng, module khác chưa |
 

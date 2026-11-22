@@ -10,6 +10,8 @@ use App\Models\Car;
 use App\Models\CarCategory;
 use App\Models\Service;
 use App\Models\User;
+use App\Services\Appointment\AppointmentService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
@@ -413,6 +415,89 @@ class AppointmentTest extends TestCase
             ->post("/staff/appointments/{$second->id}/confirm", ['confirmed_at' => $time->copy()->addMinutes(30)->format('Y-m-d H:i')])
             ->assertRedirect()->assertSessionHasErrors('assigned_to');
         $this->assertSame(AppointmentStatus::Pending, $second->fresh()->status);
+    }
+
+    // H03-APT: AUTHORIZATION_CONTRACT §2 / SRS 1.4 — chỉ admin phân công lịch.
+    public function test_sales_cannot_reassign_or_unassign_appointment_of_other_sales(): void
+    {
+        $owner = $this->user(UserRole::Sales);
+        $intruder = $this->user(UserRole::Sales);
+        $appointment = Appointment::create([
+            'type' => 'viewing', 'assigned_to' => $owner->id,
+            'contact_name' => 'A', 'contact_phone' => '0901234567',
+            'requested_at' => now()->addDay(), 'status' => 'pending',
+        ]);
+
+        $this->actingAs($intruder)
+            ->post("/staff/appointments/{$appointment->id}/assign", ['assigned_to' => $intruder->id])
+            ->assertForbidden();
+        $this->assertSame($owner->id, $appointment->fresh()->assigned_to);
+
+        $this->actingAs($intruder)
+            ->post("/staff/appointments/{$appointment->id}/assign", ['assigned_to' => null])
+            ->assertForbidden();
+        $this->assertSame($owner->id, $appointment->fresh()->assigned_to);
+    }
+
+    public function test_sales_cannot_self_claim_unassigned_appointment(): void
+    {
+        $sales = $this->user(UserRole::Sales);
+        $appointment = Appointment::create([
+            'type' => 'viewing',
+            'contact_name' => 'A', 'contact_phone' => '0901234567',
+            'requested_at' => now()->addDay(), 'status' => 'pending',
+        ]);
+
+        $this->actingAs($sales)
+            ->post("/staff/appointments/{$appointment->id}/assign", ['assigned_to' => $sales->id])
+            ->assertForbidden();
+        $this->assertNull($appointment->fresh()->assigned_to);
+    }
+
+    public function test_assign_service_rechecks_permission_on_locked_record(): void
+    {
+        // Mô phỏng request đã qua Gate trước đó: service vẫn phải tự kiểm quyền
+        // trên bản ghi đã khóa, không ghi đè người phụ trách hiện tại.
+        $owner = $this->user(UserRole::Sales);
+        $intruder = $this->user(UserRole::Sales);
+        $appointment = Appointment::create([
+            'type' => 'viewing', 'assigned_to' => $owner->id,
+            'contact_name' => 'A', 'contact_phone' => '0901234567',
+            'requested_at' => now()->addDay(), 'status' => 'pending',
+        ]);
+        $service = app(AppointmentService::class);
+
+        foreach ([$intruder->id, null] as $target) {
+            try {
+                $service->assign($intruder, $appointment, $target);
+                $this->fail('Sales must not change assignment.');
+            } catch (AuthorizationException) {
+                // expected
+            }
+            $this->assertSame($owner->id, $appointment->fresh()->assigned_to);
+        }
+    }
+
+    public function test_admin_reassigns_and_unassigns_pending_appointment(): void
+    {
+        $admin = $this->user(UserRole::Admin);
+        $first = $this->user(UserRole::Sales);
+        $second = $this->user(UserRole::Sales);
+        $appointment = Appointment::create([
+            'type' => 'viewing', 'assigned_to' => $first->id,
+            'contact_name' => 'A', 'contact_phone' => '0901234567',
+            'requested_at' => now()->addDay(), 'status' => 'pending',
+        ]);
+
+        $this->actingAs($admin)
+            ->post("/staff/appointments/{$appointment->id}/assign", ['assigned_to' => $second->id])
+            ->assertRedirect()->assertSessionHasNoErrors();
+        $this->assertSame($second->id, $appointment->fresh()->assigned_to);
+
+        $this->actingAs($admin)
+            ->post("/staff/appointments/{$appointment->id}/assign", ['assigned_to' => null])
+            ->assertRedirect()->assertSessionHasNoErrors();
+        $this->assertNull($appointment->fresh()->assigned_to);
     }
 
     public function test_confirm_rejects_past_time_and_invalid_assigned_staff(): void

@@ -11,6 +11,7 @@ use App\Models\Service;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class AppointmentService
@@ -91,11 +92,14 @@ class AppointmentService
 
     /**
      * Admin phân công sales cho một lịch pending.
+     * Kiểm lại quyền trên bản ghi đã khóa để thao tác đồng thời không ghi đè.
      */
     public function assign(User $actor, Appointment $appointment, ?int $staffId): Appointment
     {
-        return DB::transaction(function () use ($appointment, $staffId): Appointment {
+        return DB::transaction(function () use ($actor, $appointment, $staffId): Appointment {
             $locked = Appointment::query()->whereKey($appointment->id)->lockForUpdate()->firstOrFail();
+
+            Gate::forUser($actor)->authorize('assign', $locked);
 
             if ($locked->status !== AppointmentStatus::Pending) {
                 throw ValidationException::withMessages([
