@@ -18,9 +18,14 @@
 - Kiểm tra: thêm 4 test hồi quy (sales B đổi/bỏ phân công lịch của A, sales tự nhận
   lịch chưa phân công, service gọi trực tiếp bởi sales, admin đổi/bỏ phân công).
   Test chạy SQLite :memory:; composer check và git diff --check đạt.
-- Chưa kiểm: chưa chạy trên MySQL cục bộ (không có DB test riêng cho TV5); CI chạy
-  ma trận MySQL. Danh sách staff vẫn cho sales thấy lịch chưa phân công, lệch ma trận
-  "assigned_to = self" — chờ nhóm chốt.
+- Sửa tiếp: AppointmentController::manage() bỏ orWhereNull('assigned_to'); sales chỉ
+  thấy lịch assigned_to = self đúng ma trận list lịch. Admin vẫn thấy mọi lịch, kể cả
+  chưa phân công. Lịch chưa phân công chỉ hiện với sales sau khi admin giao.
+- Kiểm tra bổ sung: test danh sách staff xác nhận sales thấy lịch của mình, không thấy
+  lịch người khác/chưa phân công; admin thấy lịch chưa phân công, giao xong sales mới thấy.
+  Test fail với truy vấn cũ, pass sau sửa.
+- Chưa kiểm: chỉ chạy SQLite :memory:, chưa chạy MySQL cục bộ (không có DB test riêng
+  cho TV5); cần CI ma trận MySQL xác nhận.
 
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
 

@@ -366,15 +366,30 @@ class AppointmentTest extends TestCase
             'requested_at' => now()->addDays(3), 'status' => 'pending',
         ]);
 
+        // Sales chỉ thấy lịch được giao cho mình, không thấy lịch người khác/chưa phân công.
+        $this->actingAs($sales)->get('/staff/appointments')
+            ->assertOk()
+            ->assertViewHas('appointments', fn ($page) => $page->count() === 1
+                && $page->contains('id', $mine->id) && ! $page->contains('id', $unassigned->id)
+                && ! $page->contains('id', $foreign->id));
+        $this->actingAs($other)->get('/staff/appointments')
+            ->assertOk()
+            ->assertViewHas('appointments', fn ($page) => $page->count() === 1
+                && $page->contains('id', $foreign->id));
+
+        // Admin thấy cả lịch chưa phân công và vẫn phân công được.
+        $this->actingAs($admin)->get('/staff/appointments')
+            ->assertOk()
+            ->assertViewHas('appointments', fn ($page) => $page->count() === 3
+                && $page->contains('id', $unassigned->id));
+        $this->actingAs($admin)
+            ->post("/staff/appointments/{$unassigned->id}/assign", ['assigned_to' => $sales->id])
+            ->assertRedirect()->assertSessionHasNoErrors();
+        $this->assertSame($sales->id, $unassigned->fresh()->assigned_to);
         $this->actingAs($sales)->get('/staff/appointments')
             ->assertOk()
             ->assertViewHas('appointments', fn ($page) => $page->count() === 2
-                && $page->contains('id', $mine->id) && $page->contains('id', $unassigned->id)
-                && ! $page->contains('id', $foreign->id));
-
-        $this->actingAs($admin)->get('/staff/appointments')
-            ->assertOk()
-            ->assertViewHas('appointments', fn ($page) => $page->count() === 3);
+                && $page->contains('id', $unassigned->id));
         // actingAs persists across requests in the same test; clear guards
         // so this request is a true guest.
         $this->app['auth']->forgetGuards();
