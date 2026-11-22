@@ -5,6 +5,7 @@ namespace App\Services\Appointment;
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentType;
 use App\Enums\UserRole;
+use App\Jobs\SendAppointmentConfirmation;
 use App\Models\Appointment;
 use App\Models\Car;
 use App\Models\Service;
@@ -185,6 +186,9 @@ class AppointmentService
             $locked->status = AppointmentStatus::Confirmed;
             $locked->confirmed_at = $target;
             $locked->save();
+
+            // Email xác nhận chỉ xếp hàng khi transaction đã commit; rollback thì không gửi.
+            SendAppointmentConfirmation::dispatch($locked->id, $locked->confirmed_at->getTimestamp())->afterCommit();
 
             return $locked;
         });

@@ -4,6 +4,22 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-23 Email xác nhận lịch hẹn (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: job SendAppointmentConfirmation, mailable AppointmentConfirmedMail (HTML + text),
+  config showroom.contact (mặc định demo), biến SHOWROOM_* và MAIL_FROM_* mẫu trong .env.example; ADR 0009.
+- Sửa: AppointmentService::confirm() dispatch job afterCommit sau khi ghi; không đổi Policy,
+  khóa hàng, kiểm overlap hay phân công.
+- Lý do: người dùng yêu cầu email ngay khi lịch được xác nhận (SRS §9 email là P2).
+- Ảnh hưởng dữ liệu: không migration; ghi activity_logs sent/skipped/failed (payload chỉ
+  confirmed_at, lý do, tên lớp lỗi; không email/điện thoại). Guest không nhận email.
+- Kiểm tra: 9 test AppointmentConfirmationMailTest (gửi sau commit, rollback, thất bại xác nhận,
+  xác nhận lặp, job trùng, guest, job cũ sau hủy, lỗi SMTP + retry, payload). Test rollback được
+  kiểm đột biến (bỏ afterCommit → fail). 32 test Appointment đạt trên SQLite và MySQL 8.4.3 riêng
+  (toyota_showroom_mail_test). Demo Mailpit 1.22.3 + queue database: thư đúng giờ/xe/link APP_URL.
+- Chưa kiểm/giới hạn: at-least-once khi SMTP đã nhận nhưng chưa ghi “sent”; chưa có email nhắc
+  trước giờ hẹn; chưa thử nhà cung cấp SMTP thật.
+
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
 
 - Theo yêu cầu Đạt, bỏ nền chia đôi và nút phát/dừng: video Camry phủ viewport,
