@@ -43,4 +43,5 @@ Route::get('/cars/{car}/edit', [AdminCarController::class, 'edit'])->name('cars.
 Route::put('/cars/{car}', [AdminCarController::class, 'update'])->name('cars.update');
 Route::delete('/cars/{car}', [AdminCarController::class, 'destroy'])->name('cars.destroy');
 Route::post('/cars/{car}/images', [AdminCarImageController::class, 'store'])->name('cars.images.store');
+Route::patch('/cars/{car}/images/{image}', [AdminCarImageController::class, 'update'])->name('cars.images.update');
 Route::delete('/cars/{car}/images/{image}', [AdminCarImageController::class, 'destroy'])->name('cars.images.destroy');

@@ -27,7 +27,7 @@
         </div>
         <div>
             <label for="year" class="mb-2 block text-sm font-medium">Năm sản xuất *</label>
-            <input id="year" name="year" type="number" min="1990" max="{{ now()->year + 1 }}" value="{{ old('year', $car->year) }}" required class="w-full rounded-lg border border-zinc-300 bg-white p-3">
+            <input id="year" name="year" type="number" min="2000" max="{{ now()->year + 1 }}" value="{{ old('year', $car->year) }}" required class="w-full rounded-lg border border-zinc-300 bg-white p-3">
             @error('year') <p role="alert" class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
         </div>
         <div>
@@ -37,7 +37,7 @@
         </div>
         <div>
             <label for="price" class="mb-2 block text-sm font-medium">Giá công bố (VND) *</label>
-            <input id="price" name="price" type="number" min="0" step="1" value="{{ old('price', $car->price !== null ? (int) $car->price : '') }}" required class="w-full rounded-lg border border-zinc-300 bg-white p-3">
+            <input id="price" name="price" type="number" min="1000000" step="1" value="{{ old('price', $car->price !== null ? (int) $car->price : '') }}" required class="w-full rounded-lg border border-zinc-300 bg-white p-3">
             @error('price') <p role="alert" class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
         </div>
         <div>
@@ -53,7 +53,11 @@
     <fieldset class="rounded-xl border border-zinc-200 p-4">
         <legend class="px-2 text-sm font-medium">Hiển thị công khai</legend>
         <input type="hidden" name="is_visible" value="0">
-        <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="is_visible" value="1" @checked(old('is_visible', $car->is_visible))> Cho phép khách xem xe này (dòng xe cũng phải đang hiển thị)</label>
+        @if ($editing)
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="is_visible" value="1" @checked(old('is_visible', $car->is_visible))> Công khai xe (cần dòng xe hiển thị và một ảnh chính)</label>
+        @else
+            <p class="text-sm">Xe mới được lưu ẩn. Thêm ảnh và kiểm tra thông tin trước khi bật công khai ở màn sửa xe.</p>
+        @endif
         @error('is_visible') <p role="alert" class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
     </fieldset>
     <fieldset class="rounded-xl border border-zinc-200 p-4">
@@ -70,7 +74,7 @@
     @if (! $editing)
         <fieldset class="rounded-xl border border-zinc-200 p-4">
             <legend class="px-2 text-sm font-medium">Ảnh xe (không bắt buộc)</legend>
-            <p class="mb-2 text-sm text-zinc-600">Có thể chọn nhiều ảnh cùng lúc. JPG, PNG hoặc WEBP, mỗi ảnh tối đa 4 MB, lớn hơn 320x180 điểm ảnh.</p>
+            <p class="mb-2 text-sm text-zinc-600">Tối đa 10 ảnh. JPG, PNG hoặc WEBP, mỗi ảnh tối đa 5 MB, từ 320x180 điểm ảnh.</p>
             <input type="file" name="images[]" multiple accept="image/jpeg,image/png,image/webp" class="text-sm">
             @error('images') <p role="alert" class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
             @error('images.*') <p role="alert" class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror

@@ -12,7 +12,6 @@ use App\Models\User;
 use Database\Seeders\CatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -67,7 +66,7 @@ class CatalogTest extends TestCase
         $car = Car::sole();
         $this->assertSame('VIOS-2026-99', $car->code);
         $this->assertSame(CarStatus::Available, $car->status);
-        $this->assertTrue($car->is_visible);
+        $this->assertFalse($car->is_visible); // SRS 1.4: new cars stay draft until reviewed and published.
         $this->assertStringContainsString('toyota-vios-vios-2026-99', $car->slug);
 
         $this->actingAs($admin)->put("/admin/cars/{$car->id}", $this->carPayload([
@@ -232,8 +231,7 @@ class CatalogTest extends TestCase
         Car::factory()->count(12)->create(['category_id' => CarCategory::factory()->create()->id]);
 
         $response = $this->get('/xe?q=Vios&sort=price_asc')->assertOk();
-        // Same-number comparisons behave identically on SQLite and MySQL, so ordering is checked here;
-        // the max_price cut-off is asserted in the MySQL acceptance run (decimal vs integer bound).
+        // Ordering and range validation run on both supported test drivers.
         $this->assertSame([$sold->id, $cheap->id, $pricey->id], $response->viewData('cars')->pluck('id')->all());
 
         $this->get('/xe?status=sold')->assertOk()->assertSee($sold->code)
@@ -242,15 +240,10 @@ class CatalogTest extends TestCase
     }
 
     /**
-     * Prices are decimal(15,0) strings; SQLite compares them with an integer bound
-     * lexicographically (so the range filter only behaves like MySQL here).
+     * Keep numeric price boundary coverage on both SQLite and MySQL.
      */
     public function test_price_range_filter_boundaries(): void
     {
-        if (DB::getDriverName() !== 'mysql') {
-            $this->markTestSkipped('Numeric decimal/integer comparison needs MySQL; see acceptance note.');
-        }
-
         $line = CarCategory::factory()->create(['slug' => 'vios']);
         $cheap = Car::factory()->create(['category_id' => $line->id, 'price' => 450000000]);
         $pricey = Car::factory()->create(['category_id' => $line->id, 'price' => 550000000]);

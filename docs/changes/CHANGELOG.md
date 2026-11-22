@@ -4,6 +4,78 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
+
+- Theo yêu cầu Đạt, bỏ nền chia đôi và nút phát/dừng: video Camry phủ viewport,
+  tự phát im lặng/lặp; form dùng kính trong suốt để vẫn thấy cảnh phía sau.
+- Header/logo và về trang chủ nằm phía trên; mobile form giữa, đăng ký dài cuộn
+  bình thường trong khi video fixed. Giữ fallback ảnh nếu thiếu/hỏng/chặn media.
+- Thu gọn khoảng đệm trên màn hình laptop thấp để đăng nhập và footer nằm gọn.
+- Không đổi endpoint, validation, CSRF, tài khoản hoặc database. Clip vẫn ngoài Git.
+  Composer check đạt 108 tests/874 assertions, Pint/inventory/syntax; Vite build đạt.
+- Browser 1440x900 và 390x844: video 9 giây tự phát, muted/loop, phủ đúng viewport,
+  vẫn phát sau 21 giây; không controls/nút phát-dừng. Form trong suốt blur 12px,
+  hiện/ẩn mật khẩu hoạt động; đăng ký cuộn, không tràn ngang hoặc đè footer.
+  Console không có lỗi; chưa kiểm điện thoại thật. Không đổi hoặc reset dữ liệu.
+
+## 2026-11-19 Đồng bộ PR #9 sau khi backend và lịch/dịch vụ đã gộp
+
+- Ghép customer 7d039c3/main 96aa13c; giữ cả UI khách, TV3 Catalog, TV4 tư vấn/chat
+  và TV5 lịch/dịch vụ. Hợp nhất docs, route admin và tạo lại inventory.
+- Giữ nguyên migration 16/11 của nhánh và migration 17/11 của main để tương thích
+  các máy đã chạy; không sửa ngược migration, không reset/seed lại tài khoản.
+- Browser phát hiện thông số Dòng xe bị lặp với seed; chỉ hiển thị dòng canonical một lần.
+  Xe chưa có ảnh hiện đúng 00 ảnh thay vì báo 01 ảnh. Chỉ sửa Blade, không đổi dữ liệu.
+- Bộ chọn xe đặt lịch thêm mã chiếc xe/màu để phân biệt các xe cùng tên. Controller TV5
+  chỉ chọn thêm cột hiển thị; giữ nguyên ID, validation, quyền và service xác nhận.
+- Kiểm tra: full SQLite/MySQL 8.4.3 đạt 108 tests/874 assertions; sau sửa trình bày,
+  kiểm lại Appointment/Catalog (39 tests). 5 JS tests/build đạt. Browser 1280/390px:
+  slider, max_price riêng, 3 card Camry desktop/1 cột mobile, tư vấn tạo hồ sơ #2 đúng
+  Vios và lịch mới chọn đúng car_id=1. Chat mobile hai phiên đạt trên PR #4.
+- Chưa kiểm điện thoại thật/tải lớn/failover. Theo dõi CI SHA mới và chờ nhóm review;
+  không tự merge main hoặc đánh dấu toàn bộ P1 đã hoàn tất.
+
+## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
+
+- Sửa: `tests/Feature/Auth/FrontendIntegrationTest` dùng cứng `/xe/1` cho mọi role; trên MySQL
+  (bộ test sạch, không seeder) xe đầu tiên không có ID 1 nên nhận 404. Giờ dùng ID của xe
+  visible tạo riêng trong test (`/xe/{car->id}`).
+- Ảnh hưởng: chỉ test, không đổi code chạy thật. Trên SQLite pass cả bản cũ.
+- Kiểm tra: chạy đủ suite với DB_CONNECTION=mysql và DB riêng `toyota_showroom_test`:
+  69 passed, 0 failed.
+
+## 2026-11-16 Hiện nút Xóa dòng xe dạng disabled khi dòng xe còn xe
+
+- Sửa: `resources/views/admin/car-categories/index.blade.php` — trước đây nút Xóa bị ẩn hẳn
+  khi `@can('delete', ...)` thất bại (dòng xe còn xe), khiến quản trị viên tưởng chức năng xóa
+  chưa tồn tại. Giờ hiển thị chữ "Xóa" màu xám, không bấm được, tooltip giải thích lý do.
+- Ảnh hưởng dữ liệu/quyền: không đổi; Policy `CarCategoryPolicy::delete` và controller
+  `destroy` vẫn từ chối xóa dòng xe còn xe (server-side giữ nguyên).
+- Kiểm tra: CatalogTest 12 pass/1 skip.
+
+
+## 2026-11-16 Nối catalog TV3 với giao diện khách
+
+- Ghép PR #2/admin 56211fe vào customer 9a71fe5; giữ route/chat/lịch/video Auth.
+- /xe và chi tiết dùng DB; giữ slider giới thiệu, card 3 cột. Nối CTA tư vấn vào TV4
+  qua JSON/CSRF, giữ draft khi lỗi và chỉ báo tiếp nhận khi HTTP 201; booking TV5
+  chọn đúng ID xe. Gallery mở đúng thumbnail, sửa thứ tự ưu tiên ảnh chính.
+- Sửa min/max filter độc lập, optional specs rỗng, năm >=2000/giá >=1 triệu;
+  xe mới ẩn, publish cần ảnh chính. Upload 10 ảnh x 5MB, count/primary/reorder/delete
+  dưới lock cars; không xóa ảnh cuối của xe public. Giữ thứ tự category -> car khi SaveCar.
+- Giữ cả CatalogSeeder và DemoContentSeeder; chỉ bổ sung CatalogSeeder khi cài demo,
+  không reset DB hoặc chạy lại UserSeeder. Giữ media upload/video local ngoài Git.
+- Giữ nguyên migration catalog sau khi nhóm gộp PR #2; thêm migration 2026_11_16
+  khôi phục index FK một cột trên MySQL và giữ chúng khi rollback, để migration catalog
+  có thể drop composite an toàn. Auth frontend test dùng ID thật, không cố định /xe/1.
+- Ghép main eb6399a, giữ nút xóa dòng xe disabled và bản sửa test của nhóm (PR #8).
+- Kiểm tra: 108 tests/874 assertions trên SQLite và MySQL 8.4.3, Pint/syntax/inventory,
+  5 JS tests, Vite build đạt (4 cảnh báo font baseline). MySQL hai upload đồng thời:
+  1 nhận/1 từ chối, đúng 10 ảnh/1 primary; TV4 sold/hidden/category locking đạt.
+- Browser QA riêng: slider và lọc max riêng, thumbnail, tư vấn khi xe vừa sold báo lỗi
+  và giữ draft, gửi lại tạo hồ sơ thật; lịch xem lưu đúng car, không tự giữ xe. Admin
+  tạo nháp khi specs trống, chặn public thiếu ảnh. Chưa kiểm điện thoại/tải lớn/failover;
+  review trên GitHub, không tự merge main.
 ## 2026-11-19 Đồng bộ PR #4 với main đã gộp TV4/TV5
 
 - Ghép main 96aa13c theo review của Hoàng; giữ route Catalog, tư vấn/chat, lịch/dịch vụ
@@ -183,24 +255,6 @@
   Full regression/build và composer check ghi kết quả ở docs/testing/TV4_VALIDATION.md.
 - Chưa nối public form/UI customer PR #11, chưa review trực quan responsive;
   không nhận hoàn thành các module khác. Hợp đồng ở docs/development/TV4_INTEGRATION.md.
-
-## 2026-11-16 Sửa test frontend phụ thuộc ID cứng /xe/1 trên MySQL
-
-- Sửa: `tests/Feature/Auth/FrontendIntegrationTest` dùng cứng `/xe/1` cho mọi role; trên MySQL
-  (bộ test sạch, không seeder) xe đầu tiên không có ID 1 nên nhận 404. Giờ dùng ID của xe
-  visible tạo riêng trong test (`/xe/{car->id}`).
-- Ảnh hưởng: chỉ test, không đổi code chạy thật. Trên SQLite pass cả bản cũ.
-- Kiểm tra: chạy đủ suite với DB_CONNECTION=mysql và DB riêng `toyota_showroom_test`:
-  69 passed, 0 failed.
-
-## 2026-11-16 Hiện nút Xóa dòng xe dạng disabled khi dòng xe còn xe
-
-- Sửa: `resources/views/admin/car-categories/index.blade.php` — trước đây nút Xóa bị ẩn hẳn
-  khi `@can('delete', ...)` thất bại (dòng xe còn xe), khiến quản trị viên tưởng chức năng xóa
-  chưa tồn tại. Giờ hiển thị chữ "Xóa" màu xám, không bấm được, tooltip giải thích lý do.
-- Ảnh hưởng dữ liệu/quyền: không đổi; Policy `CarCategoryPolicy::delete` và controller
-  `destroy` vẫn từ chối xóa dòng xe còn xe (server-side giữ nguyên).
-- Kiểm tra: CatalogTest 12 pass/1 skip.
 
 ## 2026-10-20 Sửa lỗi mở form thêm xe và cho chọn ảnh ngay khi thêm xe
 

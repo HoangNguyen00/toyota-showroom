@@ -1,12 +1,13 @@
 @extends('layouts.app')
 @section('title', 'Dòng xe | Toyota Showroom')
 @section('content')
+@include('cars.hero')
 <section class="inventory" aria-labelledby="inventory-title">
     <p class="eyebrow">TOYOTA / COLLECTION</p>
-    <h1 id="inventory-title">Tìm chiếc Toyota của bạn.</h1>
+    <h2 id="inventory-title">Tìm chiếc Toyota của bạn.</h2>
     <p class="catalog-intro">Mỗi mã xe là một chiếc tại showroom. Giá công bố tham khảo, chưa phải giá lăn bánh.</p>
     <div class="catalog-layout">
-        <form class="filters" method="GET" action="{{ route('cars.index') }}" role="search" aria-label="Tìm xe">
+        <form class="filters" method="GET" action="{{ route('cars.index') }}#inventory-title" role="search" aria-label="Tìm xe">
             <h2>Bộ lọc xe</h2>
             <label class="search-field"><span>Tên hoặc mã xe</span><input type="search" name="q" maxlength="100" value="{{ $filters['q'] ?? '' }}" autocomplete="off"></label>
             <label><span>Dòng xe</span>
@@ -25,8 +26,8 @@
                     @endforeach
                 </select>
             </label>
-            <label><span>Giá từ (VND)</span><input type="number" name="min_price" min="0" step="1000000" value="{{ $filters['min_price'] ?? '' }}"></label>
-            <label><span>Giá đến (VND)</span><input type="number" name="max_price" min="0" step="1000000" value="{{ $filters['max_price'] ?? '' }}"></label>
+            <label><span>Giá từ (VND)</span><input type="number" name="min_price" min="0" step="1" value="{{ $filters['min_price'] ?? '' }}"></label>
+            <label><span>Giá đến (VND)</span><input type="number" name="max_price" min="0" step="1" value="{{ $filters['max_price'] ?? '' }}"></label>
             <label><span>Sắp xếp</span>
                 <select name="sort">
                     <option value="newest" @selected(($filters['sort'] ?? '') === 'newest')>Mới nhất</option>
@@ -52,7 +53,7 @@
             </div>
             <div class="results-footer">
                 <p aria-live="polite">{{ $cars->total() }} xe phù hợp</p>
-                {{ $cars->links() }}
+                {{ $cars->fragment('inventory-title')->links() }}
             </div>
         </div>
     </div>

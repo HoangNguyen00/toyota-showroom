@@ -4,17 +4,18 @@
 tiếp nhận tư vấn, chat thời gian thực và lịch xem xe hoặc bảo dưỡng.
 Việc mua bán, giấy tờ và thanh toán được thực hiện tại showroom trong phạm vi bài.
 
-**Nhánh frontend hiện có bản xem trước giao diện; nghiệp vụ backend chưa hoàn chỉnh.**
+**Nhánh tích hợp đã nối catalog, tư vấn/chat và lịch hẹn; vẫn cần nhóm review và nghiệm thu P1.**
 
-Trong local/testing: mở `/` để xem trang chủ Camry, `/xe` xem slider và card,
-`/xe/1` đến `/xe/9` xem chi tiết mẫu. Chạy `npm run dev` khi sửa hoặc
-`npm run build` để xem bản build. Dữ liệu/giá đều minh họa; tư vấn, đặt lịch
-chưa được kết nối; đăng ký/đăng nhập/đăng xuất đã nối H01 của Hoàng trên nhánh tích hợp.
+Trong local/testing: mở `/` xem trang chủ Camry; `/xe` và `/xe/{car}` đọc xe/ảnh/giá
+từ DB, có slider giới thiệu, tìm/lọc/sắp xếp và 12 xe/trang. `/collection-preview`
+và `/xe-preview/{id}` giữ fixture thiết kế riêng. Chạy `npm run dev` khi sửa hoặc
+`npm run build` để xem bản build. Giá seed là minh họa, chưa phải giá lăn bánh.
 Xem docs/development/HOME_PREVIEW.md và CATALOG_CARDS.md.
 Đã có Laravel, cấu hình Reverb, schema nền, model, middleware và tài liệu.
 H01 đã có đăng ký/đăng nhập/đăng xuất và màn tài khoản tối thiểu.
 H02 có quản lý user phía admin ở /admin/users (tạo sales, khóa/mở customer/sales).
-CRUD xe, tư vấn/chat và lịch vẫn chưa hoàn chỉnh.
+Admin quản lý xe/dòng/ảnh tại `/admin/cars`; tư vấn gửi JSON, lịch đi qua TV5.
+Customer dùng `/tai-khoan/tin-nhan` sau khi hồ sơ được phân công; chat cần Reverb/worker.
 
 ## Đọc trước khi làm
 
@@ -41,7 +42,7 @@ Composer 2, Node 22.12 trở lên trong dòng 22, npm và MySQL 8 đang chạy.
 Có thể mở terminal của Laragon để PHP và Composer nằm trong PATH.
 
 ```sh
-git clone https://github.com/grumhu124/toyota-showroom.git
+git clone https://github.com/HoangNguyen00/toyota-showroom.git
 cd toyota-showroom
 composer install
 npm ci
@@ -61,15 +62,19 @@ php artisan serve
 ```
 
 Mở `http://127.0.0.1:8000`. Local/testing hiện hiển thị giao diện trang chủ; production vẫn giữ welcome. Seeder tạo 1 admin, 2 sales, 3 customer
-khi DEMO_PASSWORD có giá trị; chưa tạo xe hoặc dịch vụ giả như dữ liệu thật.
+khi DEMO_PASSWORD có giá trị. CatalogSeeder bổ sung 15 chiếc/7 dòng Toyota với ảnh
+repo và giá minh họa; DemoContentSeeder giữ dịch vụ/xe demo TV5. Không dùng dữ liệu
+này làm thông tin tồn kho hoặc báo giá Toyota thật. CatalogSeeder không ghi đè xe đã có.
 Danh sách email mẫu ở [hướng dẫn môi trường](docs/development/SETUP.md).
 
 Mở /dang-ky hoặc /dang-nhap để thử H01; sau xác thực vào /tai-khoan.
-Màn tài khoản chưa là dashboard tư vấn/lịch. Xem [kiểm tra H01](docs/testing/AUTH_VALIDATION.md).
+Customer có thông tin cá nhân, lịch sắp tới và điều hướng chat/lịch. Màn admin/sales
+giữ điều hướng quản lý theo quyền. Xem [kiểm tra H01](docs/testing/AUTH_VALIDATION.md).
 
 ## Khi phát triển chat
 
-Mỗi tiến trình chạy ở một terminal; hiện chưa có endpoint gửi tin nghiệp vụ.
+Mỗi tiến trình chạy ở một terminal. HTTP gửi/history dùng `/yeu-cau/{inquiry}/tin-nhan`;
+admin phân công hồ sơ trước khi customer/sales có thể gửi chat.
 
 ```sh
 php artisan serve

@@ -90,7 +90,7 @@ class AdminCarController extends Controller
         }
 
         return redirect()->route('admin.cars.edit', $car)
-            ->with('status', 'Đã thêm xe'.($request->hasFile('images') ? ' và tải ảnh lên' : '').'. Có thể tải thêm ảnh cho xe này.');
+            ->with('status', 'Đã tạo xe ở trạng thái ẩn'.($request->hasFile('images') ? ' và tải ảnh lên' : '').'. Kiểm tra ảnh và thông tin trước khi công khai.');
     }
 
     public function edit(Car $car): View
@@ -98,7 +98,7 @@ class AdminCarController extends Controller
         Gate::authorize('update', $car);
 
         return view('admin.cars.edit', [
-            'car' => $car->load('images'),
+            'car' => $car->load(['images' => fn ($query) => $query->orderBy('sort_order')->orderBy('id')]),
             'categories' => CarCategory::query()->orderBy('name')->get(['id', 'name', 'is_visible']),
             'statuses' => CarStatus::cases(),
             'statusLabels' => self::STATUS_LABELS,
