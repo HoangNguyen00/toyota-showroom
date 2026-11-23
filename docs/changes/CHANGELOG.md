@@ -14,7 +14,10 @@
 - Kiểm tra: thêm test lỗi đưa vào hàng đợi (queue trỏ tới kết nối DB không tồn tại): redirect thành công,
   lịch confirmed, ghi failed không PII, xếp lại sau đó gửi đúng 1 thư. composer check đạt
   (118 tests) trên SQLite; 118 tests đạt trên MySQL 8.4.3 (toyota_showroom_test).
-- Chưa kiểm: chưa thử lại Mailpit + queue database sau bản sửa.
+- Browser + Mailpit + queue database sau bản sửa (SQLite riêng, tài khoản seed): customer1 đặt lịch xem
+  Vios 1.5G 09:30 26/11 → admin giao sales1 → sales1 xác nhận (“Đã xác nhận lịch hẹn.”) → worker chạy job,
+  Mailpit nhận đúng 1 thư tới customer1 với giờ 09:30 26/11/2026 (Asia/Ho_Chi_Minh) và xe Toyota Vios 1.5G ·
+  TOY-DEMO-001; activity_logs có 1 dòng sent. Ca lỗi xếp hàng chỉ kiểm bằng test tự động.
 
 ## 2026-11-23 Email xác nhận lịch hẹn (P2 đề xuất, chờ leader duyệt)
 
