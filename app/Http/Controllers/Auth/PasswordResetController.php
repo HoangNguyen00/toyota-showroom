@@ -5,13 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\User;
-use Illuminate\Auth\Events\PasswordReset;
+use App\Services\Account\ResetPassword;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -36,7 +34,10 @@ class PasswordResetController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $request->merge(['email' => mb_strtolower(trim((string) $request->input('email')))]);
+        // Chỉ chuẩn hóa chuỗi; mảng/kiểu khác để rule 'string' trả lỗi validation thay vì lỗi ép kiểu.
+        if (is_string($request->input('email'))) {
+            $request->merge(['email' => mb_strtolower(trim($request->input('email')))]);
+        }
         $request->validate(
             ['email' => ['required', 'string', 'email', 'max:255']],
             ['email.required' => 'Vui lòng nhập email.', 'email.email' => 'Email không hợp lệ.'],
@@ -67,24 +68,12 @@ class PasswordResetController extends Controller
         ]);
     }
 
-    public function update(ResetPasswordRequest $request): RedirectResponse
+    public function update(ResetPasswordRequest $request, ResetPassword $resetPassword): RedirectResponse
     {
-        $status = Password::broker()->reset(
-            $request->safe()->only(['email', 'password', 'password_confirmation', 'token']),
-            function (User $user, string $password): void {
-                // Không mở khóa hay đổi role: chỉ ghi mật khẩu, xoay remember_token và thu hồi phiên DB.
-                if (! $user->is_active) {
-                    throw ValidationException::withMessages(['email' => self::INVALID_LINK]);
-                }
-                DB::transaction(function () use ($user, $password): void {
-                    $user->forceFill(['password' => $password, 'remember_token' => Str::random(60)])->save();
-                    DB::table(config('session.table', 'sessions'))->where('user_id', $user->id)->delete();
-                });
-                event(new PasswordReset($user));
-            },
-        );
+        $data = $request->validated();
 
-        if ($status !== Password::PASSWORD_RESET) {
+        // Kiểm tra + tiêu thụ token, ghi mật khẩu và thu hồi phiên trong một transaction có khóa user.
+        if (! $resetPassword->handle($data['email'], $data['token'], $data['password'])) {
             throw ValidationException::withMessages(['email' => self::INVALID_LINK]);
         }
 

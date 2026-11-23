@@ -84,7 +84,8 @@ Quên mật khẩu (P2 đề xuất, ADR 0010), đều guest: GET/POST /quen-mat
 password.email, throttle 10/phút/IP + 3 lần/10 phút theo IP+email), GET /dat-lai-mat-khau/{token}
 (password.reset), POST /dat-lai-mat-khau (password.store). Phản hồi gửi link giống nhau cho mọi
 email; tài khoản khóa không nhận link và không đặt lại được. Token băm trong password_reset_tokens,
-hết hạn 60 phút, dùng một lần; link dựng từ APP_URL. Đặt lại thành công: đổi remember_token,
+hết hạn 60 phút, dùng một lần (kiểm tra và xóa token trong transaction khóa hàng users);
+email không phải chuỗi trả lỗi validation; link dựng từ APP_URL. Đặt lại thành công: đổi remember_token,
 xóa dòng sessions của user, không tự đăng nhập, giữ role/is_active.
 Guest vào route auth bị redirect login; JSON trả 401.
 User khóa bị logout/invalidate session: web redirect login với account_error,

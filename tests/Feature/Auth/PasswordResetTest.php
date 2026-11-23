@@ -174,6 +174,83 @@ class PasswordResetTest extends TestCase
         $this->assertTrue(Hash::check('old-password-123', $user->password));
     }
 
+    public function test_array_email_returns_validation_errors_instead_of_failing(): void
+    {
+        Notification::fake();
+        $user = $this->user(['email' => 'array@example.test']);
+        $token = Password::broker()->createToken($user);
+
+        $this->from('/quen-mat-khau')->post('/quen-mat-khau', ['email' => ['array@example.test']])
+            ->assertRedirect('/quen-mat-khau')->assertSessionHasErrors('email');
+        $this->from('/dat-lai-mat-khau/'.$token)->post('/dat-lai-mat-khau', [
+            'token' => $token, 'email' => ['array@example.test'],
+            'password' => 'brand-new-pass-456', 'password_confirmation' => 'brand-new-pass-456',
+        ])->assertRedirect('/dat-lai-mat-khau/'.$token)->assertSessionHasErrors('email');
+
+        Notification::assertNothingSent();
+        $this->assertTrue(Hash::check('old-password-123', $user->fresh()->password));
+        $this->assertDatabaseHas('password_reset_tokens', ['email' => 'array@example.test']);
+    }
+
+    public function test_token_is_checked_and_consumed_inside_one_transaction_holding_the_user_lock(): void
+    {
+        $user = $this->user(['email' => 'race@example.test']);
+        $token = Password::broker()->createToken($user);
+        $baseLevel = DB::transactionLevel();
+        $queries = [];
+        DB::listen(function ($query) use (&$queries): void {
+            $queries[] = ['sql' => str_replace(['"', '`'], '', strtolower($query->sql)), 'level' => DB::transactionLevel()];
+        });
+
+        $this->post('/dat-lai-mat-khau', [
+            'token' => $token, 'email' => 'race@example.test',
+            'password' => 'brand-new-pass-456', 'password_confirmation' => 'brand-new-pass-456',
+        ])->assertRedirect(route('login'));
+
+        $find = function (string $needle) use ($queries): int {
+            foreach ($queries as $index => $query) {
+                if (str_contains($query['sql'], $needle)) {
+                    return $index;
+                }
+            }
+            $this->fail("Missing query: {$needle}");
+        };
+        $lock = $find('from users');
+        $check = $find('select * from password_reset_tokens');
+        $consume = $find('delete from password_reset_tokens');
+
+        // Khóa user trước, rồi kiểm tra và xóa token trong cùng transaction: yêu cầu thứ hai chờ khóa
+        // và chỉ thấy token sau khi yêu cầu thứ nhất đã xóa nó.
+        $this->assertTrue($lock < $check && $check < $consume);
+        foreach ([$lock, $check, $consume] as $index) {
+            $this->assertGreaterThan($baseLevel, $queries[$index]['level']);
+        }
+        if (DB::connection()->getDriverName() === 'mysql') {
+            $this->assertStringContainsString('for update', $queries[$lock]['sql']);
+        }
+    }
+
+    public function test_failed_password_write_rolls_back_and_keeps_the_token(): void
+    {
+        $user = $this->user(['email' => 'rollback@example.test']);
+        $token = Password::broker()->createToken($user);
+        User::saving(fn () => throw new \RuntimeException('write failed'));
+
+        $this->withoutExceptionHandling();
+        try {
+            $this->post('/dat-lai-mat-khau', [
+                'token' => $token, 'email' => 'rollback@example.test',
+                'password' => 'brand-new-pass-456', 'password_confirmation' => 'brand-new-pass-456',
+            ]);
+            $this->fail('Expected the write failure to propagate.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('write failed', $e->getMessage());
+        }
+
+        $this->assertTrue(Hash::check('old-password-123', $user->fresh()->password));
+        $this->assertTrue(Password::broker()->tokenExists($user->fresh(), $token));
+    }
+
     public function test_signed_in_users_are_redirected_away_from_reset_pages(): void
     {
         $this->actingAs($this->user())->get('/quen-mat-khau')->assertRedirect();

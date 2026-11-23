@@ -6,8 +6,9 @@ Nhánh codex/password-reset từ main 1c70a4d: link “Quên mật khẩu?” �
 link và form đặt mật khẩu mới trong layout Auth; Laravel Password Broker + bảng
 password_reset_tokens có sẵn. Phản hồi giống nhau cho mọi email, có giới hạn tần suất;
 token băm, 60 phút, một lần; link theo APP_URL; tài khoản khóa không đặt lại được; đổi
-remember_token và xóa sessions DB của user. Đã kiểm SQLite + MySQL 8.4.3 riêng (116 tests)
-và browser + Mailpit. P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa ghi đạt toàn bộ.
+remember_token và xóa sessions DB của user. Sau review: token được kiểm tra và tiêu thụ trong
+transaction khóa hàng users; email dạng mảng trả lỗi validation. Đã kiểm SQLite + MySQL 8.4.3 riêng
+(119 tests), thử hai yêu cầu đồng thời trên MySQL, và browser + Mailpit (trước bản sửa review). P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa ghi đạt toàn bộ.
 
 ## Auth toàn màn hình — 19/11/2026
 

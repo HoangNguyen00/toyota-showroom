@@ -4,6 +4,19 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-23 Quên mật khẩu — sửa theo review (P2 đề xuất)
+
+- Sửa: email dạng mảng ở POST /quen-mat-khau và /dat-lai-mat-khau từng bị ép (string) trước khi
+  validate, gây lỗi 500; nay chỉ chuẩn hóa chuỗi và trả lỗi validation.
+- Sửa: bỏ `Password::broker()->reset()` (kiểm tra token trước callback, xóa sau callback, không khóa chung).
+  Thêm Service `Account\ResetPassword`: khóa hàng users, kiểm tra token, ghi mật khẩu, xóa sessions,
+  xóa token trong cùng transaction; giữ timebox của broker; sự kiện PasswordReset phát sau commit.
+- Ảnh hưởng: không migration, không đổi route/response; lỗi ghi giữa chừng rollback và giữ token.
+- Kiểm tra: thêm 3 test (email mảng, thứ tự khóa → kiểm tra → xóa trong transaction, rollback giữ token).
+  composer check đạt trên SQLite; 119 tests đạt trên MySQL 8.4.3 (toyota_showroom_test). Thử đồng thời trên
+  MySQL: một tiến trình giữ khóa user, hai tiến trình dùng cùng token → chỉ một thành công, không còn token.
+- Chưa kiểm: chưa thử lại browser + Mailpit sau bản sửa; SMTP thật.
+
 ## 2026-11-23 Quên mật khẩu (P2 đề xuất, chờ leader duyệt)
 
 - Thêm: PasswordResetController, ResetPasswordRequest, ResetPasswordNotification (tiếng Việt,

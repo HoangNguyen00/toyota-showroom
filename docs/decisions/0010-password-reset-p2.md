@@ -10,8 +10,11 @@ throttle 60 giây) nhưng chưa có route/màn hình.
 
 ## Quyết định
 
-- Dùng `Password::broker()` của Laravel, không schema mới. Token chỉ lưu dạng băm; broker xóa
-  token sau khi đặt lại thành công nên mỗi link dùng một lần; hết hạn theo `auth.passwords.users.expire`.
+- Dùng `Password::broker()` của Laravel, không schema mới. Token chỉ lưu dạng băm; hết hạn theo
+  `auth.passwords.users.expire`. Không gọi `broker->reset()` vì nó kiểm tra token trước callback và
+  xóa token sau callback mà không có khóa chung. `App\Services\Account\ResetPassword` khóa hàng users
+  (`lockForUpdate`), rồi kiểm tra token, ghi mật khẩu, xóa sessions và xóa token trong cùng transaction,
+  giữ timebox của broker; hai yêu cầu đồng thời với cùng link chỉ một yêu cầu thành công.
 - Phản hồi công khai giống nhau cho email có/không có tài khoản/tài khoản khóa. Tài khoản khóa
   không được gửi link; nếu bị khóa sau khi đã có link thì đặt lại bị từ chối như link không hợp lệ.
 - Giới hạn: `throttle:10,1` theo IP trên route, thêm RateLimiter 3 lần/10 phút theo IP + email,
@@ -28,3 +31,4 @@ throttle 60 giây) nhưng chưa có route/màn hình.
 - Gửi đồng bộ làm request của email có tài khoản chậm hơn một chút (khác biệt thời gian nhỏ có thể
   bị đo); chấp nhận để không lưu token thô trong hàng đợi.
 - Cần SMTP (Mailpit khi demo) để khách nhận link.
+- Khóa hàng chỉ có hiệu lực trên MySQL (đích của dự án); SQLite test chỉ kiểm thứ tự truy vấn trong transaction.

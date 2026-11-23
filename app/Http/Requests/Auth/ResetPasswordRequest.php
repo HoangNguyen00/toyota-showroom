@@ -14,7 +14,10 @@ class ResetPasswordRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge(['email' => mb_strtolower(trim((string) $this->input('email')))]);
+        // Chỉ chuẩn hóa chuỗi; mảng/kiểu khác để rule 'string' trả lỗi validation thay vì lỗi ép kiểu.
+        if (is_string($this->input('email'))) {
+            $this->merge(['email' => mb_strtolower(trim($this->input('email')))]);
+        }
     }
 
     public function rules(): array
