@@ -38,6 +38,21 @@
   Pint, inventory; npm run build; git diff --check. Browser 1440x900 và 390x844 với DB
   SQLite riêng: Catalog → chọn 2 xe → đổi xe → chi tiết, trùng xe, thiếu thông số, xe ẩn;
   không tràn ngang, Tab/Enter dùng được.
+## 2026-11-23 Xe quan tâm (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: SavedCarsController, route cars.saved/cars.saved.cards, view cars/saved và partial thẻ,
+  JS catalog/saved-cars(+store), CSS saved-cars, nút lưu trên x-car-card và trang chi tiết,
+  link “Xe quan tâm” trong bộ lọc Catalog; ADR 0008.
+- Sửa: catalog-inquiry.js dùng ủy quyền click để thẻ xe chèn bằng JS mở được dialog Tư vấn;
+  hành vi Catalog/chi tiết giữ nguyên.
+- Lý do: người dùng yêu cầu làm sẵn P2 “yêu thích” (SRS §9) để leader review; ACCEPTANCE P1
+  chưa ghi đạt toàn bộ nên chưa phải P2 được chốt.
+- Ảnh hưởng: không schema/dependency/quyền mới; chỉ đọc xe publiclyVisible. Danh sách theo
+  trình duyệt, không đồng bộ thiết bị. Phụ thuộc mềm PR So sánh 2 xe (ẩn nếu chưa có route).
+- Kiểm tra: 6 test SavedCarsTest, 5 test JS store; composer check 114 tests/911 assertions trên
+  SQLite, Pint, inventory; npm run build; git diff --check. Browser DB SQLite riêng 1440x900
+  và 390x844: lưu bằng Enter/chuột, reload, bỏ lưu (focus sang thẻ kế), giới hạn 12 (toast),
+  xe ẩn + ID không tồn tại bị loại, localStorage bị chặn, Tư vấn từ trang Xe quan tâm.
 - Chưa kiểm: MySQL cục bộ (chờ CI), trình đọc màn hình thật, điện thoại thật.
 
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký

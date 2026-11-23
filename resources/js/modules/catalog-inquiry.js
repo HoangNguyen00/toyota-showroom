@@ -2,15 +2,16 @@ const dialog = document.querySelector('[data-catalog-inquiry]');
 if (dialog) {
     const form = dialog.querySelector('[data-catalog-inquiry-form]');
     const feedback = form?.querySelector('[data-catalog-inquiry-feedback]');
-    document.querySelectorAll('[data-open-catalog-inquiry]').forEach((button) => {
-        button.addEventListener('click', () => {
-            if (form) {
-                form.elements.car_id.value = button.dataset.carId || '';
-                feedback.hidden = true;
-            }
-            dialog.querySelector('[data-catalog-car-name]').textContent = button.dataset.carName || 'Showroom sẽ liên hệ với bạn để hỗ trợ.';
-            dialog.showModal();
-        });
+    // Ủy quyền sự kiện để cả thẻ xe chèn sau khi tải (trang Xe quan tâm) cũng mở được dialog.
+    document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-open-catalog-inquiry]');
+        if (!button) return;
+        if (form) {
+            form.elements.car_id.value = button.dataset.carId || '';
+            feedback.hidden = true;
+        }
+        dialog.querySelector('[data-catalog-car-name]').textContent = button.dataset.carName || 'Showroom sẽ liên hệ với bạn để hỗ trợ.';
+        dialog.showModal();
     });
     let busy = false;
     form?.addEventListener('submit', async (event) => {

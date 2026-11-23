@@ -1,0 +1,41 @@
+/* P2 đề xuất — Xe quan tâm. Dùng token/nút/focus của Catalog (collection.css, catalog-redesign.css). */
+.save-car-toggle{position:absolute;top:14px;right:14px;z-index:2;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:6px 12px;border:1px solid #d7d8dc;border-radius:20px;background:#fffffff0;color:var(--ink);font-size:11px;font-weight:500;line-height:1.2;cursor:pointer}
+.save-car-toggle [data-save-icon]{font-size:14px;line-height:1}
+.save-car-toggle.is-saved,.save-car-detail.is-saved{border-color:var(--red);color:var(--red)}
+.save-car-toggle:hover{border-color:var(--ink)}
+.save-car-toggle[aria-disabled=true],.save-car-detail[aria-disabled=true]{opacity:.55;cursor:not-allowed}
+.save-car-toggle:focus-visible,.save-car-detail:focus-visible,.saved-pick input:focus-visible,.catalog-saved:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.inventory .filters .catalog-saved{background:#fff;border:1px solid #d7d8dc;border-radius:10px;font-size:13px;gap:6px}
+.saved-count{color:var(--red);font-weight:600}
+.saved-toast{position:fixed;left:50%;bottom:24px;z-index:60;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);padding:12px 18px;border-radius:10px;background:var(--ink);color:#fff;font-size:13px;line-height:1.6;box-shadow:0 10px 30px #0003}
+.saved-toast:empty{display:none}
+.detail-save{display:flex;align-items:center;flex-wrap:wrap;gap:12px 18px;margin-top:18px}
+.save-car-detail{gap:6px;border-radius:10px;min-height:46px;padding:10px 18px;font-size:13px}
+.detail-save-link{font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.saved-page{padding-bottom:72px;min-height:70vh}
+.saved-header h1{font-size:clamp(30px,3vw,46px);font-weight:500;line-height:1.2;letter-spacing:-.04em;margin:14px 0 16px}
+.saved-header .catalog-intro{margin-bottom:24px}
+.saved-status{min-height:20px;font-size:12px;color:var(--muted);margin-bottom:12px}
+.saved-alert{border-radius:12px;background:#fdf0f0;color:#a3151a;padding:14px 18px;font-size:13px;line-height:1.7;margin-bottom:20px}
+.saved-alert a{text-decoration:underline}
+.saved-compare{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px 24px;background:#f1f1f4;border-radius:18px;padding:18px 24px;margin-bottom:24px;font-size:13px}
+.saved-compare .button{border-radius:10px;min-height:46px}
+.saved-compare .button:disabled{opacity:.45;cursor:not-allowed}
+.saved-inventory{padding:40px 4.5% 48px;border-radius:24px}
+.saved-inventory .car-grid:empty{display:none}
+.saved-item{display:flex;flex-direction:column;gap:12px;min-width:0}
+.saved-item .car-card{flex:1}
+.saved-pick{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 16px;border:1px solid #d7d8dc;border-radius:10px;background:#fff;font-size:13px;cursor:pointer}
+.saved-pick input{width:18px;height:18px;accent-color:var(--ink)}
+.saved-pick:has(input:checked){border-color:var(--ink);font-weight:600}
+.saved-pick:has(input:disabled){opacity:.5;cursor:not-allowed}
+.saved-empty{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.saved-empty[hidden]{display:none}
+.saved-empty .button{margin-top:8px;border-radius:10px}
+@media(max-width:767px){
+.inventory .filters .catalog-saved{grid-column:1/-1;min-height:42px}
+.saved-inventory{padding:20px 12px;border-radius:16px}
+.saved-compare{padding:16px;border-radius:14px}
+.saved-compare .button{width:100%}
+.save-car-toggle{top:10px;right:10px}
+}

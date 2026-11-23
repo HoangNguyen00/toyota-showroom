@@ -11,6 +11,15 @@ Không schema/dependency mới; không đổi luồng Catalog/tư vấn/đặt l
 Đây là P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa được nhóm ghi đạt toàn bộ,
 nên tính năng chờ leader quyết định giữ hay hoãn. Đã kiểm SQLite + browser 1440/390px;
 chưa chạy MySQL cục bộ, chờ CI.
+## Xe quan tâm (P2 đề xuất, chờ leader duyệt) — 23/11/2026
+
+Nhánh codex/saved-cars từ main 1c70a4d: nút Lưu xe/Đã lưu trên thẻ xe và trang chi tiết,
+trang /xe-quan-tam có trạng thái rỗng, bỏ lưu, đếm số xe. ID lưu ở localStorage (tối đa 12,
+loại trùng, giữ sau reload); server chỉ render xe publiclyVisible, xe ẩn/dòng ẩn/đã xóa bị loại.
+Chọn 2 xe để so sánh chỉ hiện khi route cars.compare có (PR So sánh 2 xe chưa merge).
+Dialog Tư vấn chuyển sang ủy quyền sự kiện để thẻ chèn sau tải vẫn mở được.
+P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa ghi đạt toàn bộ. Đã kiểm SQLite,
+JS unit, browser 1440/390px, bàn phím, reload, localStorage bị chặn; chưa chạy MySQL cục bộ.
 
 ## Auth toàn màn hình — 19/11/2026
 

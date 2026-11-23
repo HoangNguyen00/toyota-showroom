@@ -7,6 +7,7 @@ export { createEcho } from './echo';
 
 import './modules/auth';
 import './modules/catalog-inquiry';
+import './modules/catalog/saved-cars';
 
 import './modules/customer-chat';
 import './modules/appointments';

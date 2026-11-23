@@ -19,6 +19,10 @@ GET /xe/{car} tên cars.show, dùng ID (không slug), 404 nếu xe hoặc dòng 
 GET /xe/so-sanh tên cars.compare (P2 đề xuất, ADR 0007): xe1/xe2 là ID số nguyên dương,
 khác nhau; chỉ xe publiclyVisible. Thiếu xe2 → chỉ hiện form (xe1 chọn sẵn nếu có);
 lỗi → 422 cùng view, giữ lựa chọn, không lộ mã xe ẩn. Dữ liệu qua CarPresenter + CarComparison.
+GET /xe-quan-tam tên cars.saved (P2 đề xuất, ADR 0008): khung trang, ID lưu ở localStorage.
+GET /xe-quan-tam/the-xe tên cars.saved.cards, throttle 60/phút: ids = "1,2,3" (số nguyên dương,
+tối đa 12 sau khi loại trùng), sai định dạng → 422; trả {ids, html} chỉ gồm xe publiclyVisible
+theo thứ tự gửi lên. Không lưu DB/session.
 Chỉ xe và dòng cùng visible mới công khai (scope `publiclyVisible` cho TV4/TV5 dùng lại).
 
 Admin (web/auth/active/role:admin, Policy từng bản ghi):
