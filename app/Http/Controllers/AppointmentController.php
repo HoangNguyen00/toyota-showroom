@@ -121,7 +121,7 @@ class AppointmentController extends Controller
             'q' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $query = Appointment::query()->with(['car', 'service', 'customer', 'assignedStaff']);
+        $query = Appointment::query()->with(['car', 'car.images' => fn ($q) => $q->orderByDesc('is_primary')->orderBy('sort_order'), 'service', 'customer', 'assignedStaff']);
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);

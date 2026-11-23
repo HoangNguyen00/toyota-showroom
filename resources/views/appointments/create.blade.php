@@ -76,7 +76,7 @@
                 <label for="requested_at">Thời gian mong muốn</label>
                 <input type="datetime-local" name="requested_at" id="requested_at" required value="{{ old('requested_at') }}">
                 @error('requested_at') <p class="field-error" role="alert">{{ $message }}</p> @enderror
-                <p class="field-hint">Giờ tiếp nhận demo của showroom, xác nhận qua điện thoại.</p>
+                <p class="field-hint">Showroom sẽ gọi điện xác nhận thời gian cụ thể.</p>
             </div>
 
             <div class="field-group">

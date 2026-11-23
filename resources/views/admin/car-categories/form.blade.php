@@ -1,8 +1,12 @@
-@extends('layouts.account')
+@extends('layouts.staff')
 @section('title', $category->exists ? 'Sửa dòng xe' : 'Thêm dòng xe')
+@section('eyebrow', 'Catalog')
+@section('heading', $category->exists ? 'Sửa dòng xe' : 'Thêm dòng xe Toyota')
+@section('back')
+    <a class="staff-back" href="{{ route('admin.car-categories.index') }}"><span aria-hidden="true">←</span> Danh sách dòng xe</a>
+@endsection
 @section('content')
-    <div class="space-y-6">
-        <h1 class="text-2xl font-semibold">{{ $category->exists ? 'Sửa dòng xe' : 'Thêm dòng xe Toyota' }}</h1>
+    <div class="staff-card max-w-2xl">
         <form method="POST" action="{{ $category->exists ? route('admin.car-categories.update', $category) : route('admin.car-categories.store') }}" class="space-y-5">
             @csrf
             @if ($category->exists) @method('PUT') @endif
@@ -23,8 +27,8 @@
             </fieldset>
             <p class="text-xs text-zinc-500">Đường dẫn (slug) được tạo tự động từ tên; thương hiệu cố định Toyota.</p>
             <div class="flex flex-wrap gap-3">
-                <button type="submit" class="rounded-lg bg-red-700 px-5 py-3 font-medium text-white">Lưu</button>
-                <a href="{{ route('admin.car-categories.index') }}" class="rounded-lg border border-zinc-300 px-5 py-3">Quay lại</a>
+                <button type="submit" class="staff-btn staff-btn--primary">Lưu</button>
+                <a href="{{ route('admin.car-categories.index') }}" class="staff-btn staff-btn--secondary">Quay lại</a>
             </div>
         </form>
     </div>

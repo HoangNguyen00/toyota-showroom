@@ -114,6 +114,25 @@
   (toyota_showroom_mail_test). Demo Mailpit 1.22.3 + queue database: thư đúng giờ/xe/link APP_URL.
 - Chưa kiểm/giới hạn: at-least-once khi SMTP đã nhận nhưng chưa ghi “sent”; chưa có email nhắc
   trước giờ hẹn; chưa thử nhà cung cấp SMTP thật.
+## 2026-11-23 Đồng bộ giao diện sales/admin và "Xe khách chọn"
+
+- Thêm: layouts/staff, resources/css/staff.css (@layer components), components/staff/status (nhãn trạng thái
+  cùng nhãn khu khách), components/staff/car (ảnh chính, tên, mã chiếc, màu), 4 icon trong customer-icon,
+  tests/Feature/Staff/StaffLayoutTest (4 test).
+- Sửa view: auth/account (tổng quan sales/admin), staff/inquiries index/show, staff/appointments/index,
+  admin users/cars/car-categories/services. Giữ nguyên route, method, CSRF, tên field, id input, @can và
+  hook chat (data-inquiry-chat/-status/-older/-messages/-form; thêm data-chat-scroll JS đã hỗ trợ).
+  /yeu-cau HTML của khách vẫn dùng layouts/account. Nhãn "No-show" đổi thành "Không đến" như enum.
+- Sửa controller (chỉ eager-load): InquiryController nạp car code/color và ảnh; AppointmentController::manage
+  nạp car.images. JSON tư vấn vẫn chỉ trả car id/name. Không đổi Policy, validation, schema, dependency.
+- Bỏ dòng ghi chú đồ án ở footer các layout; gợi ý giờ ở form đặt lịch đổi thành câu xác nhận qua điện thoại.
+  SRS dòng 159 cập nhật theo quyết định chủ repo.
+- Kiểm tra: composer check, npm run build, git diff --check (kết quả ở PR). Browser trên SQLite riêng + Reverb/queue
+  riêng: 1440px và 390px không tràn ngang; menu hai vai trò, bộ lọc, phân trang, lỗi server, thứ tự Tab.
+  Luồng admin giao tư vấn → sales bắt đầu → khách/sales chat hai chiều không reload; admin giao lịch → sales
+  xác nhận → khách thấy Đã xác nhận. Hai chiếc Toyota Camry CAMRY-2026-01 (Đen) và CAMRY-2025-02 (Trắng):
+  tư vấn và đặt lịch từ trang xe lưu đúng car_id, form đặt lịch chọn sẵn đúng chiếc, mã khớp ở màn admin/sales.
+- Chưa kiểm: MySQL cho nhánh này (không đổi truy vấn khóa), điện thoại thật, trình đọc màn hình.
 
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
 

@@ -42,8 +42,5 @@
         @endif
         @yield('content')
     </main>
-    <footer class="px-5 pb-8 text-center text-xs text-zinc-500">
-        Đồ án môn học — không phải website đại lý Toyota chính thức.
-    </footer>
 </body>
 </html>
