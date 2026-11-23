@@ -29,6 +29,15 @@ token băm, 60 phút, một lần; link theo APP_URL; tài khoản khóa không 
 remember_token và xóa sessions DB của user. Sau review: token được kiểm tra và tiêu thụ trong
 transaction khóa hàng users; email dạng mảng trả lỗi validation. Đã kiểm SQLite + MySQL 8.4.3 riêng
 (119 tests), thử hai yêu cầu đồng thời trên MySQL, và browser + Mailpit (trước bản sửa review). P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa ghi đạt toàn bộ.
+## Email xác nhận lịch hẹn (P2 đề xuất, chờ leader duyệt) — 23/11/2026
+
+Nhánh codex/appointment-confirmation-email từ main 1c70a4d: confirm() dispatch job afterCommit;
+email gồm giờ xác nhận theo Asia/Ho_Chi_Minh, xe/dịch vụ, thông tin showroom (demo).
+Chỉ gửi tới email tài khoản khách; guest bỏ qua và ghi log. Chống trùng bằng ShouldBeUnique +
+khóa cache + activity_logs; lỗi gửi retry 3 lần, lịch vẫn confirmed. Sau review: lỗi đưa vào
+hàng đợi sau commit được ghi nhận, phản hồi xác nhận vẫn thành công. Chưa có email nhắc giờ.
+Đã kiểm SQLite và MySQL 8.4.3 riêng (32 tests), demo Mailpit + queue database: Mailpit tắt →
+retry, bật lại → đúng 1 thư, job trùng không gửi thêm. P2 ngoài cổng COURSE_SCOPE §5.
 
 ## Auth toàn màn hình — 19/11/2026
 

@@ -150,6 +150,10 @@ Validate type/giờ/xe/dịch vụ; admin phân công sales active.
 Xác nhận transaction khóa appointment rồi sales, đọc lại pending và quyền,
 kiểm giờ/xe/service và lịch confirmed khác cách <60 phút, rồi ghi.
 Mọi confirmation dùng cùng service/protocol, tránh hai request ghi đè/trùng.
+P2 đề xuất (ADR 0009): sau commit confirm, job SendAppointmentConfirmation gửi email tới
+email tài khoản customer_id; guest bị bỏ qua; activity_logs ghi sent/skipped/failed theo
+mốc confirmed_at để chống gửi trùng. Lỗi đưa vào hàng đợi sau commit không làm phản hồi
+xác nhận thất bại; ghi failed/enqueue_failed. Không đổi Policy/overlap/phân công.
 Đúng 60 phút hợp lệ; đây là quy ước tiếp nhận demo, không mô hình xưởng.
 Customer hủy pending/confirmed chưa tới giờ, server kiểm own và lưu lý do.
 Nhân viên/admin hủy kèm lý do; hoàn tất/no_show sau giờ confirmed_at.

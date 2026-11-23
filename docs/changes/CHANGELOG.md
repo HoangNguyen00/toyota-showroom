@@ -84,6 +84,36 @@
   (toyota_showroom_test). Browser + Mailpit: 1 thư cho email có tài khoản, link đúng APP_URL,
   dùng lại link bị từ chối, mật khẩu mới đăng nhập được.
 - Chưa kiểm: SMTP thật; thu hồi phiên chỉ áp dụng SESSION_DRIVER=database (demo browser dùng file).
+## 2026-11-23 Email xác nhận lịch — sửa theo review (P2 đề xuất)
+
+- Sửa: `dispatch()->afterCommit()` ném lỗi ra ngoài nếu đưa vào hàng đợi thất bại sau commit,
+  nên người xác nhận nhận lỗi 500 dù lịch đã confirmed trong DB. Thêm
+  SendAppointmentConfirmation::queueAfterCommit(): bắt lỗi xếp hàng, Log::warning (ID + tên lớp lỗi),
+  ghi activity_logs failed với reason enqueue_failed, nhả khóa unique; phản hồi vẫn “Đã xác nhận lịch hẹn.”
+- Ảnh hưởng: không migration/route; Policy, khóa hàng, overlap, phân công giữ nguyên.
+- Kiểm tra: thêm test lỗi đưa vào hàng đợi (queue trỏ tới kết nối DB không tồn tại): redirect thành công,
+  lịch confirmed, ghi failed không PII, xếp lại sau đó gửi đúng 1 thư. composer check đạt
+  (118 tests) trên SQLite; 118 tests đạt trên MySQL 8.4.3 (toyota_showroom_test).
+- Browser + Mailpit + queue database sau bản sửa (SQLite riêng, tài khoản seed): customer1 đặt lịch xem
+  Vios 1.5G 09:30 26/11 → admin giao sales1 → sales1 xác nhận (“Đã xác nhận lịch hẹn.”) → worker chạy job,
+  Mailpit nhận đúng 1 thư tới customer1 với giờ 09:30 26/11/2026 (Asia/Ho_Chi_Minh) và xe Toyota Vios 1.5G ·
+  TOY-DEMO-001; activity_logs có 1 dòng sent. Ca lỗi xếp hàng chỉ kiểm bằng test tự động.
+
+## 2026-11-23 Email xác nhận lịch hẹn (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: job SendAppointmentConfirmation, mailable AppointmentConfirmedMail (HTML + text),
+  config showroom.contact (mặc định demo), biến SHOWROOM_* và MAIL_FROM_* mẫu trong .env.example; ADR 0009.
+- Sửa: AppointmentService::confirm() dispatch job afterCommit sau khi ghi; không đổi Policy,
+  khóa hàng, kiểm overlap hay phân công.
+- Lý do: người dùng yêu cầu email ngay khi lịch được xác nhận (SRS §9 email là P2).
+- Ảnh hưởng dữ liệu: không migration; ghi activity_logs sent/skipped/failed (payload chỉ
+  confirmed_at, lý do, tên lớp lỗi; không email/điện thoại). Guest không nhận email.
+- Kiểm tra: 9 test AppointmentConfirmationMailTest (gửi sau commit, rollback, thất bại xác nhận,
+  xác nhận lặp, job trùng, guest, job cũ sau hủy, lỗi SMTP + retry, payload). Test rollback được
+  kiểm đột biến (bỏ afterCommit → fail). 32 test Appointment đạt trên SQLite và MySQL 8.4.3 riêng
+  (toyota_showroom_mail_test). Demo Mailpit 1.22.3 + queue database: thư đúng giờ/xe/link APP_URL.
+- Chưa kiểm/giới hạn: at-least-once khi SMTP đã nhận nhưng chưa ghi “sent”; chưa có email nhắc
+  trước giờ hẹn; chưa thử nhà cung cấp SMTP thật.
 
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
 
