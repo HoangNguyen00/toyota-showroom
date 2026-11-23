@@ -26,6 +26,19 @@
   Test fail với truy vấn cũ, pass sau sửa.
 - Chưa kiểm: chỉ chạy SQLite :memory:, chưa chạy MySQL cục bộ (không có DB test riêng
   cho TV5); cần CI ma trận MySQL xác nhận.
+## 2026-11-23 So sánh 2 xe (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: GET /xe/so-sanh (cars.compare), CarComparisonController, CarComparison,
+  view cars/compare, CSS car-compare; lối vào ở bộ lọc Catalog và link trên card xe.
+- Lý do: người dùng yêu cầu làm sẵn P2 “so sánh” (SRS §9) để leader review riêng; ADR 0007.
+  ACCEPTANCE P1 chưa ghi đạt toàn bộ nên chưa phải P2 được chốt.
+- Ảnh hưởng: chỉ đọc, không schema/dependency/quyền mới. Xe ẩn hoặc dòng ẩn bị từ chối
+  như /xe/{car}; lỗi trả 422 và giữ lựa chọn. Card dùng chung thêm một link, không đổi nút.
+- Kiểm tra: 8 test CarComparisonTest; composer check 116 tests/918 assertions trên SQLite,
+  Pint, inventory; npm run build; git diff --check. Browser 1440x900 và 390x844 với DB
+  SQLite riêng: Catalog → chọn 2 xe → đổi xe → chi tiết, trùng xe, thiếu thông số, xe ẩn;
+  không tràn ngang, Tab/Enter dùng được.
+- Chưa kiểm: MySQL cục bộ (chờ CI), trình đọc màn hình thật, điện thoại thật.
 
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
 

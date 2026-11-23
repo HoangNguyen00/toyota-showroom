@@ -16,6 +16,9 @@ GET /xe tên cars.index: q (tên/mã/màu, ≤100), category (slug), status (enu
 min_price/max_price (VND, độc lập; nếu có cả hai thì max ≥ min),
 sort newest|price_asc|price_desc, page; 12 xe/trang.
 GET /xe/{car} tên cars.show, dùng ID (không slug), 404 nếu xe hoặc dòng ẩn — kể cả admin.
+GET /xe/so-sanh tên cars.compare (P2 đề xuất, ADR 0007): xe1/xe2 là ID số nguyên dương,
+khác nhau; chỉ xe publiclyVisible. Thiếu xe2 → chỉ hiện form (xe1 chọn sẵn nếu có);
+lỗi → 422 cùng view, giữ lựa chọn, không lộ mã xe ẩn. Dữ liệu qua CarPresenter + CarComparison.
 Chỉ xe và dòng cùng visible mới công khai (scope `publiclyVisible` cho TV4/TV5 dùng lại).
 
 Admin (web/auth/active/role:admin, Policy từng bản ghi):
