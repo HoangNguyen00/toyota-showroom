@@ -1,13 +1,14 @@
-@extends('layouts.account')
+@extends('layouts.staff')
 
 @section('title', $service->exists ? 'Sửa dịch vụ' : 'Tạo dịch vụ')
+@section('eyebrow', 'Catalog')
+@section('back')
+    <a class="staff-back" href="{{ route('admin.services.index') }}"><span aria-hidden="true">←</span> Danh sách dịch vụ</a>
+@endsection
 @section('content')
-    <div class="space-y-6 max-w-xl">
-        <h1 class="text-2xl font-semibold">{{ $service->exists ? 'Sửa dịch vụ' : 'Tạo dịch vụ' }}</h1>
+    <div class="staff-card max-w-xl space-y-4">
         @if ($errors->any())
-            <ul role="alert" class="rounded-lg bg-red-50 p-4 text-sm text-red-700">
-                @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
-            </ul>
+            <div role="alert" class="staff-alert staff-alert--error"><ul>@foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach</ul></div>
         @endif
         <form method="POST" action="{{ $service->exists ? route('admin.services.update', $service) : route('admin.services.store') }}" class="space-y-4">
             @csrf
@@ -36,8 +37,8 @@
                 <input type="checkbox" name="is_visible" value="1" @checked(old('is_visible', $service->is_visible ?? true))> Công khai trên trang dịch vụ
             </label>
             <div class="flex gap-3">
-                <button type="submit" class="rounded-lg bg-red-700 px-4 py-3 text-sm font-medium text-white">Lưu</button>
-                <a href="{{ route('admin.services.index') }}" class="rounded-lg border border-zinc-300 px-4 py-3 text-sm">Hủy</a>
+                <button type="submit" class="staff-btn staff-btn--primary">Lưu</button>
+                <a href="{{ route('admin.services.index') }}" class="staff-btn staff-btn--secondary">Hủy</a>
             </div>
         </form>
     </div>

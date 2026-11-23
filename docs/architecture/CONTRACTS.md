@@ -16,6 +16,13 @@ GET /xe tên cars.index: q (tên/mã/màu, ≤100), category (slug), status (enu
 min_price/max_price (VND, độc lập; nếu có cả hai thì max ≥ min),
 sort newest|price_asc|price_desc, page; 12 xe/trang.
 GET /xe/{car} tên cars.show, dùng ID (không slug), 404 nếu xe hoặc dòng ẩn — kể cả admin.
+GET /xe/so-sanh tên cars.compare (P2 đề xuất, ADR 0007): xe1/xe2 là ID số nguyên dương,
+khác nhau; chỉ xe publiclyVisible. Thiếu xe2 → chỉ hiện form (xe1 chọn sẵn nếu có);
+lỗi → 422 cùng view, giữ lựa chọn, không lộ mã xe ẩn. Dữ liệu qua CarPresenter + CarComparison.
+GET /xe-quan-tam tên cars.saved (P2 đề xuất, ADR 0008): khung trang, ID lưu ở localStorage.
+GET /xe-quan-tam/the-xe tên cars.saved.cards, throttle 60/phút: ids = "1,2,3" (số nguyên dương,
+tối đa 12 sau khi loại trùng), sai định dạng → 422; trả {ids, html} chỉ gồm xe publiclyVisible
+theo thứ tự gửi lên. Không lưu DB/session.
 Chỉ xe và dòng cùng visible mới công khai (scope `publiclyVisible` cho TV4/TV5 dùng lại).
 
 Admin (web/auth/active/role:admin, Policy từng bản ghi):
@@ -80,11 +87,21 @@ Form đăng ký name/email/phone/password/password_confirmation; login email/pas
 Mật khẩu không có NUL và tối đa 72 byte cho bcrypt hiện tại;
 đăng ký vẫn tối thiểu 8 ký tự. Giới hạn byte khác giới hạn số ký tự Unicode.
 Mật khẩu không được fill lại vào HTML/session flash. Email trim/lowercase.
+Quên mật khẩu (P2 đề xuất, ADR 0010), đều guest: GET/POST /quen-mat-khau (password.request/
+password.email, throttle 10/phút/IP + 3 lần/10 phút theo IP+email), GET /dat-lai-mat-khau/{token}
+(password.reset), POST /dat-lai-mat-khau (password.store). Phản hồi gửi link giống nhau cho mọi
+email; tài khoản khóa không nhận link và không đặt lại được. Token băm trong password_reset_tokens,
+hết hạn 60 phút, dùng một lần (kiểm tra và xóa token trong transaction khóa hàng users);
+email không phải chuỗi trả lỗi validation; link dựng từ APP_URL. Đặt lại thành công: đổi remember_token,
+xóa dòng sessions của user, không tự đăng nhập, giữ role/is_active.
 Guest vào route auth bị redirect login; JSON trả 401.
 User khóa bị logout/invalidate session: web redirect login với account_error,
 JSON 403; kiểm active áp dụng cả web công khai để tránh giữ phiên khóa.
 Sai thông tin login trả lỗi email, quá ngưỡng trả 429. Đăng xuất chỉ POST + CSRF.
-Tên route là hợp đồng cho Đạt; layout accounts chỉ là giao diện tối thiểu.
+Tên route là hợp đồng cho Đạt. Sales/admin dùng layouts/staff (menu theo Policy viewAny, tiêu đề,
+thông báo status/error/account_error); khách giữ layouts/customer, /yeu-cau HTML của khách giữ layouts/account.
+Khối "Xe khách chọn" (components/staff/car) đọc quan hệ car đã lưu: ảnh chính, tên, mã chiếc, màu;
+JSON hồ sơ tư vấn vẫn chỉ trả car id/name.
 
 ## H02 đã triển khai
 
@@ -136,6 +153,10 @@ Validate type/giờ/xe/dịch vụ; admin phân công sales active.
 Xác nhận transaction khóa appointment rồi sales, đọc lại pending và quyền,
 kiểm giờ/xe/service và lịch confirmed khác cách <60 phút, rồi ghi.
 Mọi confirmation dùng cùng service/protocol, tránh hai request ghi đè/trùng.
+P2 đề xuất (ADR 0009): sau commit confirm, job SendAppointmentConfirmation gửi email tới
+email tài khoản customer_id; guest bị bỏ qua; activity_logs ghi sent/skipped/failed theo
+mốc confirmed_at để chống gửi trùng. Lỗi đưa vào hàng đợi sau commit không làm phản hồi
+xác nhận thất bại; ghi failed/enqueue_failed. Không đổi Policy/overlap/phân công.
 Đúng 60 phút hợp lệ; đây là quy ước tiếp nhận demo, không mô hình xưởng.
 Customer hủy pending/confirmed chưa tới giờ, server kiểm own và lưu lý do.
 Nhân viên/admin hủy kèm lý do; hoàn tất/no_show sau giờ confirmed_at.

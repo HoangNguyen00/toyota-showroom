@@ -1,5 +1,56 @@
 # Trạng thái thực tế
 
+## So sánh 2 xe (P2 đề xuất, chờ leader duyệt) — 23/11/2026
+
+Nhánh codex/car-comparison từ main 1c70a4d thêm GET /xe/so-sanh (cars.compare), chỉ đọc.
+Khách vãng lai chọn hai chiếc công khai theo tên · mã · màu, nhóm theo dòng xe;
+lối vào từ bộ lọc Catalog và link “So sánh với xe khác” trên card (chọn sẵn xe1).
+Server dùng Car::publiclyVisible() + CarPresenter: từ chối trùng xe, ID sai, xe ẩn
+hoặc dòng ẩn (422, giữ lựa chọn); giữ thứ tự khách chọn; thông số thiếu “Đang cập nhật”.
+Không schema/dependency mới; không đổi luồng Catalog/tư vấn/đặt lịch.
+Đây là P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa được nhóm ghi đạt toàn bộ,
+nên tính năng chờ leader quyết định giữ hay hoãn. Đã kiểm SQLite + browser 1440/390px;
+chưa chạy MySQL cục bộ, chờ CI.
+## Xe quan tâm (P2 đề xuất, chờ leader duyệt) — 23/11/2026
+
+Nhánh codex/saved-cars từ main 1c70a4d: nút Lưu xe/Đã lưu trên thẻ xe và trang chi tiết,
+trang /xe-quan-tam có trạng thái rỗng, bỏ lưu, đếm số xe. ID lưu ở localStorage (tối đa 12,
+loại trùng, giữ sau reload); server chỉ render xe publiclyVisible, xe ẩn/dòng ẩn/đã xóa bị loại.
+Chọn 2 xe để so sánh chỉ hiện khi route cars.compare có (PR So sánh 2 xe chưa merge).
+Dialog Tư vấn chuyển sang ủy quyền sự kiện để thẻ chèn sau tải vẫn mở được.
+P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa ghi đạt toàn bộ. Đã kiểm SQLite,
+JS unit, browser 1440/390px, bàn phím, reload, localStorage bị chặn; chưa chạy MySQL cục bộ.
+## Quên mật khẩu (P2 đề xuất, chờ leader duyệt) — 23/11/2026
+
+Nhánh codex/password-reset từ main 1c70a4d: link “Quên mật khẩu?” ở đăng nhập, form yêu cầu
+link và form đặt mật khẩu mới trong layout Auth; Laravel Password Broker + bảng
+password_reset_tokens có sẵn. Phản hồi giống nhau cho mọi email, có giới hạn tần suất;
+token băm, 60 phút, một lần; link theo APP_URL; tài khoản khóa không đặt lại được; đổi
+remember_token và xóa sessions DB của user. Sau review: token được kiểm tra và tiêu thụ trong
+transaction khóa hàng users; email dạng mảng trả lỗi validation. Đã kiểm SQLite + MySQL 8.4.3 riêng
+(119 tests), thử hai yêu cầu đồng thời trên MySQL, và browser + Mailpit (trước bản sửa review). P2 ngoài cổng COURSE_SCOPE §5: ACCEPTANCE P1 chưa ghi đạt toàn bộ.
+## Email xác nhận lịch hẹn (P2 đề xuất, chờ leader duyệt) — 23/11/2026
+
+Nhánh codex/appointment-confirmation-email từ main 1c70a4d: confirm() dispatch job afterCommit;
+email gồm giờ xác nhận theo Asia/Ho_Chi_Minh, xe/dịch vụ, thông tin showroom (demo).
+Chỉ gửi tới email tài khoản khách; guest bỏ qua và ghi log. Chống trùng bằng ShouldBeUnique +
+khóa cache + activity_logs; lỗi gửi retry 3 lần, lịch vẫn confirmed. Sau review: lỗi đưa vào
+hàng đợi sau commit được ghi nhận, phản hồi xác nhận vẫn thành công. Chưa có email nhắc giờ.
+Đã kiểm SQLite và MySQL 8.4.3 riêng (32 tests), demo Mailpit + queue database: Mailpit tắt →
+retry, bật lại → đúng 1 thư, job trùng không gửi thêm. P2 ngoài cổng COURSE_SCOPE §5.
+## Đồng bộ giao diện sales/admin — 23/11/2026
+
+Nhánh codex/staff-admin-layout từ main 1c70a4d. Sales và admin dùng chung layouts/staff: header
+tên tài khoản + đăng xuất, menu bên trái (sales: Tổng quan, Tư vấn, Lịch hẹn; admin thêm Xe, Dòng xe,
+Dịch vụ, Tài khoản theo Policy viewAny), mục đang chọn, tiêu đề/bộ lọc/bảng/nhãn trạng thái/nút
+thống nhất; 390px menu thành thanh tab cuộn ngang, bảng xếp thành thẻ. Hồ sơ tư vấn tách mã hồ sơ,
+trạng thái, người phụ trách, xe, chat và ghi chú nội bộ (chỉ trong @can manage). Lịch hẹn làm rõ giờ
+mong muốn/xác nhận/người phụ trách; phân công, xác nhận, đổi giờ, hủy, kết thúc thành khối riêng.
+"Xe khách chọn" hiện ảnh chính, tên, mã chiếc, màu ở danh sách/chi tiết tư vấn và lịch hẹn; lịch bảo
+dưỡng ưu tiên dịch vụ và xe khách khai báo. Bỏ dòng ghi chú đồ án ở footer. Không đổi route, field,
+Policy, schema hay JS chat. Phụ thuộc: PR #12 (quyền phân công lịch) chưa merge; view dùng @can nên
+tự theo Policy khi #12 vào main.
+
 ## Auth toàn màn hình — 19/11/2026
 
 Đổi layout đăng nhập/đăng ký sang video nền fixed phủ viewport, form trong suốt nổi

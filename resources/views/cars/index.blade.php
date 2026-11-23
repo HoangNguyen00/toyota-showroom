@@ -37,6 +37,8 @@
             </label>
             <button class="button button-dark" type="submit">Tìm xe</button>
             <a class="button catalog-reset" href="{{ route('cars.index') }}">Xóa bộ lọc</a>
+            <a class="button catalog-compare" href="{{ route('cars.compare') }}">So sánh xe</a>
+            <a class="button catalog-saved" href="{{ route('cars.saved') }}">Xe quan tâm <span class="saved-count" data-saved-count hidden></span></a>
         </form>
         <div class="catalog-results">
             @if ($errors->any())

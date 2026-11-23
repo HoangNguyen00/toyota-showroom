@@ -4,6 +4,136 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-23 H03-APT: chỉ admin phân công lịch hẹn (TV5)
+
+- Sửa: AppointmentPolicy::assign() chỉ trả true cho admin; trước đây sales được
+  phân công/đổi/bỏ phân công mọi lịch pending, kể cả lịch của sales khác.
+- Sửa: AppointmentService::assign() kiểm lại Policy trên bản ghi đã lockForUpdate
+  trong transaction, không dựa vào lần kiểm trước khi khóa ở controller.
+- Lý do: AUTHORIZATION_CONTRACT §2 (Phân công/chuyển sales: sales "Không") và
+  SRS 1.4 mục lịch hẹn "Admin phân công sales active trước khi xác nhận".
+  Đặc tả không có quy tắc sales tự nhận lịch chưa phân công nên ca này cũng bị chặn.
+- Ảnh hưởng quyền: sales không còn thấy/gửi form phân công (403). Admin giữ nguyên;
+  kiểm pending/sales active giữ nguyên. Không đổi schema, route hay dữ liệu.
+- Kiểm tra: thêm 4 test hồi quy (sales B đổi/bỏ phân công lịch của A, sales tự nhận
+  lịch chưa phân công, service gọi trực tiếp bởi sales, admin đổi/bỏ phân công).
+  Test chạy SQLite :memory:; composer check và git diff --check đạt.
+- Sửa tiếp: AppointmentController::manage() bỏ orWhereNull('assigned_to'); sales chỉ
+  thấy lịch assigned_to = self đúng ma trận list lịch. Admin vẫn thấy mọi lịch, kể cả
+  chưa phân công. Lịch chưa phân công chỉ hiện với sales sau khi admin giao.
+- Kiểm tra bổ sung: test danh sách staff xác nhận sales thấy lịch của mình, không thấy
+  lịch người khác/chưa phân công; admin thấy lịch chưa phân công, giao xong sales mới thấy.
+  Test fail với truy vấn cũ, pass sau sửa.
+- Chưa kiểm: chỉ chạy SQLite :memory:, chưa chạy MySQL cục bộ (không có DB test riêng
+  cho TV5); cần CI ma trận MySQL xác nhận.
+## 2026-11-23 So sánh 2 xe (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: GET /xe/so-sanh (cars.compare), CarComparisonController, CarComparison,
+  view cars/compare, CSS car-compare; lối vào ở bộ lọc Catalog và link trên card xe.
+- Lý do: người dùng yêu cầu làm sẵn P2 “so sánh” (SRS §9) để leader review riêng; ADR 0007.
+  ACCEPTANCE P1 chưa ghi đạt toàn bộ nên chưa phải P2 được chốt.
+- Ảnh hưởng: chỉ đọc, không schema/dependency/quyền mới. Xe ẩn hoặc dòng ẩn bị từ chối
+  như /xe/{car}; lỗi trả 422 và giữ lựa chọn. Card dùng chung thêm một link, không đổi nút.
+- Kiểm tra: 8 test CarComparisonTest; composer check 116 tests/918 assertions trên SQLite,
+  Pint, inventory; npm run build; git diff --check. Browser 1440x900 và 390x844 với DB
+  SQLite riêng: Catalog → chọn 2 xe → đổi xe → chi tiết, trùng xe, thiếu thông số, xe ẩn;
+  không tràn ngang, Tab/Enter dùng được.
+## 2026-11-23 Xe quan tâm (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: SavedCarsController, route cars.saved/cars.saved.cards, view cars/saved và partial thẻ,
+  JS catalog/saved-cars(+store), CSS saved-cars, nút lưu trên x-car-card và trang chi tiết,
+  link “Xe quan tâm” trong bộ lọc Catalog; ADR 0008.
+- Sửa: catalog-inquiry.js dùng ủy quyền click để thẻ xe chèn bằng JS mở được dialog Tư vấn;
+  hành vi Catalog/chi tiết giữ nguyên.
+- Lý do: người dùng yêu cầu làm sẵn P2 “yêu thích” (SRS §9) để leader review; ACCEPTANCE P1
+  chưa ghi đạt toàn bộ nên chưa phải P2 được chốt.
+- Ảnh hưởng: không schema/dependency/quyền mới; chỉ đọc xe publiclyVisible. Danh sách theo
+  trình duyệt, không đồng bộ thiết bị. Phụ thuộc mềm PR So sánh 2 xe (ẩn nếu chưa có route).
+- Kiểm tra: 6 test SavedCarsTest, 5 test JS store; composer check 114 tests/911 assertions trên
+  SQLite, Pint, inventory; npm run build; git diff --check. Browser DB SQLite riêng 1440x900
+  và 390x844: lưu bằng Enter/chuột, reload, bỏ lưu (focus sang thẻ kế), giới hạn 12 (toast),
+  xe ẩn + ID không tồn tại bị loại, localStorage bị chặn, Tư vấn từ trang Xe quan tâm.
+- Chưa kiểm: MySQL cục bộ (chờ CI), trình đọc màn hình thật, điện thoại thật.
+## 2026-11-23 Quên mật khẩu — sửa theo review (P2 đề xuất)
+
+- Sửa: email dạng mảng ở POST /quen-mat-khau và /dat-lai-mat-khau từng bị ép (string) trước khi
+  validate, gây lỗi 500; nay chỉ chuẩn hóa chuỗi và trả lỗi validation.
+- Sửa: bỏ `Password::broker()->reset()` (kiểm tra token trước callback, xóa sau callback, không khóa chung).
+  Thêm Service `Account\ResetPassword`: khóa hàng users, kiểm tra token, ghi mật khẩu, xóa sessions,
+  xóa token trong cùng transaction; giữ timebox của broker; sự kiện PasswordReset phát sau commit.
+- Ảnh hưởng: không migration, không đổi route/response; lỗi ghi giữa chừng rollback và giữ token.
+- Kiểm tra: thêm 3 test (email mảng, thứ tự khóa → kiểm tra → xóa trong transaction, rollback giữ token).
+  composer check đạt trên SQLite; 119 tests đạt trên MySQL 8.4.3 (toyota_showroom_test). Thử đồng thời trên
+  MySQL: một tiến trình giữ khóa user, hai tiến trình dùng cùng token → chỉ một thành công, không còn token.
+- Browser + Mailpit sau bản sửa (SQLite riêng, tài khoản seed, SESSION_DRIVER=database): yêu cầu link cho
+  customer2 → thông báo chung, Mailpit nhận 1 thư, link theo APP_URL → đặt mật khẩu mới → đăng nhập được →
+  mở lại link cũ bị từ chối “không hợp lệ hoặc đã hết hạn”; DB: mật khẩu mới, 0 token, role/is_active giữ nguyên.
+- Chưa kiểm: SMTP thật.
+
+## 2026-11-23 Quên mật khẩu (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: PasswordResetController, ResetPasswordRequest, ResetPasswordNotification (tiếng Việt,
+  link theo APP_URL), view auth/forgot-password và auth/reset-password, 4 route guest; ADR 0010.
+- Sửa: link “Quên mật khẩu?” trên trang đăng nhập; User::sendPasswordResetNotification.
+- Lý do: người dùng yêu cầu luồng quên mật khẩu (SRS §9 xếp là P2).
+- Ảnh hưởng: không migration; dùng password_reset_tokens có sẵn. Đặt lại xóa sessions DB của user,
+  đổi remember_token; role/is_active giữ nguyên; tài khoản khóa không nhận/không dùng được link.
+- Kiểm tra: 8 test PasswordResetTest (phản hồi giống nhau, khóa, giới hạn tần suất, link APP_URL
+  với Host giả, token băm, đặt lại + thu hồi phiên, dùng lại, sai token, hết hạn, xác nhận sai,
+  mật khẩu ngắn, đăng nhập cũ/mới). Toàn bộ 116 tests đạt trên SQLite và MySQL 8.4.3 riêng
+  (toyota_showroom_test). Browser + Mailpit: 1 thư cho email có tài khoản, link đúng APP_URL,
+  dùng lại link bị từ chối, mật khẩu mới đăng nhập được.
+- Chưa kiểm: SMTP thật; thu hồi phiên chỉ áp dụng SESSION_DRIVER=database (demo browser dùng file).
+## 2026-11-23 Email xác nhận lịch — sửa theo review (P2 đề xuất)
+
+- Sửa: `dispatch()->afterCommit()` ném lỗi ra ngoài nếu đưa vào hàng đợi thất bại sau commit,
+  nên người xác nhận nhận lỗi 500 dù lịch đã confirmed trong DB. Thêm
+  SendAppointmentConfirmation::queueAfterCommit(): bắt lỗi xếp hàng, Log::warning (ID + tên lớp lỗi),
+  ghi activity_logs failed với reason enqueue_failed, nhả khóa unique; phản hồi vẫn “Đã xác nhận lịch hẹn.”
+- Ảnh hưởng: không migration/route; Policy, khóa hàng, overlap, phân công giữ nguyên.
+- Kiểm tra: thêm test lỗi đưa vào hàng đợi (queue trỏ tới kết nối DB không tồn tại): redirect thành công,
+  lịch confirmed, ghi failed không PII, xếp lại sau đó gửi đúng 1 thư. composer check đạt
+  (118 tests) trên SQLite; 118 tests đạt trên MySQL 8.4.3 (toyota_showroom_test).
+- Browser + Mailpit + queue database sau bản sửa (SQLite riêng, tài khoản seed): customer1 đặt lịch xem
+  Vios 1.5G 09:30 26/11 → admin giao sales1 → sales1 xác nhận (“Đã xác nhận lịch hẹn.”) → worker chạy job,
+  Mailpit nhận đúng 1 thư tới customer1 với giờ 09:30 26/11/2026 (Asia/Ho_Chi_Minh) và xe Toyota Vios 1.5G ·
+  TOY-DEMO-001; activity_logs có 1 dòng sent. Ca lỗi xếp hàng chỉ kiểm bằng test tự động.
+
+## 2026-11-23 Email xác nhận lịch hẹn (P2 đề xuất, chờ leader duyệt)
+
+- Thêm: job SendAppointmentConfirmation, mailable AppointmentConfirmedMail (HTML + text),
+  config showroom.contact (mặc định demo), biến SHOWROOM_* và MAIL_FROM_* mẫu trong .env.example; ADR 0009.
+- Sửa: AppointmentService::confirm() dispatch job afterCommit sau khi ghi; không đổi Policy,
+  khóa hàng, kiểm overlap hay phân công.
+- Lý do: người dùng yêu cầu email ngay khi lịch được xác nhận (SRS §9 email là P2).
+- Ảnh hưởng dữ liệu: không migration; ghi activity_logs sent/skipped/failed (payload chỉ
+  confirmed_at, lý do, tên lớp lỗi; không email/điện thoại). Guest không nhận email.
+- Kiểm tra: 9 test AppointmentConfirmationMailTest (gửi sau commit, rollback, thất bại xác nhận,
+  xác nhận lặp, job trùng, guest, job cũ sau hủy, lỗi SMTP + retry, payload). Test rollback được
+  kiểm đột biến (bỏ afterCommit → fail). 32 test Appointment đạt trên SQLite và MySQL 8.4.3 riêng
+  (toyota_showroom_mail_test). Demo Mailpit 1.22.3 + queue database: thư đúng giờ/xe/link APP_URL.
+- Chưa kiểm/giới hạn: at-least-once khi SMTP đã nhận nhưng chưa ghi “sent”; chưa có email nhắc
+  trước giờ hẹn; chưa thử nhà cung cấp SMTP thật.
+## 2026-11-23 Đồng bộ giao diện sales/admin và "Xe khách chọn"
+
+- Thêm: layouts/staff, resources/css/staff.css (@layer components), components/staff/status (nhãn trạng thái
+  cùng nhãn khu khách), components/staff/car (ảnh chính, tên, mã chiếc, màu), 4 icon trong customer-icon,
+  tests/Feature/Staff/StaffLayoutTest (4 test).
+- Sửa view: auth/account (tổng quan sales/admin), staff/inquiries index/show, staff/appointments/index,
+  admin users/cars/car-categories/services. Giữ nguyên route, method, CSRF, tên field, id input, @can và
+  hook chat (data-inquiry-chat/-status/-older/-messages/-form; thêm data-chat-scroll JS đã hỗ trợ).
+  /yeu-cau HTML của khách vẫn dùng layouts/account. Nhãn "No-show" đổi thành "Không đến" như enum.
+- Sửa controller (chỉ eager-load): InquiryController nạp car code/color và ảnh; AppointmentController::manage
+  nạp car.images. JSON tư vấn vẫn chỉ trả car id/name. Không đổi Policy, validation, schema, dependency.
+- Bỏ dòng ghi chú đồ án ở footer các layout; gợi ý giờ ở form đặt lịch đổi thành câu xác nhận qua điện thoại.
+  SRS dòng 159 cập nhật theo quyết định chủ repo.
+- Kiểm tra: composer check, npm run build, git diff --check (kết quả ở PR). Browser trên SQLite riêng + Reverb/queue
+  riêng: 1440px và 390px không tràn ngang; menu hai vai trò, bộ lọc, phân trang, lỗi server, thứ tự Tab.
+  Luồng admin giao tư vấn → sales bắt đầu → khách/sales chat hai chiều không reload; admin giao lịch → sales
+  xác nhận → khách thấy Đã xác nhận. Hai chiếc Toyota Camry CAMRY-2026-01 (Đen) và CAMRY-2025-02 (Trắng):
+  tư vấn và đặt lịch từ trang xe lưu đúng car_id, form đặt lịch chọn sẵn đúng chiếc, mã khớp ở màn admin/sales.
+- Chưa kiểm: MySQL cho nhánh này (không đổi truy vấn khóa), điện thoại thật, trình đọc màn hình.
+
 ## 2026-11-19 Video nền toàn màn hình cho đăng nhập/đăng ký
 
 - Theo yêu cầu Đạt, bỏ nền chia đôi và nút phát/dừng: video Camry phủ viewport,

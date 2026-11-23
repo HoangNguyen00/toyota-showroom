@@ -47,7 +47,7 @@
             <a href="{{ url('/').'#dich-vu' }}">Dịch vụ</a>
             <a href="{{ url('/').'#showroom' }}">Showroom</a>
         </nav>
-        <div><p>Toyota Showroom</p><small>Đồ án môn học · Không phải website đại lý chính thức</small></div>
+        <div><p>Toyota Showroom</p></div>
     </footer>
     @if(request()->routeIs('cars.collection-preview', 'cars.preview.show'))
     <dialog class="preview-dialog" aria-labelledby="preview-title" aria-describedby="preview-description">

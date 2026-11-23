@@ -121,7 +121,7 @@ class AppointmentController extends Controller
             'q' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $query = Appointment::query()->with(['car', 'service', 'customer', 'assignedStaff']);
+        $query = Appointment::query()->with(['car', 'car.images' => fn ($q) => $q->orderByDesc('is_primary')->orderBy('sort_order'), 'service', 'customer', 'assignedStaff']);
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -136,11 +136,9 @@ class AppointmentController extends Controller
                     ->orWhere('contact_phone', 'like', '%'.$search.'%');
             });
         }
+        // AUTHORIZATION_CONTRACT §2: sales chỉ xem lịch assigned_to = self.
         if ($request->user()->role === UserRole::Sales) {
-            $query->where(function ($q) use ($request): void {
-                $q->where('assigned_to', $request->user()->id)
-                    ->orWhereNull('assigned_to');
-            });
+            $query->where('assigned_to', $request->user()->id);
         }
 
         return view('staff.appointments.index', [

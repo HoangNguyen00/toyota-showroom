@@ -1,45 +1,39 @@
-@extends('layouts.account')
+@extends('layouts.staff')
 
 @section('title', 'Quản lý dịch vụ')
+@section('eyebrow', 'Catalog')
+@section('lead', 'Dịch vụ bảo dưỡng, bảo hành hiển thị trên trang khách.')
+@section('actions')
+    <a href="{{ route('admin.services.create') }}" class="staff-btn staff-btn--primary">Tạo dịch vụ</a>
+@endsection
 @section('content')
-    <div class="space-y-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-            <h1 class="text-2xl font-semibold">Quản lý dịch vụ</h1>
-            <a href="{{ route('admin.services.create') }}" class="rounded-lg bg-red-700 px-4 py-3 text-sm font-medium text-white">Tạo dịch vụ</a>
-        </div>
-        @if (session('status'))
-            <p role="status" class="rounded-lg bg-green-50 p-4 text-sm text-green-700">{{ session('status') }}</p>
-        @endif
-        @if (session('error'))
-            <p role="alert" class="rounded-lg bg-red-50 p-4 text-sm text-red-700">{{ session('error') }}</p>
-        @endif
-
-        <div class="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
-            <table class="w-full text-left text-sm">
-                <caption class="sr-only">Danh sách dịch vụ</caption>
-                <thead class="bg-zinc-100"><tr><th scope="col" class="p-3">Dịch vụ</th><th scope="col" class="p-3">Loại</th><th scope="col" class="p-3">Đặt lịch</th><th scope="col" class="p-3">Hiển thị</th><th scope="col" class="p-3">Thao tác</th></tr></thead>
-                <tbody>
-                    @forelse ($services as $service)
-                        <tr class="border-t border-zinc-200">
-                            <td class="p-3"><p class="font-medium">{{ $service->name }}</p><p class="text-zinc-500">{{ \Illuminate\Support\Str::limit($service->description, 60) }}</p></td>
-                            <td class="p-3">{{ $service->type === \App\Enums\ServiceType::Warranty ? 'Bảo hành' : 'Bảo dưỡng' }}</td>
-                            <td class="p-3">{{ $service->allow_booking ? 'Nhận đặt lịch' : 'Không' }}</td>
-                            <td class="p-3">{{ $service->is_visible ? 'Công khai' : 'Ẩn' }}</td>
-                            <td class="p-3">
-                                <a href="{{ route('admin.services.edit', $service) }}" class="whitespace-nowrap rounded-lg border border-zinc-300 px-3 py-2">Sửa</a>
-                                <form method="POST" action="{{ route('admin.services.destroy', $service) }}" class="inline" onsubmit="return confirm('Xóa dịch vụ này?');">
+    <div class="staff-table-wrap">
+        <table class="staff-table staff-table--stack">
+            <caption class="sr-only">Danh sách dịch vụ</caption>
+            <thead><tr><th scope="col">Dịch vụ</th><th scope="col">Loại</th><th scope="col">Đặt lịch</th><th scope="col">Hiển thị</th><th scope="col">Thao tác</th></tr></thead>
+            <tbody>
+                @forelse ($services as $service)
+                    <tr>
+                        <td data-label="Dịch vụ"><p class="staff-strong">{{ $service->name }}</p><p class="staff-sub">{{ \Illuminate\Support\Str::limit($service->description, 60) }}</p></td>
+                        <td data-label="Loại">{{ $service->type === \App\Enums\ServiceType::Warranty ? 'Bảo hành' : 'Bảo dưỡng' }}</td>
+                        <td data-label="Đặt lịch">{{ $service->allow_booking ? 'Nhận đặt lịch' : 'Không' }}</td>
+                        <td data-label="Hiển thị"><x-staff.status :tone="$service->is_visible ? 'success' : 'neutral'">{{ $service->is_visible ? 'Công khai' : 'Ẩn' }}</x-staff.status></td>
+                        <td data-label="Thao tác">
+                            <div class="staff-row-actions">
+                                <a href="{{ route('admin.services.edit', $service) }}" class="staff-btn staff-btn--secondary staff-btn--sm">Sửa<span class="sr-only"> {{ $service->name }}</span></a>
+                                <form method="POST" action="{{ route('admin.services.destroy', $service) }}" onsubmit="return confirm('Xóa dịch vụ này?');">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="whitespace-nowrap rounded-lg border border-red-300 px-3 py-2 text-red-700">Xóa</button>
+                                    <button type="submit" class="staff-btn staff-btn--danger staff-btn--sm">Xóa<span class="sr-only"> {{ $service->name }}</span></button>
                                 </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="5" class="p-6 text-center text-zinc-500">Chưa có dịch vụ nào.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        {{ $services->links() }}
-        <p class="text-xs text-zinc-500">Dịch vụ đã có lịch hẹn không xóa được, hãy tắt "Nhận đặt lịch" hoặc "Hiển thị" thay vì xóa.</p>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5" class="staff-empty">Chưa có dịch vụ nào.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+    <div class="mt-4">{{ $services->links() }}</div>
+    <p class="staff-footnote">Dịch vụ đã có lịch hẹn không xóa được, hãy tắt "Nhận đặt lịch" hoặc "Hiển thị" thay vì xóa.</p>
 @endsection
