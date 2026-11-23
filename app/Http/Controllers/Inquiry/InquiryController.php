@@ -28,7 +28,8 @@ class InquiryController extends Controller
         Gate::authorize('viewAny', Inquiry::class);
         $filters = $request->validate(['status' => ['nullable', Rule::enum(InquiryStatus::class)]]);
         $user = $request->user();
-        $query = Inquiry::with(['assignedStaff:id,name', 'car:id,name']);
+        // Mã + màu để phân biệt hai chiếc cùng tên; JSON vẫn chỉ trả id/name qua data().
+        $query = Inquiry::with(['assignedStaff:id,name', 'car:id,name,code,color']);
         if ($user->role === UserRole::Customer) {
             $query->where('customer_id', $user->id);
         } elseif ($user->role === UserRole::Sales) {
@@ -49,7 +50,7 @@ class InquiryController extends Controller
     public function show(Request $request, Inquiry $inquiry)
     {
         Gate::authorize('view', $inquiry);
-        $inquiry->load(['assignedStaff:id,name', 'car:id,name']);
+        $inquiry->load(['assignedStaff:id,name', 'car:id,name,code,color', 'car.images' => fn ($q) => $q->orderByDesc('is_primary')->orderBy('sort_order')]);
         if ($request->expectsJson()) {
             return response()->json($this->data($inquiry, $request->user()));
         }

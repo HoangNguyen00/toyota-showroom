@@ -35,7 +35,7 @@
                 @yield('content')
             </div>
         </main>
-        <footer class="auth-footer"><span>TOYOTA / ON THE MOVE</span><span>Đồ án môn học · Không phải website đại lý Toyota chính thức.</span></footer>
+        <footer class="auth-footer"><span>TOYOTA / ON THE MOVE</span></footer>
     </div>
 </body>
 </html>

@@ -1,131 +1,159 @@
-@extends('layouts.account')
+@extends('layouts.staff')
 
 @section('title', 'Quản lý lịch hẹn')
+@section('heading', 'Lịch hẹn')
+@section('lead', auth()->user()->role === \App\Enums\UserRole::Admin ? 'Phân công, xác nhận và theo dõi lịch xem xe, bảo dưỡng.' : 'Xác nhận và kết thúc lịch hẹn của showroom.')
 @section('content')
-    <div class="space-y-6">
-        <h1 class="text-2xl font-semibold">Lịch hẹn</h1>
-        @if (session('status'))
-            <p role="status" class="rounded-lg bg-green-50 p-4 text-sm text-green-700">{{ session('status') }}</p>
-        @endif
-        @if (session('error'))
-            <p role="alert" class="rounded-lg bg-red-50 p-4 text-sm text-red-700">{{ session('error') }}</p>
-        @endif
-        @if ($errors->any())
-            <ul role="alert" class="rounded-lg bg-red-50 p-4 text-sm text-red-700">
-                @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
-            </ul>
-        @endif
+    @if ($errors->any())
+        <div role="alert" class="staff-alert staff-alert--error">
+            Chưa lưu được thao tác:
+            <ul>@foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach</ul>
+        </div>
+    @endif
 
-        <form method="GET" action="{{ route('staff.appointments.index') }}" class="flex flex-wrap items-end gap-3">
-            <div>
-                <label for="status" class="mb-2 block text-sm">Trạng thái</label>
-                <select id="status" name="status" class="rounded-lg border border-zinc-300 bg-white p-3">
-                    <option value="">Tất cả</option>
-                    @foreach (\App\Enums\AppointmentStatus::cases() as $s)
-                        <option value="{{ $s->value }}" @selected(($filters['status'] ?? '') === $s->value)>{{ $s->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="type" class="mb-2 block text-sm">Loại</label>
-                <select id="type" name="type" class="rounded-lg border border-zinc-300 bg-white p-3">
-                    <option value="">Tất cả</option>
-                    @foreach (\App\Enums\AppointmentType::cases() as $t)
-                        <option value="{{ $t->value }}" @selected(($filters['type'] ?? '') === $t->value)>{{ $t->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="min-w-0 flex-1">
-                <label for="q" class="mb-2 block text-sm">Tên hoặc số điện thoại</label>
-                <input id="q" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="100" class="w-full rounded-lg border border-zinc-300 bg-white p-3">
-            </div>
-            <button class="rounded-lg bg-zinc-900 px-4 py-3 text-white" type="submit">Lọc</button>
-            <a href="{{ route('staff.appointments.index') }}" class="px-2 py-3 text-sm underline">Xóa lọc</a>
-        </form>
+    <form method="GET" action="{{ route('staff.appointments.index') }}" class="staff-filter" role="search" aria-label="Lọc lịch hẹn">
+        <div class="staff-field">
+            <label for="status">Trạng thái</label>
+            <select id="status" name="status">
+                <option value="">Tất cả</option>
+                @foreach (\App\Enums\AppointmentStatus::cases() as $s)
+                    <option value="{{ $s->value }}" @selected(($filters['status'] ?? '') === $s->value)>{{ $s->label() }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="staff-field">
+            <label for="type">Loại</label>
+            <select id="type" name="type">
+                <option value="">Tất cả</option>
+                @foreach (\App\Enums\AppointmentType::cases() as $t)
+                    <option value="{{ $t->value }}" @selected(($filters['type'] ?? '') === $t->value)>{{ $t->label() }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="staff-field staff-field--grow">
+            <label for="q">Tên hoặc số điện thoại</label>
+            <input id="q" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="100">
+        </div>
+        <button class="staff-btn staff-btn--dark" type="submit">Lọc</button>
+        <a href="{{ route('staff.appointments.index') }}" class="staff-btn staff-btn--link">Xóa lọc</a>
+    </form>
 
+    <div class="staff-stack">
         @forelse ($appointments as $appointment)
-            <article class="rounded-xl border border-zinc-200 bg-white p-4 space-y-3">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs">{{ $appointment->type->label() }}</span>
-                    <span class="rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-700">{{ $appointment->status->label() }}</span>
-                    <strong>{{ $appointment->contact_name }}</strong>
-                    <span class="text-zinc-500">{{ $appointment->contact_phone }}</span>
+            <article class="staff-card staff-appointment" aria-labelledby="appointment-{{ $appointment->id }}-title">
+                <div class="staff-appointment-head">
+                    <h2 id="appointment-{{ $appointment->id }}-title">Lịch #{{ $appointment->id }} · {{ $appointment->contact_name }}</h2>
+                    <span class="staff-chip">{{ $appointment->type->label() }}</span>
+                    <x-staff.status :status="$appointment->status" />
                 </div>
-                <p class="text-sm">Thời gian mong muốn: <strong>{{ $appointment->requested_at->format('d/m/Y H:i') }}</strong></p>
-                @if ($appointment->car)<p class="text-sm">Xe: {{ $appointment->car->name }}</p>@endif
-                @if ($appointment->service)<p class="text-sm">Dịch vụ: {{ $appointment->service->name }}</p>@endif
-                @if ($appointment->customer_car_info)<p class="text-sm">Xe khách: {{ $appointment->customer_car_info }}</p>@endif
-                @if ($appointment->assignedStaff)<p class="text-sm">Phụ trách: {{ $appointment->assignedStaff->name }}</p>@endif
-                @if ($appointment->confirmed_at)<p class="text-sm">Đã xác nhận: {{ $appointment->confirmed_at->format('d/m/Y H:i') }}</p>@endif
-                @if ($appointment->note)<p class="text-sm">Ghi chú: {{ $appointment->note }}</p>@endif
-                @if ($appointment->cancel_reason)<p class="text-sm text-red-600">Lý do hủy: {{ $appointment->cancel_reason }}</p>@endif
+                @if ($appointment->type !== \App\Enums\AppointmentType::Maintenance)
+                    <section aria-label="Xe khách chọn" class="staff-car-box">
+                        <p class="staff-label mb-2">Xe khách chọn</p>
+                        <x-staff.car :car="$appointment->car" />
+                    </section>
+                @endif
+                <dl class="staff-facts">
+                    <div><dt>Giờ mong muốn</dt><dd>{{ $appointment->requested_at->format('H:i d/m/Y') }}</dd></div>
+                    <div><dt>Giờ xác nhận</dt><dd @class(['is-empty' => ! $appointment->confirmed_at])>{{ $appointment->confirmed_at?->format('H:i d/m/Y') ?? 'Chưa xác nhận' }}</dd></div>
+                    <div><dt>Người phụ trách</dt><dd @class(['is-empty' => ! $appointment->assignedStaff])>{{ $appointment->assignedStaff?->name ?? 'Chưa phân công' }}</dd></div>
+                    <div><dt>Điện thoại</dt><dd>{{ $appointment->contact_phone }}</dd></div>
+                    @if ($appointment->type === \App\Enums\AppointmentType::Maintenance)
+                        {{-- Bảo dưỡng: ưu tiên dịch vụ và xe khách khai báo. --}}
+                        <div><dt>Dịch vụ</dt><dd @class(['is-empty' => ! $appointment->service])>{{ $appointment->service?->name ?? 'Chưa chọn dịch vụ' }}</dd></div>
+                        <div><dt>Xe khách khai báo</dt><dd @class(['is-empty' => ! $appointment->customer_car_info])>{{ $appointment->customer_car_info ?: 'Không khai báo' }}</dd></div>
+                        @if ($appointment->car)<div><dt>Xe tại showroom</dt><dd><x-staff.car :car="$appointment->car" compact /></dd></div>@endif
+                    @else
+                        @if ($appointment->service)<div><dt>Dịch vụ</dt><dd>{{ $appointment->service->name }}</dd></div>@endif
+                        @if ($appointment->customer_car_info)<div><dt>Xe khách</dt><dd>{{ $appointment->customer_car_info }}</dd></div>@endif
+                    @endif
+                    @if ($appointment->note)<div><dt>Ghi chú</dt><dd>{{ $appointment->note }}</dd></div>@endif
+                    @if ($appointment->cancel_reason)<div><dt>Lý do hủy</dt><dd class="text-red-700">{{ $appointment->cancel_reason }}</dd></div>@endif
+                </dl>
 
-                <div class="flex flex-wrap gap-4">
-                    @can('assign', $appointment)
-                        <form method="POST" action="{{ route('staff.appointments.assign', $appointment) }}" class="flex flex-wrap items-end gap-2">
-                            @csrf
-                            <div>
-                                <label for="assigned_to-{{ $appointment->id }}" class="mb-1 block text-sm">Phân công</label>
-                                <select id="assigned_to-{{ $appointment->id }}" name="assigned_to" class="rounded-lg border border-zinc-300 bg-white p-2">
-                                    <option value="">— Chưa phân công —</option>
-                                    @foreach ($salesStaff as $s)
-                                        <option value="{{ $s->id }}" @selected($appointment->assigned_to === $s->id)>{{ $s->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <button type="submit" class="rounded-lg bg-zinc-900 px-4 py-2 text-white">Lưu phân công</button>
-                        </form>
-                    @endcan
+                @php($ops = auth()->user()->can('assign', $appointment) || auth()->user()->can('confirm', $appointment) || auth()->user()->can('cancel', $appointment) || auth()->user()->can('conclude', $appointment))
+                @if ($ops)
+                    <div class="staff-op-grid">
+                        @can('assign', $appointment)
+                            <section class="staff-op staff-op--assign" aria-labelledby="op-assign-{{ $appointment->id }}">
+                                <h3 id="op-assign-{{ $appointment->id }}">Phân công</h3>
+                                <form method="POST" action="{{ route('staff.appointments.assign', $appointment) }}">
+                                    @csrf
+                                    <div class="staff-field">
+                                        <label for="assigned_to-{{ $appointment->id }}">Nhân viên phụ trách</label>
+                                        <select id="assigned_to-{{ $appointment->id }}" name="assigned_to">
+                                            <option value="">— Chưa phân công —</option>
+                                            @foreach ($salesStaff as $s)
+                                                <option value="{{ $s->id }}" @selected($appointment->assigned_to === $s->id)>{{ $s->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="staff-btn staff-btn--secondary">Lưu phân công</button>
+                                </form>
+                            </section>
+                        @endcan
 
-                    @can('confirm', $appointment)
-                        <form method="POST" action="{{ route('staff.appointments.confirm', $appointment) }}" class="flex flex-wrap items-end gap-2">
-                            @csrf
-                            <div>
-                                <label for="confirmed_at-{{ $appointment->id }}" class="mb-1 block text-sm">Xác nhận giờ (mặc định giờ khách hẹn)</label>
-                                <input type="datetime-local" id="confirmed_at-{{ $appointment->id }}" name="confirmed_at" value="{{ old('confirmed_at', $appointment->requested_at->format('Y-m-d\TH:i')) }}" required class="rounded-lg border border-zinc-300 bg-white p-2">
-                            </div>
-                            <button type="submit" class="rounded-lg bg-red-700 px-4 py-2 text-white">Xác nhận lịch</button>
-                        </form>
-                    @endcan
+                        @can('confirm', $appointment)
+                            <section class="staff-op staff-op--confirm" aria-labelledby="op-confirm-{{ $appointment->id }}">
+                                <h3 id="op-confirm-{{ $appointment->id }}">Xác nhận lịch</h3>
+                                <form method="POST" action="{{ route('staff.appointments.confirm', $appointment) }}">
+                                    @csrf
+                                    <div class="staff-field">
+                                        <label for="confirmed_at-{{ $appointment->id }}">Xác nhận giờ (mặc định giờ khách hẹn)</label>
+                                        <input type="datetime-local" id="confirmed_at-{{ $appointment->id }}" name="confirmed_at" value="{{ old('confirmed_at', $appointment->requested_at->format('Y-m-d\TH:i')) }}" required>
+                                    </div>
+                                    <button type="submit" class="staff-btn staff-btn--primary">Xác nhận lịch</button>
+                                </form>
+                            </section>
+                        @endcan
 
-                    @can('cancel', $appointment)
-                        <form method="POST" action="{{ route('staff.appointments.reschedule', $appointment) }}" class="flex flex-wrap items-end gap-2">
-                            @csrf
-                            <div>
-                                <label for="staff_reschedule_at-{{ $appointment->id }}" class="mb-1 block text-sm">Đổi giờ mong muốn</label>
-                                <input type="datetime-local" id="staff_reschedule_at-{{ $appointment->id }}" name="requested_at" required class="rounded-lg border border-zinc-300 bg-white p-2">
-                            </div>
-                            <button type="submit" class="rounded-lg border border-zinc-300 px-4 py-2 text-zinc-700">Đổi giờ</button>
-                        </form>
-                        <form method="POST" action="{{ route('staff.appointments.cancel', $appointment) }}" class="flex flex-wrap items-end gap-2" onsubmit="return confirm('Xác nhận hủy lịch này?');">
-                            @csrf
-                            <div>
-                                <label for="staff_cancel_reason-{{ $appointment->id }}" class="mb-1 block text-sm">Lý do hủy</label>
-                                <input type="text" id="staff_cancel_reason-{{ $appointment->id }}" name="cancel_reason" maxlength="500" required class="rounded-lg border border-zinc-300 bg-white p-2">
-                            </div>
-                            <button type="submit" class="rounded-lg border border-red-300 px-4 py-2 text-red-700">Hủy lịch</button>
-                        </form>
-                    @endcan
+                        @can('cancel', $appointment)
+                            <section class="staff-op staff-op--reschedule" aria-labelledby="op-reschedule-{{ $appointment->id }}">
+                                <h3 id="op-reschedule-{{ $appointment->id }}">Đổi giờ</h3>
+                                <form method="POST" action="{{ route('staff.appointments.reschedule', $appointment) }}">
+                                    @csrf
+                                    <div class="staff-field">
+                                        <label for="staff_reschedule_at-{{ $appointment->id }}">Đổi giờ mong muốn</label>
+                                        <input type="datetime-local" id="staff_reschedule_at-{{ $appointment->id }}" name="requested_at" required>
+                                    </div>
+                                    <button type="submit" class="staff-btn staff-btn--secondary">Đổi giờ</button>
+                                </form>
+                            </section>
+                            <section class="staff-op staff-op--cancel" aria-labelledby="op-cancel-{{ $appointment->id }}">
+                                <h3 id="op-cancel-{{ $appointment->id }}">Hủy lịch</h3>
+                                <form method="POST" action="{{ route('staff.appointments.cancel', $appointment) }}" onsubmit="return confirm('Xác nhận hủy lịch này?');">
+                                    @csrf
+                                    <div class="staff-field">
+                                        <label for="staff_cancel_reason-{{ $appointment->id }}">Lý do hủy</label>
+                                        <input type="text" id="staff_cancel_reason-{{ $appointment->id }}" name="cancel_reason" maxlength="500" required>
+                                    </div>
+                                    <button type="submit" class="staff-btn staff-btn--danger">Hủy lịch</button>
+                                </form>
+                            </section>
+                        @endcan
 
-                    @can('conclude', $appointment)
-                        <form method="POST" action="{{ route('staff.appointments.conclude', $appointment) }}" class="flex flex-wrap items-end gap-2">
-                            @csrf
-                            <div>
-                                <label for="outcome-{{ $appointment->id }}" class="mb-1 block text-sm">Kết thúc</label>
-                                <select id="outcome-{{ $appointment->id }}" name="outcome" class="rounded-lg border border-zinc-300 bg-white p-2">
-                                    <option value="completed">Hoàn tất</option>
-                                    <option value="no_show">No-show</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="rounded-lg bg-zinc-900 px-4 py-2 text-white">Lưu kết quả</button>
-                        </form>
-                    @endcan
-                </div>
+                        @can('conclude', $appointment)
+                            <section class="staff-op staff-op--conclude" aria-labelledby="op-conclude-{{ $appointment->id }}">
+                                <h3 id="op-conclude-{{ $appointment->id }}">Kết thúc lịch</h3>
+                                <form method="POST" action="{{ route('staff.appointments.conclude', $appointment) }}">
+                                    @csrf
+                                    <div class="staff-field">
+                                        <label for="outcome-{{ $appointment->id }}">Kết quả</label>
+                                        <select id="outcome-{{ $appointment->id }}" name="outcome">
+                                            <option value="completed">Hoàn tất</option>
+                                            <option value="no_show">Không đến</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="staff-btn staff-btn--dark">Lưu kết quả</button>
+                                </form>
+                            </section>
+                        @endcan
+                    </div>
+                @endif
             </article>
         @empty
-            <p class="text-zinc-500">Không có lịch hẹn nào khớp bộ lọc.</p>
+            <p class="staff-card staff-empty">Không có lịch hẹn nào khớp bộ lọc.</p>
         @endforelse
-
-        {{ $appointments->links() }}
     </div>
+
+    <div class="mt-4">{{ $appointments->links() }}</div>
 @endsection

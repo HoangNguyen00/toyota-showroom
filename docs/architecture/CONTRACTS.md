@@ -84,7 +84,10 @@ Guest vào route auth bị redirect login; JSON trả 401.
 User khóa bị logout/invalidate session: web redirect login với account_error,
 JSON 403; kiểm active áp dụng cả web công khai để tránh giữ phiên khóa.
 Sai thông tin login trả lỗi email, quá ngưỡng trả 429. Đăng xuất chỉ POST + CSRF.
-Tên route là hợp đồng cho Đạt; layout accounts chỉ là giao diện tối thiểu.
+Tên route là hợp đồng cho Đạt. Sales/admin dùng layouts/staff (menu theo Policy viewAny, tiêu đề,
+thông báo status/error/account_error); khách giữ layouts/customer, /yeu-cau HTML của khách giữ layouts/account.
+Khối "Xe khách chọn" (components/staff/car) đọc quan hệ car đã lưu: ảnh chính, tên, mã chiếc, màu;
+JSON hồ sơ tư vấn vẫn chỉ trả car id/name.
 
 ## H02 đã triển khai
 

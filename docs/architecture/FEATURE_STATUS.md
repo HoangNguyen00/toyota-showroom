@@ -1,5 +1,18 @@
 # Trạng thái thực tế
 
+## Đồng bộ giao diện sales/admin — 23/11/2026
+
+Nhánh codex/staff-admin-layout từ main 1c70a4d. Sales và admin dùng chung layouts/staff: header
+tên tài khoản + đăng xuất, menu bên trái (sales: Tổng quan, Tư vấn, Lịch hẹn; admin thêm Xe, Dòng xe,
+Dịch vụ, Tài khoản theo Policy viewAny), mục đang chọn, tiêu đề/bộ lọc/bảng/nhãn trạng thái/nút
+thống nhất; 390px menu thành thanh tab cuộn ngang, bảng xếp thành thẻ. Hồ sơ tư vấn tách mã hồ sơ,
+trạng thái, người phụ trách, xe, chat và ghi chú nội bộ (chỉ trong @can manage). Lịch hẹn làm rõ giờ
+mong muốn/xác nhận/người phụ trách; phân công, xác nhận, đổi giờ, hủy, kết thúc thành khối riêng.
+"Xe khách chọn" hiện ảnh chính, tên, mã chiếc, màu ở danh sách/chi tiết tư vấn và lịch hẹn; lịch bảo
+dưỡng ưu tiên dịch vụ và xe khách khai báo. Bỏ dòng ghi chú đồ án ở footer. Không đổi route, field,
+Policy, schema hay JS chat. Phụ thuộc: PR #12 (quyền phân công lịch) chưa merge; view dùng @can nên
+tự theo Policy khi #12 vào main.
+
 ## Auth toàn màn hình — 19/11/2026
 
 Đổi layout đăng nhập/đăng ký sang video nền fixed phủ viewport, form trong suốt nổi

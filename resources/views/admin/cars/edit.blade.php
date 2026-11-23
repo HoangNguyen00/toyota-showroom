@@ -1,16 +1,22 @@
-@extends('layouts.account')
+@extends('layouts.staff')
 @section('title', 'Sửa xe')
+@section('eyebrow', 'Catalog')
+@section('heading', 'Sửa xe: '.$car->name)
+@section('back')
+    <a class="staff-back" href="{{ route('admin.cars.index') }}"><span aria-hidden="true">←</span> Danh sách xe</a>
+@endsection
+@if ($car->is_visible)
+    @section('actions')
+        <a href="{{ route('cars.show', $car) }}" class="staff-btn staff-btn--secondary">Xem trang công khai ↗</a>
+    @endsection
+@endif
 @section('content')
-    <div class="space-y-8">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="text-2xl font-semibold">Sửa xe: {{ $car->name }}</h1>
-            @if ($car->is_visible)
-                <a href="{{ route('cars.show', $car) }}" class="text-sm underline">Xem trang công khai ↗</a>
-            @endif
+    <div class="space-y-6">
+        <div class="staff-card">
+            @include('admin.cars._form')
         </div>
-        @include('admin.cars._form')
 
-        <section class="rounded-xl border border-zinc-200 bg-white p-5" aria-labelledby="images-title">
+        <section class="staff-card" aria-labelledby="images-title">
             <h2 id="images-title" class="text-lg font-semibold">Ảnh xe</h2>
             <p class="mt-1 text-sm text-zinc-600">Tối đa 10 ảnh JPEG/PNG/WebP, mỗi ảnh 5 MB. Ảnh chính hiển thị trên card; số thứ tự nhỏ hiển thị trước. Ẩn xe trước khi xóa ảnh cuối.</p>
             @if ($car->images->isEmpty())
@@ -24,14 +30,14 @@
                                 @csrf @method('PATCH')
                                 <label class="block">Thứ tự ảnh {{ $loop->iteration }}<input name="sort_order" type="number" min="0" max="9999" required value="{{ $image->sort_order }}" class="w-full rounded border p-2"></label>
                                 <label class="block"><input name="is_primary" type="checkbox" value="1" @checked($image->is_primary)> Đặt làm ảnh chính</label>
-                                <button class="rounded border px-3 py-2">Lưu ảnh</button>
+                                <button class="staff-btn staff-btn--secondary staff-btn--sm">Lưu ảnh</button>
                             </form>
                             <div class="mt-2 flex items-center justify-between gap-2 text-xs">
                                 <span>{{ $image->is_primary ? 'Ảnh chính' : 'Thứ tự '.$image->sort_order }}</span>
                                 @can('deleteImage', $car)
                                     <form method="POST" action="{{ route('admin.cars.images.destroy', [$car, $image]) }}" onsubmit="return confirm('Xóa ảnh này?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-700 underline">Xóa</button>
+                                        <button type="submit" class="staff-btn staff-btn--danger staff-btn--sm">Xóa ảnh</button>
                                     </form>
                                 @endcan
                             </div>
@@ -47,7 +53,7 @@
                         <input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp" required class="text-sm">
                     </div>
                     <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="is_primary" value="1"> Đặt làm ảnh chính</label>
-                    <button type="submit" class="rounded-lg bg-zinc-900 px-4 py-3 text-sm text-white">Tải ảnh lên</button>
+                    <button type="submit" class="staff-btn staff-btn--dark">Tải ảnh lên</button>
                 </form>
                 @error('image') <p role="alert" class="mt-2 text-sm text-red-700">{{ $message }}</p> @enderror
             @endcan

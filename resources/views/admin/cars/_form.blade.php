@@ -81,7 +81,7 @@
         </fieldset>
     @endif
     <div class="flex flex-wrap gap-3">
-        <button type="submit" class="rounded-lg bg-red-700 px-5 py-3 font-medium text-white">{{ $editing ? 'Lưu thay đổi' : 'Thêm xe' }}</button>
-        <a href="{{ route('admin.cars.index') }}" class="rounded-lg border border-zinc-300 px-5 py-3">Quay lại danh sách</a>
+        <button type="submit" class="staff-btn staff-btn--primary">{{ $editing ? 'Lưu thay đổi' : 'Thêm xe' }}</button>
+        <a href="{{ route('admin.cars.index') }}" class="staff-btn staff-btn--secondary">Quay lại danh sách</a>
     </div>
 </form>

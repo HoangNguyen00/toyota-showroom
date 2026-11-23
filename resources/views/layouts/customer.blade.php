@@ -32,6 +32,6 @@
             @yield('content')
         </main>
     </div>
-    <footer class="customer-footer">TOYOTA SHOWROOM <span>Đồ án môn học — không phải website đại lý Toyota chính thức.</span></footer>
+    <footer class="customer-footer">TOYOTA SHOWROOM</footer>
 </body>
 </html>

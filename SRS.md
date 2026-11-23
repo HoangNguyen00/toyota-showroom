@@ -156,7 +156,7 @@ Responsive mobile/tablet/desktop; form có lỗi theo trường, success, loadin
 empty và disabled phù hợp. Có điều hướng, thông tin liên hệ showroom demo.
 Ít nhất một AJAX thực hành: form tư vấn trả JSON, hiển thị lỗi/kết quả không reload.
 Chat không thay bài minh chứng AJAX. Lọc xe P1 được phép tải lại trang.
-Footer ghi đồ án môn học, không phải website đại lý chính thức.
+Footer chỉ hiển thị thương hiệu Toyota Showroom (chủ repo quyết định 23/11/2026 bỏ dòng ghi chú đồ án).
 
 ## 4. Dữ liệu và kiến trúc
 
