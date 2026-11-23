@@ -6,6 +6,8 @@ use App\Enums\AppointmentStatus;
 use App\Mail\AppointmentConfirmedMail;
 use App\Models\ActivityLog;
 use App\Models\Appointment;
+use Illuminate\Bus\UniqueLock;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -42,6 +44,22 @@ class SendAppointmentConfirmation implements ShouldBeUnique, ShouldQueue
 
     // Payload chỉ gồm ID và mốc xác nhận; email/điện thoại đọc lại từ DB khi chạy.
     public function __construct(public int $appointmentId, public int $confirmedAt) {}
+
+    /**
+     * Xếp hàng sau khi transaction xác nhận commit. Lúc này lịch đã lưu là confirmed, nên lỗi đưa vào
+     * hàng đợi (queue/cache hỏng) không được làm thao tác xác nhận trả về thất bại: ghi nhận lỗi không kèm
+     * PII, nhả khóa unique để lần xếp hàng sau vẫn chạy được, rồi để request trả về bình thường.
+     */
+    public static function queueAfterCommit(int $appointmentId, int $confirmedAt): void
+    {
+        DB::afterCommit(function () use ($appointmentId, $confirmedAt): void {
+            try {
+                static::dispatch($appointmentId, $confirmedAt);
+            } catch (Throwable $error) {
+                (new static($appointmentId, $confirmedAt))->recordEnqueueFailure($error);
+            }
+        });
+    }
 
     public function uniqueId(): string
     {
@@ -97,6 +115,24 @@ class SendAppointmentConfirmation implements ShouldBeUnique, ShouldQueue
             'appointment_id' => $this->appointmentId,
             'error' => $error ? $error::class : null,
         ]);
+    }
+
+    private function recordEnqueueFailure(Throwable $error): void
+    {
+        Log::warning('Appointment confirmation mail could not be queued', [
+            'appointment_id' => $this->appointmentId,
+            'error' => $error::class,
+        ]);
+
+        // Mỗi bước dọn dẹp tự bắt lỗi: hệ thống hỏng thêm cũng không biến xác nhận đã lưu thành lỗi 500.
+        try {
+            (new UniqueLock(app(CacheRepository::class)))->release($this);
+        } catch (Throwable) {
+        }
+        try {
+            $this->record(self::FAILED, ['reason' => 'enqueue_failed', 'error' => $error::class]);
+        } catch (Throwable) {
+        }
     }
 
     private function alreadyLogged(string $action): bool

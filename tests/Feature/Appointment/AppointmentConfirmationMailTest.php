@@ -17,6 +17,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Testing\Fakes\MailFake;
@@ -222,6 +223,40 @@ class AppointmentConfirmationMailTest extends TestCase
         Mail::swap(new MailFake($realManager));
         $job->handle();
         $job->handle();
+        Mail::assertSent(AppointmentConfirmedMail::class, 1);
+    }
+
+    public function test_enqueue_failure_after_commit_keeps_confirm_response_successful_and_records_failure(): void
+    {
+        Mail::fake();
+        Log::spy();
+        // Hàng đợi không đẩy được (kết nối DB của queue không tồn tại): lỗi xảy ra sau khi lịch đã commit.
+        config([
+            'queue.connections.broken' => ['driver' => 'database', 'connection' => 'missing-queue-db', 'table' => 'jobs', 'queue' => 'default'],
+            'queue.default' => 'broken',
+        ]);
+        $customer = $this->user(UserRole::Customer, ['email' => 'hang-doi@example.test']);
+        $sales = $this->user(UserRole::Sales);
+        $appointment = $this->pendingViewing($customer, $sales);
+
+        $this->confirmAt($sales, $appointment, now()->addDays(2)->setTime(10, 0))
+            ->assertRedirect()->assertSessionHasNoErrors()
+            ->assertSessionHas('status', 'Đã xác nhận lịch hẹn.');
+
+        $appointment->refresh();
+        $this->assertSame(AppointmentStatus::Confirmed, $appointment->status);
+        Mail::assertNothingSent();
+        $failure = ActivityLog::where('action', SendAppointmentConfirmation::FAILED)->where('target_id', $appointment->id)->sole();
+        $this->assertSame('enqueue_failed', $failure->payload['reason']);
+        $this->assertSame($appointment->confirmed_at->getTimestamp(), $failure->payload['confirmed_at']);
+        $this->assertStringNotContainsString('hang-doi@example.test', json_encode($failure->payload));
+        Log::shouldHaveReceived('warning')->withArgs(fn (string $message, array $context): bool => $message === 'Appointment confirmation mail could not be queued'
+            && $context['appointment_id'] === $appointment->id
+            && ! str_contains(json_encode($context), 'hang-doi@example.test'))->once();
+
+        // Khóa unique đã nhả: khi hàng đợi hoạt động lại, xếp lại đúng mốc xác nhận vẫn gửi được một thư.
+        config(['queue.default' => 'sync']);
+        SendAppointmentConfirmation::queueAfterCommit($appointment->id, $appointment->confirmed_at->getTimestamp());
         Mail::assertSent(AppointmentConfirmedMail::class, 1);
     }
 

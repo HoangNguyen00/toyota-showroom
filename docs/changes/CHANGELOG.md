@@ -4,6 +4,18 @@
 - Cập nhật các thay đổi định dạng trong Architecture Inventory.
 # Nhật ký thay đổi hệ thống
 
+## 2026-11-23 Email xác nhận lịch — sửa theo review (P2 đề xuất)
+
+- Sửa: `dispatch()->afterCommit()` ném lỗi ra ngoài nếu đưa vào hàng đợi thất bại sau commit,
+  nên người xác nhận nhận lỗi 500 dù lịch đã confirmed trong DB. Thêm
+  SendAppointmentConfirmation::queueAfterCommit(): bắt lỗi xếp hàng, Log::warning (ID + tên lớp lỗi),
+  ghi activity_logs failed với reason enqueue_failed, nhả khóa unique; phản hồi vẫn “Đã xác nhận lịch hẹn.”
+- Ảnh hưởng: không migration/route; Policy, khóa hàng, overlap, phân công giữ nguyên.
+- Kiểm tra: thêm test lỗi đưa vào hàng đợi (queue trỏ tới kết nối DB không tồn tại): redirect thành công,
+  lịch confirmed, ghi failed không PII, xếp lại sau đó gửi đúng 1 thư. composer check đạt
+  (118 tests) trên SQLite; 118 tests đạt trên MySQL 8.4.3 (toyota_showroom_test).
+- Chưa kiểm: chưa thử lại Mailpit + queue database sau bản sửa.
+
 ## 2026-11-23 Email xác nhận lịch hẹn (P2 đề xuất, chờ leader duyệt)
 
 - Thêm: job SendAppointmentConfirmation, mailable AppointmentConfirmedMail (HTML + text),

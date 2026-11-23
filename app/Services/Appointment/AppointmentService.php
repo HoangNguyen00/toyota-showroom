@@ -188,7 +188,8 @@ class AppointmentService
             $locked->save();
 
             // Email xác nhận chỉ xếp hàng khi transaction đã commit; rollback thì không gửi.
-            SendAppointmentConfirmation::dispatch($locked->id, $locked->confirmed_at->getTimestamp())->afterCommit();
+            // Lỗi xếp hàng sau commit được ghi nhận, không làm phản hồi xác nhận thất bại.
+            SendAppointmentConfirmation::queueAfterCommit($locked->id, $locked->confirmed_at->getTimestamp());
 
             return $locked;
         });

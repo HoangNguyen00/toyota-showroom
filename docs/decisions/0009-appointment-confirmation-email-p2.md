@@ -11,7 +11,10 @@ demo bằng Mailpit. Chưa làm email nhắc trước giờ hẹn.
 ## Quyết định
 
 - `AppointmentService::confirm()` dispatch `SendAppointmentConfirmation(id, confirmed_at)` với
-  `afterCommit()` ngay sau khi ghi; lỗi trước/rollback transaction thì không có job.
+  `DB::afterCommit` ngay sau khi ghi; lỗi trước/rollback transaction thì không có job.
+  Nếu bước đưa vào hàng đợi ném lỗi sau commit (queue/cache hỏng), lịch vẫn confirmed nên phản hồi
+  xác nhận vẫn thành công: lỗi được ghi `failed` (reason enqueue_failed, tên lớp lỗi) và Log::warning
+  không PII, khóa unique được nhả để có thể xếp lại.
   Không đổi Policy, khóa hàng, kiểm overlap hay luồng phân công.
 - Job đọc lại lịch từ DB; chỉ gửi khi vẫn confirmed và đúng mốc confirmed_at. Payload chỉ ID +
   timestamp. Email người nhận lấy từ tài khoản `customer_id`; lịch khách vãng lai (form không
