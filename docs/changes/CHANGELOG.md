@@ -15,7 +15,10 @@
 - Kiểm tra: thêm 3 test (email mảng, thứ tự khóa → kiểm tra → xóa trong transaction, rollback giữ token).
   composer check đạt trên SQLite; 119 tests đạt trên MySQL 8.4.3 (toyota_showroom_test). Thử đồng thời trên
   MySQL: một tiến trình giữ khóa user, hai tiến trình dùng cùng token → chỉ một thành công, không còn token.
-- Chưa kiểm: chưa thử lại browser + Mailpit sau bản sửa; SMTP thật.
+- Browser + Mailpit sau bản sửa (SQLite riêng, tài khoản seed, SESSION_DRIVER=database): yêu cầu link cho
+  customer2 → thông báo chung, Mailpit nhận 1 thư, link theo APP_URL → đặt mật khẩu mới → đăng nhập được →
+  mở lại link cũ bị từ chối “không hợp lệ hoặc đã hết hạn”; DB: mật khẩu mới, 0 token, role/is_active giữ nguyên.
+- Chưa kiểm: SMTP thật.
 
 ## 2026-11-23 Quên mật khẩu (P2 đề xuất, chờ leader duyệt)
 
