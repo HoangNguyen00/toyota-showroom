@@ -19,6 +19,7 @@
                     @error('password') aria-invalid="true" aria-describedby="password-error" @enderror
                     class="w-full rounded-lg border border-zinc-300 px-3 py-2.5 focus:outline-red-700">
                 @error('password') <p id="password-error" role="alert" class="mt-2 text-sm text-red-700">{{ $message }}</p> @enderror
+                <p class="mt-2 text-right text-sm"><a href="{{ route('password.request') }}" class="font-medium text-red-700 underline">Quên mật khẩu?</a></p>
             </div>
             <button type="submit" class="w-full rounded-lg bg-red-700 px-4 py-3 font-medium text-white hover:bg-red-800">Đăng nhập</button>
         </form>
